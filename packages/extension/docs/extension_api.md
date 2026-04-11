@@ -1,6 +1,6 @@
-# Page Agent Extension API
+# Navvy Extension API
 
-Integrate the Page Agent extension into your web app and trigger multi-page browser tasks from page JavaScript.
+Integrate the Navvy extension into your web app and trigger multi-page browser tasks from page JavaScript.
 
 ## Installation
 
