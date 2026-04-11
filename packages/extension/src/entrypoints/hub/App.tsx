@@ -71,19 +71,8 @@ export default function App() {
 					<ProtocolDocsCollapsible />
 				</div>
 
-				<div className="border-t px-5 py-3 text-[10px] text-muted-foreground/60 flex items-center justify-between">
+				<div className="border-t px-5 py-3 text-[10px] text-muted-foreground/60 flex items-center">
 					<span className="font-mono">v{__VERSION__}</span>
-					<span>
-						Built with ♥️ by{' '}
-						<a
-							href="https://github.com/gaomeng1900"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="underline hover:text-foreground"
-						>
-							@Simon
-						</a>
-					</span>
 				</div>
 			</aside>
 
