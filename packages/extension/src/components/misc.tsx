@@ -5,10 +5,12 @@ import { useEffect, useRef } from 'react'
 import { siGithub } from 'simple-icons'
 
 import { TypingAnimation } from '@/components/ui/typing-animation'
+import { useT } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
 // Status dot indicator
 export function StatusDot({ status }: { status: AgentStatus }) {
+	const t = useT()
 	const colorClass = {
 		idle: 'bg-muted-foreground',
 		running: 'bg-blue-500',
@@ -17,10 +19,10 @@ export function StatusDot({ status }: { status: AgentStatus }) {
 	}[status]
 
 	const label = {
-		idle: 'Ready',
-		running: 'Running',
-		completed: 'Done',
-		error: 'Error',
+		idle: t('ext.status.ready'),
+		running: t('ext.status.running'),
+		completed: t('ext.status.completed'),
+		error: t('ext.status.error'),
 	}[status]
 
 	return (
@@ -92,6 +94,7 @@ export function MotionOverlay({ active }: { active: boolean }) {
 
 // Empty state with logo and breathing glow
 export function EmptyState() {
+	const t = useT()
 	return (
 		<div className="flex flex-col items-center justify-center h-full gap-4 text-center px-6">
 			<div className="relative select-none pointer-events-none">
@@ -104,10 +107,10 @@ export function EmptyState() {
 				<TypingAnimation
 					className="text-sm text-muted-foreground"
 					words={[
-						'Enter a task to automate this page',
-						'Execute multi-page tasks',
-						'Call this extension from your web page',
-						'Use this extension in your own agents',
+						t('ext.empty.tip1'),
+						t('ext.empty.tip2'),
+						t('ext.empty.tip3'),
+						t('ext.empty.tip4'),
 					]}
 					cursorStyle="underscore"
 					loop
@@ -123,7 +126,7 @@ export function EmptyState() {
 					target="_blank"
 					rel="noopener noreferrer"
 					className="hover:text-foreground transition-colors"
-					title="GitHub"
+					title={t('ext.empty.github')}
 				>
 					<svg role="img" viewBox="0 0 24 24" className="size-4 fill-current">
 						<path d={siGithub.path} />
@@ -134,7 +137,7 @@ export function EmptyState() {
 					target="_blank"
 					rel="noopener noreferrer"
 					className="hover:text-foreground transition-colors"
-					title="Documentation"
+					title={t('ext.empty.docs')}
 				>
 					<BookOpen className="size-4" />
 				</a>
@@ -143,7 +146,7 @@ export function EmptyState() {
 					target="_blank"
 					rel="noopener noreferrer"
 					className="hover:text-foreground transition-colors"
-					title="Website"
+					title={t('ext.empty.website')}
 				>
 					<Globe className="size-4" />
 				</a>

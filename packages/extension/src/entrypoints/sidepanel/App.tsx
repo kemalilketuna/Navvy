@@ -14,6 +14,7 @@ import {
 	InputGroupTextarea,
 } from '@/components/ui/input-group'
 import { saveSession } from '@/lib/db'
+import { useT } from '@/lib/i18n'
 
 import { useAgent } from '../../agent/useAgent'
 
@@ -24,6 +25,7 @@ type View =
 	| { name: 'history-detail'; sessionId: string }
 
 export default function App() {
+	const t = useT()
 	const [view, setView] = useState<View>({ name: 'chat' })
 	const [inputValue, setInputValue] = useState('')
 	const historyRef = useRef<HTMLDivElement>(null)
@@ -147,8 +149,8 @@ export default function App() {
 						size="icon-sm"
 						onClick={() => setView({ name: 'history' })}
 						className="cursor-pointer"
-						aria-label="History"
-						title="History"
+						aria-label={t('ext.header.history')}
+						title={t('ext.header.history')}
 					>
 						<History className="size-3.5" />
 					</Button>
@@ -157,8 +159,8 @@ export default function App() {
 						size="icon-sm"
 						onClick={() => setView({ name: 'config' })}
 						className="cursor-pointer"
-						aria-label="Settings"
-						title="Settings"
+						aria-label={t('ext.header.settings')}
+						title={t('ext.header.settings')}
 					>
 						<Settings className="size-3.5" />
 					</Button>
@@ -170,7 +172,9 @@ export default function App() {
 				{/* Current task */}
 				{currentTask && (
 					<div className="border-b px-3 py-2 bg-muted/30">
-						<div className="text-[10px] text-muted-foreground uppercase tracking-wide">Task</div>
+						<div className="text-[10px] text-muted-foreground uppercase tracking-wide">
+							{t('ext.task.label')}
+						</div>
 						<div className="text-xs font-medium truncate" title={currentTask}>
 							{currentTask}
 						</div>
@@ -195,7 +199,7 @@ export default function App() {
 				<InputGroup className="relative rounded-lg">
 					<InputGroupTextarea
 						ref={textareaRef}
-						placeholder="Describe your task... (Enter to send)"
+						placeholder={t('ext.input.placeholder')}
 						value={inputValue}
 						onChange={(e) => setInputValue(e.target.value)}
 						onKeyDown={handleKeyDown}
@@ -209,8 +213,8 @@ export default function App() {
 								variant="destructive"
 								onClick={handleStop}
 								className="size-7"
-								aria-label="Stop task"
-								title="Stop task"
+								aria-label={t('ext.input.stop')}
+								title={t('ext.input.stop')}
 							>
 								<Square className="size-3" />
 							</InputGroupButton>
@@ -221,8 +225,8 @@ export default function App() {
 								onClick={() => handleSubmit()}
 								disabled={!inputValue.trim()}
 								className="size-7 cursor-pointer"
-								aria-label="Send"
-								title="Send"
+								aria-label={t('ext.input.send')}
+								title={t('ext.input.send')}
 							>
 								<Send className="size-3" />
 							</InputGroupButton>

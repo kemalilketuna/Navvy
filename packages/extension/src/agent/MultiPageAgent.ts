@@ -5,13 +5,34 @@ import { TabsController } from './TabsController'
 import SYSTEM_PROMPT from './system_prompt.md?raw'
 import { createTabTools } from './tabTools'
 
-/** Detect user language from browser settings */
-function detectLanguage(): 'en-US' | 'zh-CN' {
-	const lang = navigator.language || navigator.languages?.[0] || 'en-US'
-	return lang.startsWith('zh') ? 'zh-CN' : 'en-US'
+/** Supported UI languages for the extension (independent of @page-agent/core). */
+export type ExtensionLanguage = 'en-US' | 'fr-FR' | 'de-DE' | 'es-ES' | 'it-IT' | 'pt-PT' | 'tr-TR'
+
+/** Natural-language names handed to the LLM via the system prompt. */
+export const LANGUAGE_NAMES: Record<ExtensionLanguage, string> = {
+	'en-US': 'English',
+	'fr-FR': 'Français',
+	'de-DE': 'Deutsch',
+	'es-ES': 'Español',
+	'it-IT': 'Italiano',
+	'pt-PT': 'Português',
+	'tr-TR': 'Türkçe',
 }
 
-interface MultiPageAgentConfig extends AgentConfig {
+/** Detect user language from browser settings. Falls back to en-US. */
+export function detectLanguage(): ExtensionLanguage {
+	const lang = (navigator.language || navigator.languages?.[0] || 'en-US').toLowerCase()
+	if (lang.startsWith('fr')) return 'fr-FR'
+	if (lang.startsWith('de')) return 'de-DE'
+	if (lang.startsWith('es')) return 'es-ES'
+	if (lang.startsWith('it')) return 'it-IT'
+	if (lang.startsWith('pt')) return 'pt-PT'
+	if (lang.startsWith('tr')) return 'tr-TR'
+	return 'en-US'
+}
+
+interface MultiPageAgentConfig extends Omit<AgentConfig, 'language'> {
+	language?: ExtensionLanguage
 	includeInitialTab?: boolean
 	experimentalIncludeAllTabs?: boolean
 }
@@ -30,7 +51,10 @@ export class MultiPageAgent extends PageAgentCore {
 
 		// system prompt - auto-detect language if not specified
 		const language = config.language ?? detectLanguage()
-		const targetLanguage = language === 'zh-CN' ? '中文' : 'English'
+		const targetLanguage = LANGUAGE_NAMES[language] ?? 'English'
+
+		// Strip language so it doesn't reach the core (which has a narrower type).
+		const { language: _ignored, ...restConfig } = config
 		const systemPrompt = SYSTEM_PROMPT.replace(
 			/Default working language: \*\*.*?\*\*/,
 			`Default working language: **${targetLanguage}**`
@@ -49,7 +73,7 @@ export class MultiPageAgent extends PageAgentCore {
 		let heartBeatInterval: null | number = null
 
 		super({
-			...config,
+			...restConfig,
 			pageController: pageController as any,
 			customTools: customTools,
 			customSystemPrompt: systemPrompt,
