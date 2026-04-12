@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils'
 export function StatusDot({ status }: { status: AgentStatus }) {
 	const t = useT()
 	const colorClass = {
-		idle: 'bg-muted-foreground',
+		idle: 'bg-green-500',
 		running: 'bg-blue-500',
 		completed: 'bg-green-500',
 		error: 'bg-destructive',
@@ -26,7 +26,7 @@ export function StatusDot({ status }: { status: AgentStatus }) {
 	}[status]
 
 	return (
-		<div className="flex items-center gap-1.5 mr-2">
+		<div className="flex items-center gap-1.5 ml-2 mr-2">
 			<span
 				className={cn('size-2 rounded-full', colorClass, status === 'running' && 'animate-pulse')}
 			/>
