@@ -5,7 +5,7 @@ import { ConfigPanel } from '@/components/ConfigPanel'
 import { HistoryDetail } from '@/components/HistoryDetail'
 import { HistoryList } from '@/components/HistoryList'
 import { ActivityCard, EventCard } from '@/components/cards'
-import { EmptyState, Logo, MotionOverlay, StatusDot } from '@/components/misc'
+import { EmptyState, MotionOverlay, StatusDot } from '@/components/misc'
 import { Button } from '@/components/ui/button'
 import {
 	InputGroup,
@@ -138,12 +138,8 @@ export default function App() {
 			<MotionOverlay active={isRunning} />
 			{/* Header */}
 			<header className="flex items-center justify-between border-b px-3 py-2">
-				<div className="flex items-center gap-2">
-					<Logo className="size-5" />
-					<span className="text-sm font-medium">Navvy</span>
-				</div>
+				<StatusDot status={status} />
 				<div className="flex items-center gap-1">
-					<StatusDot status={status} />
 					<Button
 						variant="ghost"
 						size="icon-sm"
