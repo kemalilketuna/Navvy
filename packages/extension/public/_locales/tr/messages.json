@@ -1,0 +1,11 @@
+{
+    "extName": {
+        "message": "Navvy"
+    },
+    "extDescription": {
+        "message": "Yapay zeka destekli tarayıcı otomasyon asistanı. Web sayfalarını doğal dille kontrol edin."
+    },
+    "extActionTitle": {
+        "message": "Navvy'yi aç"
+    }
+}

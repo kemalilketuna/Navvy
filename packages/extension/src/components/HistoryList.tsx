@@ -12,16 +12,19 @@ import { useCallback, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { type SessionRecord, clearSessions, deleteSession, listSessions } from '@/lib/db'
 import { downloadHistoryExport } from '@/lib/history-export'
+import { useT } from '@/lib/i18n'
 
-function timeAgo(ts: number): string {
+type TFn = ReturnType<typeof useT>
+
+function timeAgo(ts: number, t: TFn): string {
 	const seconds = Math.floor((Date.now() - ts) / 1000)
-	if (seconds < 60) return 'just now'
+	if (seconds < 60) return t('ext.history.justNow')
 	const minutes = Math.floor(seconds / 60)
-	if (minutes < 60) return `${minutes}m ago`
+	if (minutes < 60) return t('ext.history.minutesAgo', { n: minutes })
 	const hours = Math.floor(minutes / 60)
-	if (hours < 24) return `${hours}h ago`
+	if (hours < 24) return t('ext.history.hoursAgo', { n: hours })
 	const days = Math.floor(hours / 24)
-	return `${days}d ago`
+	return t('ext.history.daysAgo', { n: days })
 }
 
 export function HistoryList({
@@ -33,6 +36,7 @@ export function HistoryList({
 	onBack: () => void
 	onRerun: (task: string) => void
 }) {
+	const t = useT()
 	const [sessions, setSessions] = useState<SessionRecord[]>([])
 	const [loading, setLoading] = useState(true)
 
@@ -75,12 +79,12 @@ export function HistoryList({
 					size="icon-sm"
 					onClick={onBack}
 					className="cursor-pointer"
-					aria-label="Back"
-					title="Back"
+					aria-label={t('ext.header.back')}
+					title={t('ext.header.back')}
 				>
 					<ArrowLeft className="size-3.5" />
 				</Button>
-				<span className="text-sm font-medium flex-1">History</span>
+				<span className="text-sm font-medium flex-1">{t('ext.history.title')}</span>
 				{sessions.length > 0 && (
 					<Button
 						variant="ghost"
@@ -92,7 +96,7 @@ export function HistoryList({
 						className="text-[10px] text-muted-foreground hover:text-destructive cursor-pointer h-6 px-2"
 					>
 						<Trash2 className="size-3 mr-1" />
-						Clear All
+						{t('ext.history.clearAll')}
 					</Button>
 				)}
 			</header>
@@ -100,7 +104,7 @@ export function HistoryList({
 			{/* List */}
 			<div className="flex-1 overflow-y-auto">
 				{loading && (
-					<div className="flex flex-col" aria-label="Loading history" aria-busy="true">
+					<div className="flex flex-col" aria-label={t('ext.history.loading')} aria-busy="true">
 						{[...Array(4)].map((_, i) => (
 							<div key={i} className="flex items-start gap-2 px-3 py-2.5 border-b">
 								<div className="size-3.5 mt-0.5 rounded-full bg-muted animate-pulse shrink-0" />
@@ -116,7 +120,7 @@ export function HistoryList({
 				{!loading && sessions.length === 0 && (
 					<div className="flex flex-col items-center justify-center h-40 gap-2 text-muted-foreground">
 						<History className="size-8 opacity-30" />
-						<p className="text-xs">No history yet</p>
+						<p className="text-xs">{t('ext.history.noHistory')}</p>
 					</div>
 				)}
 
@@ -140,15 +144,16 @@ export function HistoryList({
 							<p className="text-xs font-medium truncate">{session.task}</p>
 							<div className="flex items-center mt-0.5">
 								<p className="text-[10px] text-muted-foreground">
-									{timeAgo(session.createdAt)} · {session.history.length} steps
+									{timeAgo(session.createdAt, t)} ·{' '}
+									{t('ext.history.stepsCount', { n: session.history.length })}
 								</p>
 								<div className="flex items-center gap-0.5 ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
 									<button
 										type="button"
 										onClick={(e) => handleRerun(e, session.task)}
 										className="p-0.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-										title="Run task again"
-										aria-label={`Run history task again: ${session.task}`}
+										title={t('ext.history.runAgainTitle')}
+										aria-label={`${t('ext.history.runAgainTitle')}: ${session.task}`}
 									>
 										<RotateCcw className="size-3" />
 									</button>
@@ -156,8 +161,8 @@ export function HistoryList({
 										type="button"
 										onClick={(e) => handleExport(e, session)}
 										className="p-1 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-										title="Export history JSON"
-										aria-label={`Export history for ${session.task}`}
+										title={t('ext.history.exportTitle')}
+										aria-label={`${t('ext.history.exportTitle')}: ${session.task}`}
 									>
 										<ArrowDownToLine className="size-3" />
 									</button>
@@ -165,8 +170,8 @@ export function HistoryList({
 										type="button"
 										onClick={(e) => handleDelete(e, session.id)}
 										className="p-0.5 text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
-										title="Delete history"
-										aria-label={`Delete history for ${session.task}`}
+										title={t('ext.history.deleteTitle')}
+										aria-label={`${t('ext.history.deleteTitle')}: ${session.task}`}
 									>
 										<Trash2 className="size-3" />
 									</button>

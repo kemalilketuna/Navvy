@@ -19,6 +19,7 @@ import type { ExtConfig, LanguagePreference } from '@/agent/useAgent'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
+import { useT } from '@/lib/i18n'
 
 interface ConfigPanelProps {
 	config: ExtConfig | null
@@ -27,6 +28,7 @@ interface ConfigPanelProps {
 }
 
 export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
+	const t = useT()
 	const [baseURL, setBaseURL] = useState(config?.baseURL || DEMO_BASE_URL)
 	const [model, setModel] = useState(config?.model || DEMO_MODEL)
 	const [apiKey, setApiKey] = useState(config?.apiKey)
@@ -117,13 +119,13 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 	return (
 		<div className="flex flex-col gap-4 p-4 relative">
 			<div className="flex items-center justify-between">
-				<h2 className="text-base font-semibold">Settings</h2>
+				<h2 className="text-base font-semibold">{t('ext.config.title')}</h2>
 				<Button
 					variant="ghost"
 					size="icon-sm"
 					onClick={onClose}
 					className="absolute top-2 right-3 cursor-pointer"
-					aria-label="Back"
+					aria-label={t('ext.header.back')}
 				>
 					<CornerUpLeft className="size-3.5" />
 				</Button>
@@ -132,10 +134,10 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 			{/* User Auth Token Section */}
 			<div className="flex flex-col gap-1.5 p-3 bg-muted/50 rounded-md border">
 				<label htmlFor="user-auth-token" className="text-xs font-medium text-muted-foreground">
-					User Auth Token
+					{t('ext.config.userAuthToken')}
 				</label>
 				<p className="text-[10px] text-muted-foreground mb-1">
-					Give a website the ability to call this extension.
+					{t('ext.config.userAuthTokenHelp')}
 				</p>
 				<div className="flex gap-2 items-center">
 					<Input
@@ -146,7 +148,7 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 								? showToken
 									? userAuthToken
 									: `${userAuthToken.slice(0, 4)}${'•'.repeat(userAuthToken.length - 8)}${userAuthToken.slice(-4)}`
-								: 'Loading...'
+								: t('ext.config.loading')
 						}
 						className="text-xs h-8 font-mono bg-background"
 					/>
@@ -156,7 +158,7 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 						className="h-8 w-8 shrink-0 cursor-pointer"
 						onClick={() => setShowToken(!showToken)}
 						disabled={!userAuthToken}
-						aria-label={showToken ? 'Hide token' : 'Show token'}
+						aria-label={showToken ? t('ext.config.hideToken') : t('ext.config.showToken')}
 						aria-pressed={showToken}
 					>
 						{showToken ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
@@ -167,12 +169,12 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 						className="h-8 w-8 shrink-0 cursor-pointer"
 						onClick={handleCopyToken}
 						disabled={!userAuthToken}
-						aria-label="Copy token"
+						aria-label={t('ext.config.copyToken')}
 					>
 						{copied ? <span className="">✓</span> : <Copy className="size-3" />}
 					</Button>
 					<span role="status" aria-live="polite" aria-atomic="true" className="sr-only">
-						{copied ? 'Token copied' : ''}
+						{copied ? t('ext.config.tokenCopied') : ''}
 					</span>
 				</div>
 			</div>
@@ -184,13 +186,13 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 				rel="noopener noreferrer"
 				className="flex items-center justify-between p-3 rounded-md border bg-muted/50 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-foreground/20 transition-colors"
 			>
-				Manage Navvy Hub
+				{t('ext.config.manageHub')}
 				<ExternalLink className="size-3" />
 			</a>
 
 			<div className="flex flex-col gap-1.5">
 				<label htmlFor="base-url" className="text-xs text-muted-foreground">
-					Base URL
+					{t('ext.config.baseUrl')}
 				</label>
 				<Input
 					id="base-url"
@@ -205,21 +207,21 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 			{isTestingEndpoint(baseURL) && (
 				<div className="p-2.5 rounded-md border border-amber-500/30 bg-amber-500/5 text-[11px] text-muted-foreground leading-relaxed">
 					<Scale className="size-3 inline-block mr-1 -mt-0.5 text-amber-600" />
-					You are using our testing API. By using this you agree to the{' '}
+					{t('ext.config.testingApiNotice')}{' '}
 					<a
 						href="https://github.com/alibaba/page-agent/blob/main/docs/terms-and-privacy.md"
 						target="_blank"
 						rel="noopener noreferrer"
 						className="underline hover:text-foreground"
 					>
-						Terms of Use & Privacy Policy
+						{t('ext.config.termsAndPrivacy')}
 					</a>
 				</div>
 			)}
 
 			<div className="flex flex-col gap-1.5">
 				<label htmlFor="model" className="text-xs text-muted-foreground">
-					Model
+					{t('ext.config.model')}
 				</label>
 				<Input
 					id="model"
@@ -232,7 +234,7 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 
 			<div className="flex flex-col gap-1.5">
 				<label htmlFor="api-key" className="text-xs text-muted-foreground">
-					API Key
+					{t('ext.config.apiKey')}
 				</label>
 				<div className="flex gap-2 items-center">
 					<Input
@@ -248,7 +250,7 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 						size="icon"
 						className="h-8 w-8 shrink-0 cursor-pointer"
 						onClick={() => setShowApiKey(!showApiKey)}
-						aria-label={showApiKey ? 'Hide API key' : 'Show API key'}
+						aria-label={showApiKey ? t('ext.config.hideApiKey') : t('ext.config.showApiKey')}
 					>
 						{showApiKey ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
 					</Button>
@@ -256,15 +258,20 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 			</div>
 
 			<div className="flex flex-col gap-1.5">
-				<label className="text-xs text-muted-foreground">Response Language</label>
+				<label className="text-xs text-muted-foreground">{t('ext.config.responseLanguage')}</label>
 				<select
 					value={language ?? ''}
 					onChange={(e) => setLanguage((e.target.value || undefined) as LanguagePreference)}
 					className="h-8 text-xs rounded-md border border-input bg-background px-2 cursor-pointer"
 				>
-					<option value="">System</option>
+					<option value="">{t('ext.config.languageSystem')}</option>
 					<option value="en-US">English</option>
-					<option value="zh-CN">中文</option>
+					<option value="fr-FR">Français</option>
+					<option value="de-DE">Deutsch</option>
+					<option value="es-ES">Español</option>
+					<option value="it-IT">Italiano</option>
+					<option value="pt-PT">Português</option>
+					<option value="tr-TR">Türkçe</option>
 				</select>
 			</div>
 
@@ -274,7 +281,7 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 				onClick={() => setAdvancedOpen(!advancedOpen)}
 				className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground cursor-pointer mt-1 font-bold"
 			>
-				Advanced
+				{t('ext.config.advanced')}
 				{advancedOpen ? <FoldVertical className="size-3" /> : <UnfoldVertical className="size-3" />}
 			</button>
 
@@ -282,7 +289,7 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 				<>
 					<div className="flex flex-col gap-1.5">
 						<label htmlFor="max-steps" className="text-xs text-muted-foreground">
-							Max Steps
+							{t('ext.config.maxSteps')}
 						</label>
 						<Input
 							id="max-steps"
@@ -297,9 +304,11 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 					</div>
 
 					<div className="flex flex-col gap-1.5">
-						<label className="text-xs text-muted-foreground">System Instruction</label>
+						<label className="text-xs text-muted-foreground">
+							{t('ext.config.systemInstruction')}
+						</label>
 						<textarea
-							placeholder="Additional instructions for the agent..."
+							placeholder={t('ext.config.systemInstructionPlaceholder')}
 							value={systemInstruction}
 							onChange={(e) => setSystemInstruction(e.target.value)}
 							rows={3}
@@ -308,17 +317,21 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 					</div>
 
 					<label className="flex items-center justify-between cursor-pointer">
-						<span className="text-xs text-muted-foreground">Disable named tool_choice</span>
+						<span className="text-xs text-muted-foreground">
+							{t('ext.config.disableNamedToolChoice')}
+						</span>
 						<Switch checked={disableNamedToolChoice} onCheckedChange={setDisableNamedToolChoice} />
 					</label>
 
 					<label className="flex items-center justify-between cursor-pointer">
-						<span className="text-xs text-muted-foreground">Experimental llms.txt support</span>
+						<span className="text-xs text-muted-foreground">{t('ext.config.expLlmsTxt')}</span>
 						<Switch checked={experimentalLlmsTxt} onCheckedChange={setExperimentalLlmsTxt} />
 					</label>
 
 					<label className="flex items-center justify-between cursor-pointer">
-						<span className="text-xs text-muted-foreground">Experimental include all tabs</span>
+						<span className="text-xs text-muted-foreground">
+							{t('ext.config.expIncludeAllTabs')}
+						</span>
 						<Switch
 							checked={experimentalIncludeAllTabs}
 							onCheckedChange={setExperimentalIncludeAllTabs}
@@ -329,14 +342,14 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 
 			<div className="flex gap-2 mt-2">
 				<Button variant="outline" onClick={onClose} className="flex-1 h-8 text-xs cursor-pointer">
-					Cancel
+					{t('ext.config.cancel')}
 				</Button>
 				<Button
 					onClick={handleSave}
 					disabled={saving}
 					className="flex-1 h-8 text-xs cursor-pointer"
 				>
-					{saving ? <Loader2 className="size-3 animate-spin" /> : 'Save'}
+					{saving ? <Loader2 className="size-3 animate-spin" /> : t('ext.config.save')}
 				</Button>
 			</div>
 
@@ -344,7 +357,7 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 			<div className="mt-4 mb-4 pt-4 border-t border-border/50 flex gap-2 justify-between text-[10px] text-muted-foreground">
 				<div className="flex flex-col justify-between">
 					<span>
-						Version <span className="font-mono">v{__VERSION__}</span>
+						{t('ext.config.version')} <span className="font-mono">v{__VERSION__}</span>
 					</span>
 
 					<a
@@ -356,7 +369,7 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 						<svg role="img" viewBox="0 0 24 24" className="size-3 fill-current">
 							<path d={siGithub.path} />
 						</svg>
-						<span>Source Code</span>
+						<span>{t('ext.config.sourceCode')}</span>
 					</a>
 				</div>
 
@@ -368,7 +381,7 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 						className="flex items-center gap-1 hover:text-foreground"
 					>
 						<Home className="size-3" />
-						<span>Home Page</span>
+						<span>{t('ext.config.homePage')}</span>
 					</a>
 
 					<a
@@ -378,7 +391,7 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 						className="flex items-center gap-1 hover:text-foreground"
 					>
 						<HatGlasses className="size-3" />
-						<span>Privacy</span>
+						<span>{t('ext.config.privacy')}</span>
 					</a>
 				</div>
 			</div>

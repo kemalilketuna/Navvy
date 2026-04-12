@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { type SessionRecord, deleteSession, getSession } from '@/lib/db'
+import { useT } from '@/lib/i18n'
 
 import { EventCard } from './cards'
 
@@ -15,6 +16,7 @@ export function HistoryDetail({
 	onBack: () => void
 	onRerun: (task: string) => void
 }) {
+	const t = useT()
 	const [session, setSession] = useState<SessionRecord | null>(null)
 
 	useEffect(() => {
@@ -24,7 +26,7 @@ export function HistoryDetail({
 	if (!session) {
 		return (
 			<div className="flex items-center justify-center h-screen text-xs text-muted-foreground">
-				Loading...
+				{t('ext.history.loading')}
 			</div>
 		)
 	}
@@ -33,15 +35,23 @@ export function HistoryDetail({
 		<div className="flex flex-col h-screen bg-background">
 			{/* Header */}
 			<header className="flex items-center gap-2 border-b px-3 py-2">
-				<Button variant="ghost" size="icon-sm" onClick={onBack} className="cursor-pointer">
+				<Button
+					variant="ghost"
+					size="icon-sm"
+					onClick={onBack}
+					className="cursor-pointer"
+					aria-label={t('ext.header.back')}
+				>
 					<ArrowLeft className="size-3.5" />
 				</Button>
-				<span className="text-sm font-medium truncate">History</span>
+				<span className="text-sm font-medium truncate">{t('ext.history.title')}</span>
 			</header>
 
 			{/* Task */}
 			<div className="border-b px-3 py-2 bg-muted/30">
-				<div className="text-[10px] text-muted-foreground uppercase tracking-wide">Task</div>
+				<div className="text-[10px] text-muted-foreground uppercase tracking-wide">
+					{t('ext.task.label')}
+				</div>
 				<div className="text-xs font-medium" title={session.task}>
 					{session.task}
 				</div>
@@ -52,7 +62,7 @@ export function HistoryDetail({
 						className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
 					>
 						<RotateCcw className="size-3" />
-						Run again
+						{t('ext.history.runAgain')}
 					</button>
 					<button
 						type="button"
@@ -63,7 +73,7 @@ export function HistoryDetail({
 						className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
 					>
 						<Trash2 className="size-3" />
-						Delete
+						{t('ext.history.delete')}
 					</button>
 				</div>
 			</div>

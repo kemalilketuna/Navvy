@@ -1,0 +1,11 @@
+{
+    "extName": {
+        "message": "Navvy"
+    },
+    "extDescription": {
+        "message": "Asistente de automatización de navegador con IA. Controla páginas web en lenguaje natural."
+    },
+    "extActionTitle": {
+        "message": "Abrir Navvy"
+    }
+}

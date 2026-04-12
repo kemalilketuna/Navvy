@@ -1,0 +1,11 @@
+{
+    "extName": {
+        "message": "Navvy"
+    },
+    "extDescription": {
+        "message": "KI-gestützter Browser-Automatisierungsassistent. Steuern Sie Webseiten in natürlicher Sprache."
+    },
+    "extActionTitle": {
+        "message": "Navvy öffnen"
+    }
+}

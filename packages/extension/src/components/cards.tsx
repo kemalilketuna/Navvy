@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import { Fragment, useState } from 'react'
 
+import { useT } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
 // Result card for done action
@@ -32,6 +33,7 @@ function ResultCard({
 	text: string
 	children?: React.ReactNode
 }) {
+	const t = useT()
 	return (
 		<div
 			className={cn(
@@ -51,7 +53,8 @@ function ResultCard({
 						success ? 'text-green-600 dark:text-green-400' : 'text-destructive'
 					)}
 				>
-					Result: {success ? 'Success' : 'Failed'}
+					{t('ext.cards.resultLabel')}:{' '}
+					{success ? t('ext.cards.resultSuccess') : t('ext.cards.resultFailed')}
 				</span>
 			</div>
 			<p className="text-[12px] text-foreground pl-5 whitespace-pre-wrap">{text}</p>
@@ -125,6 +128,7 @@ function ActionIcon({ name, className }: { name: string; className?: string }) {
 
 // Copy button with "Copied!" feedback
 function CopyButton({ text, label }: { text: string; label: string }) {
+	const t = useT()
 	const [copied, setCopied] = useState(false)
 
 	return (
@@ -137,7 +141,7 @@ function CopyButton({ text, label }: { text: string; label: string }) {
 			}}
 			className="text-[9px] text-muted-foreground hover:text-foreground transition-colors border px-1 rounded shrink-0 cursor-pointer backdrop-blur-xs"
 		>
-			{copied ? 'Copied!' : label}
+			{copied ? t('ext.cards.copied') : label}
 		</button>
 	)
 }
@@ -157,6 +161,7 @@ function extractPrompt(rawRequest: unknown, role: 'system' | 'user'): string | n
 
 // Raw request/response section (collapsible tabs, for debugging)
 function RawSection({ rawRequest, rawResponse }: { rawRequest?: unknown; rawResponse?: unknown }) {
+	const t = useT()
 	const [activeTab, setActiveTab] = useState<'request' | 'response' | null>(null)
 
 	if (!rawRequest && !rawResponse) return null
@@ -185,7 +190,7 @@ function RawSection({ rawRequest, rawResponse }: { rawRequest?: unknown; rawResp
 								: 'text-muted-foreground border-transparent hover:text-foreground'
 						)}
 					>
-						Raw Request
+						{t('ext.cards.rawRequest')}
 					</button>
 				)}
 				{rawResponse != null && (
@@ -199,16 +204,16 @@ function RawSection({ rawRequest, rawResponse }: { rawRequest?: unknown; rawResp
 								: 'text-muted-foreground border-transparent hover:text-foreground'
 						)}
 					>
-						Raw Response
+						{t('ext.cards.rawResponse')}
 					</button>
 				)}
 			</div>
 			{content != null && (
 				<div className="relative mt-1.5">
 					<div className="absolute top-1 right-1 flex gap-1">
-						{systemPrompt && <CopyButton text={systemPrompt} label="Copy System" />}
-						{userPrompt && <CopyButton text={userPrompt} label="Copy User" />}
-						<CopyButton text={JSON.stringify(content, null, 4)} label="Copy" />
+						{systemPrompt && <CopyButton text={systemPrompt} label={t('ext.cards.copySystem')} />}
+						{userPrompt && <CopyButton text={userPrompt} label={t('ext.cards.copyUser')} />}
+						<CopyButton text={JSON.stringify(content, null, 4)} label={t('ext.cards.copy')} />
 					</div>
 					<pre className="p-2 pt-5 text-[10px] text-foreground/70 bg-muted rounded overflow-x-auto max-h-60 overflow-y-auto">
 						{JSON.stringify(content, null, 4)}
@@ -220,10 +225,11 @@ function RawSection({ rawRequest, rawResponse }: { rawRequest?: unknown; rawResp
 }
 
 function StepCard({ event }: { event: AgentStepEvent }) {
+	const t = useT()
 	return (
 		<div className="rounded-lg border-l-2 border-l-blue-500/50 border bg-muted/40 p-2.5">
 			<div className="text-[11px] font-semibold text-foreground tracking-wide mb-2">
-				Step #{event.stepIndex! + 1}
+				{t('ext.cards.step')} #{event.stepIndex! + 1}
 			</div>
 
 			{/* Reflection */}
@@ -233,7 +239,7 @@ function StepCard({ event }: { event: AgentStepEvent }) {
 			{event.action && (
 				<div>
 					<div className="text-[11px] font-semibold text-foreground tracking-wide mb-1">
-						Actions
+						{t('ext.cards.actions')}
 					</div>
 					<div className="flex items-start gap-2">
 						<ActionIcon
@@ -342,17 +348,24 @@ export function EventCard({ event }: { event: HistoricalEvent }) {
 
 // Activity card with animation
 export function ActivityCard({ activity }: { activity: AgentActivity }) {
+	const t = useT()
 	const getActivityInfo = () => {
 		switch (activity.type) {
 			case 'thinking':
-				return { text: 'Thinking...', color: 'text-blue-500' }
+				return { text: t('ext.activity.thinking'), color: 'text-blue-500' }
 			case 'executing':
-				return { text: `Executing ${activity.tool}...`, color: 'text-amber-500' }
+				return {
+					text: t('ext.activity.executing', { tool: activity.tool }),
+					color: 'text-amber-500',
+				}
 			case 'executed':
-				return { text: `Done: ${activity.tool}`, color: 'text-green-500' }
+				return { text: t('ext.activity.done', { tool: activity.tool }), color: 'text-green-500' }
 			case 'retrying':
 				return {
-					text: `Retrying (${activity.attempt}/${activity.maxAttempts})...`,
+					text: t('ext.activity.retrying', {
+						attempt: activity.attempt,
+						max: activity.maxAttempts,
+					}),
 					color: 'text-amber-500',
 				}
 			case 'error':
