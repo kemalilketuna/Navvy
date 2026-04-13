@@ -78,14 +78,14 @@ export const Composer = forwardRef<HTMLTextAreaElement, ComposerProps>(function 
 							size="icon"
 							onClick={onStop}
 							className={cn(
-								'size-7 cursor-pointer bg-red-600 text-white shadow-[0_0_0_2px_rgba(239,68,68,0.25)]',
-								'hover:bg-red-500 hover:shadow-[0_0_0_3px_rgba(239,68,68,0.35)] active:bg-red-700',
-								'transition-all duration-150'
+								'size-7 cursor-pointer bg-red-700/85 text-white',
+								'hover:bg-red-600/90 active:bg-red-800',
+								'transition-colors duration-150'
 							)}
 							aria-label={t('ext.input.stop')}
 							title={t('ext.input.stop')}
 						>
-							<Square className="size-3.5 fill-current" aria-hidden="true" />
+							<Square className="size-3 fill-current" aria-hidden="true" />
 						</Button>
 					) : (
 						<Button
@@ -95,7 +95,7 @@ export const Composer = forwardRef<HTMLTextAreaElement, ComposerProps>(function 
 							disabled={!canSend}
 							className={cn(
 								'size-7 bg-amber-600 text-white hover:bg-amber-500',
-								'disabled:pointer-events-auto disabled:cursor-not-allowed disabled:bg-amber-600/50 disabled:opacity-100'
+								'disabled:pointer-events-auto disabled:cursor-not-allowed disabled:bg-neutral-700 disabled:text-neutral-400 disabled:opacity-100'
 							)}
 							aria-label={t('ext.input.send')}
 							title={t('ext.input.send')}
