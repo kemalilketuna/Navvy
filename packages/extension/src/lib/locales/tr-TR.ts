@@ -3,7 +3,19 @@ import type { TranslationSchema } from './en-US'
 export const trTR: TranslationSchema = {
 	ext: {
 		status: { ready: 'Hazır', running: 'Çalışıyor', completed: 'Bitti', error: 'Hata' },
-		header: { history: 'Geçmiş', settings: 'Ayarlar', back: 'Geri' },
+		header: {
+			history: 'Geçmiş',
+			settings: 'Ayarlar',
+			back: 'Geri',
+			newChat: 'Yeni sohbet',
+			menu: 'Menü',
+		},
+		menu: { skills: 'Beceriler', settings: 'Ayarlar' },
+		skills: {
+			title: 'Beceriler',
+			comingSoon: 'Yakında',
+			description: 'Yeniden kullanılabilir ajan becerileri burada olacak.',
+		},
 		empty: {
 			tip1: 'Bu sayfayı otomatikleştirmek için bir görev girin',
 			tip2: 'Çok sayfalı görevler yürütün',

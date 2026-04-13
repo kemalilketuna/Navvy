@@ -3,7 +3,19 @@ import type { TranslationSchema } from './en-US'
 export const itIT: TranslationSchema = {
 	ext: {
 		status: { ready: 'Pronto', running: 'In corso', completed: 'Fatto', error: 'Errore' },
-		header: { history: 'Cronologia', settings: 'Impostazioni', back: 'Indietro' },
+		header: {
+			history: 'Cronologia',
+			settings: 'Impostazioni',
+			back: 'Indietro',
+			newChat: 'Nuova chat',
+			menu: 'Menu',
+		},
+		menu: { skills: 'Competenze', settings: 'Impostazioni' },
+		skills: {
+			title: 'Competenze',
+			comingSoon: 'Prossimamente',
+			description: 'Le competenze riutilizzabili dell’agente vivranno qui.',
+		},
 		empty: {
 			tip1: 'Inserisci un’attività per automatizzare questa pagina',
 			tip2: 'Esegui attività multi-pagina',

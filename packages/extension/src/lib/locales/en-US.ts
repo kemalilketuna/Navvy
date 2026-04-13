@@ -14,6 +14,17 @@ export const enUS = {
 			history: 'History',
 			settings: 'Settings',
 			back: 'Back',
+			newChat: 'New chat',
+			menu: 'Menu',
+		},
+		menu: {
+			skills: 'Skills',
+			settings: 'Settings',
+		},
+		skills: {
+			title: 'Skills',
+			comingSoon: 'Coming soon',
+			description: 'Reusable agent skills will live here.',
 		},
 		empty: {
 			tip1: 'Enter a task to automate this page',
