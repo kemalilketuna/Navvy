@@ -7,6 +7,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { type ExtensionLanguage, MultiPageAgent } from './MultiPageAgent'
 import { DEMO_CONFIG, migrateLegacyEndpoint } from './constants'
+import { type LLMProfile, buildProfilesState } from './profiles'
+
+export type { LLMProfile } from './profiles'
 
 /** Language preference: undefined means follow system */
 export type LanguagePreference = ExtensionLanguage | undefined
@@ -21,6 +24,8 @@ export interface AdvancedConfig {
 
 export interface ExtConfig extends LLMConfig, AdvancedConfig {
 	language?: LanguagePreference
+	profiles: LLMProfile[]
+	activeProfileId: string
 }
 
 export interface UseAgentResult {
@@ -43,28 +48,53 @@ export function useAgent(): UseAgentResult {
 	const [config, setConfig] = useState<ExtConfig | null>(null)
 
 	useEffect(() => {
-		chrome.storage.local.get(['llmConfig', 'language', 'advancedConfig']).then((result) => {
-			let llmConfig = (result.llmConfig as LLMConfig) ?? DEMO_CONFIG
-			const language = (result.language as ExtensionLanguage) || undefined
-			const advancedConfig = (result.advancedConfig as AdvancedConfig) ?? {}
+		chrome.storage.local
+			.get(['llmConfig', 'language', 'advancedConfig', 'llmProfiles', 'activeProfileId'])
+			.then((result) => {
+				let legacyLlm = (result.llmConfig as LLMConfig) ?? DEMO_CONFIG
+				const language = (result.language as ExtensionLanguage) || undefined
+				const advancedConfig = (result.advancedConfig as AdvancedConfig) ?? {}
 
-			// Auto-migrate legacy testing endpoints
-			const migrated = migrateLegacyEndpoint(llmConfig)
-			if (migrated !== llmConfig) {
-				llmConfig = migrated
-				chrome.storage.local.set({ llmConfig: migrated })
-			} else if (!result.llmConfig) {
-				chrome.storage.local.set({ llmConfig: DEMO_CONFIG })
-			}
+				// Auto-migrate legacy testing endpoints
+				const migrated = migrateLegacyEndpoint(legacyLlm)
+				if (migrated !== legacyLlm) {
+					legacyLlm = migrated
+					chrome.storage.local.set({ llmConfig: migrated })
+				} else if (!result.llmConfig) {
+					chrome.storage.local.set({ llmConfig: DEMO_CONFIG })
+				}
 
-			setConfig({ ...llmConfig, ...advancedConfig, language })
-		})
+				const { profiles, activeProfileId } = buildProfilesState(
+					result.llmProfiles as LLMProfile[] | undefined,
+					result.activeProfileId as string | undefined,
+					legacyLlm
+				)
+
+				// Persist initial profile state if missing
+				if (!result.llmProfiles || !result.activeProfileId) {
+					chrome.storage.local.set({ llmProfiles: profiles, activeProfileId })
+				}
+
+				const active = profiles.find((p) => p.id === activeProfileId) ?? profiles[0]
+
+				setConfig({
+					baseURL: active.baseURL,
+					model: active.model,
+					apiKey: active.apiKey,
+					...advancedConfig,
+					language,
+					profiles,
+					activeProfileId: active.id,
+				})
+			})
 	}, [])
 
 	useEffect(() => {
 		if (!config) return
 
-		const { systemInstruction, ...agentConfig } = config
+		const { systemInstruction, profiles, activeProfileId, ...agentConfig } = config
+		void profiles
+		void activeProfileId
 		const agent = new MultiPageAgent({
 			...agentConfig,
 			instructions: systemInstruction ? { system: systemInstruction } : undefined,
@@ -121,9 +151,27 @@ export function useAgent(): UseAgentResult {
 			experimentalLlmsTxt,
 			experimentalIncludeAllTabs,
 			disableNamedToolChoice,
-			...llmConfig
+			profiles,
+			activeProfileId,
+			baseURL,
+			model,
+			apiKey,
 		}: ExtConfig) => {
-			await chrome.storage.local.set({ llmConfig })
+			const active = profiles.find((p) => p.id === activeProfileId) ?? profiles[0]
+			const llmConfig: LLMConfig = {
+				baseURL: active.baseURL,
+				model: active.model,
+				apiKey: active.apiKey,
+			}
+			void baseURL
+			void model
+			void apiKey
+
+			await chrome.storage.local.set({
+				llmConfig,
+				llmProfiles: profiles,
+				activeProfileId: active.id,
+			})
 			if (language) {
 				await chrome.storage.local.set({ language })
 			} else {
@@ -137,7 +185,13 @@ export function useAgent(): UseAgentResult {
 				disableNamedToolChoice,
 			}
 			await chrome.storage.local.set({ advancedConfig })
-			setConfig({ ...llmConfig, ...advancedConfig, language })
+			setConfig({
+				...llmConfig,
+				...advancedConfig,
+				language,
+				profiles,
+				activeProfileId: active.id,
+			})
 		},
 		[]
 	)
