@@ -6,7 +6,7 @@ import { ConfigPanel } from '@/components/ConfigPanel'
 import { HistoryDetail } from '@/components/HistoryDetail'
 import { HistoryList } from '@/components/HistoryList'
 import { ActivityCard, EventCard } from '@/components/cards'
-import { EmptyState, MotionOverlay, StatusDot } from '@/components/misc'
+import { EmptyState, StatusDot } from '@/components/misc'
 import { Button } from '@/components/ui/button'
 import { saveSession } from '@/lib/db'
 import { useT } from '@/lib/i18n'
@@ -119,8 +119,6 @@ export default function App() {
 
 	return (
 		<div className="relative flex h-screen min-h-0 flex-col overflow-hidden bg-background text-foreground">
-			<MotionOverlay active={isRunning} />
-
 			{/* Action bar — no border, no separate header bar. Mirrors the
 			    Claude-style shell where Chrome's native side-panel chrome
 			    already shows the extension name. */}

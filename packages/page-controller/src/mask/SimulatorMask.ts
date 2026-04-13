@@ -8,6 +8,7 @@ import cursorStyles from './cursor.module.css'
 export class SimulatorMask extends EventTarget {
 	shown: boolean = false
 	wrapper = document.createElement('div')
+	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 	motion: Motion | null = null
 
 	#disposed = false
@@ -31,6 +32,9 @@ export class SimulatorMask extends EventTarget {
 		try {
 			const motion = new Motion({
 				mode: isPageDark() ? 'dark' : 'light',
+				// Orange/amber palette matching the extension send button
+				// (Tailwind amber-600 = rgb(217,119,6)).
+				colors: ['rgb(255, 196, 102)', 'rgb(245, 158, 11)', 'rgb(217, 119, 6)', 'rgb(180, 83, 9)'],
 				styles: { position: 'absolute', inset: '0' },
 			})
 			this.motion = motion
