@@ -42,6 +42,7 @@
         "@page-agent/llms": "1.8.2",
         "@page-agent/page-controller": "1.8.2",
         "@page-agent/ui": "1.8.2",
+        "@radix-ui/react-dropdown-menu": "^2.1.16",
         "ai-motion": "^0.4.8",
         "chalk": "^5.6.2"
     },

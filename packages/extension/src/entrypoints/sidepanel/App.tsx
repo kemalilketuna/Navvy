@@ -1,13 +1,20 @@
-import { History, Settings } from 'lucide-react'
+import { History, MoreVertical, Settings, Sparkles, SquarePen } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Composer } from '@/components/Composer'
 import { ConfigPanel } from '@/components/ConfigPanel'
 import { HistoryDetail } from '@/components/HistoryDetail'
 import { HistoryList } from '@/components/HistoryList'
+import { SkillsPanel } from '@/components/SkillsPanel'
 import { ActivityCard, EventCard } from '@/components/cards'
 import { EmptyState, StatusDot } from '@/components/misc'
 import { Button } from '@/components/ui/button'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { saveSession } from '@/lib/db'
 import { useT } from '@/lib/i18n'
 
@@ -18,6 +25,7 @@ type View =
 	| { name: 'config' }
 	| { name: 'history' }
 	| { name: 'history-detail'; sessionId: string }
+	| { name: 'skills' }
 
 export default function App() {
 	const t = useT()
@@ -26,7 +34,8 @@ export default function App() {
 	const historyRef = useRef<HTMLDivElement>(null)
 	const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-	const { status, history, activity, currentTask, config, execute, stop, configure } = useAgent()
+	const { status, history, activity, currentTask, config, execute, stop, newChat, configure } =
+		useAgent()
 
 	// Persist session when task finishes
 	const prevStatusRef = useRef(status)
@@ -77,6 +86,12 @@ export default function App() {
 		stop()
 	}, [stop])
 
+	const handleNewChat = useCallback(() => {
+		newChat()
+		setInputValue('')
+		setView({ name: 'chat' })
+	}, [newChat])
+
 	// --- View routing ---
 
 	if (view.name === 'config') {
@@ -112,6 +127,10 @@ export default function App() {
 		)
 	}
 
+	if (view.name === 'skills') {
+		return <SkillsPanel onClose={() => setView({ name: 'chat' })} />
+	}
+
 	// --- Chat view ---
 
 	const isRunning = status === 'running'
@@ -141,13 +160,36 @@ export default function App() {
 					<Button
 						variant="ghost"
 						size="icon"
-						onClick={() => setView({ name: 'config' })}
+						onClick={handleNewChat}
 						className="h-7 w-7 cursor-pointer text-muted-foreground hover:bg-white/5 hover:text-foreground"
-						aria-label={t('ext.header.settings')}
-						title={t('ext.header.settings')}
+						aria-label={t('ext.header.newChat')}
+						title={t('ext.header.newChat')}
 					>
-						<Settings className="size-4" />
+						<SquarePen className="size-4" />
 					</Button>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button
+								variant="ghost"
+								size="icon"
+								className="h-7 w-7 cursor-pointer text-muted-foreground hover:bg-white/5 hover:text-foreground"
+								aria-label={t('ext.header.menu')}
+								title={t('ext.header.menu')}
+							>
+								<MoreVertical className="size-4" />
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent>
+							<DropdownMenuItem onSelect={() => setView({ name: 'skills' })}>
+								<Sparkles />
+								{t('ext.menu.skills')}
+							</DropdownMenuItem>
+							<DropdownMenuItem onSelect={() => setView({ name: 'config' })}>
+								<Settings />
+								{t('ext.menu.settings')}
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
 				</div>
 			</div>
 

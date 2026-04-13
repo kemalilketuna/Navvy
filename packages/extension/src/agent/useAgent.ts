@@ -31,6 +31,7 @@ export interface UseAgentResult {
 	config: ExtConfig | null
 	execute: (task: string) => Promise<ExecutionResult>
 	stop: () => void
+	newChat: () => void
 	configure: (config: ExtConfig) => Promise<void>
 }
 
@@ -41,6 +42,7 @@ export function useAgent(): UseAgentResult {
 	const [activity, setActivity] = useState<AgentActivity | null>(null)
 	const [currentTask, setCurrentTask] = useState('')
 	const [config, setConfig] = useState<ExtConfig | null>(null)
+	const [resetCounter, setResetCounter] = useState(0)
 
 	useEffect(() => {
 		chrome.storage.local.get(['llmConfig', 'language', 'advancedConfig']).then((result) => {
@@ -98,7 +100,7 @@ export function useAgent(): UseAgentResult {
 			agent.removeEventListener('activity', handleActivity)
 			agent.dispose()
 		}
-	}, [config])
+	}, [config, resetCounter])
 
 	const execute = useCallback(async (task: string) => {
 		const agent = agentRef.current
@@ -111,6 +113,17 @@ export function useAgent(): UseAgentResult {
 
 	const stop = useCallback(() => {
 		agentRef.current?.stop()
+	}, [])
+
+	const newChat = useCallback(() => {
+		agentRef.current?.stop()
+		setHistory([])
+		setActivity(null)
+		setCurrentTask('')
+		setStatus('idle')
+		// Force a fresh MultiPageAgent instance so no internal state
+		// (observations, lastURL, in-flight tool calls) leaks into the next task.
+		setResetCounter((n) => n + 1)
 	}, [])
 
 	const configure = useCallback(
@@ -150,6 +163,7 @@ export function useAgent(): UseAgentResult {
 		config,
 		execute,
 		stop,
+		newChat,
 		configure,
 	}
 }

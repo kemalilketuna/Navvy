@@ -3,7 +3,19 @@ import type { TranslationSchema } from './en-US'
 export const deDE: TranslationSchema = {
 	ext: {
 		status: { ready: 'Bereit', running: 'Läuft', completed: 'Fertig', error: 'Fehler' },
-		header: { history: 'Verlauf', settings: 'Einstellungen', back: 'Zurück' },
+		header: {
+			history: 'Verlauf',
+			settings: 'Einstellungen',
+			back: 'Zurück',
+			newChat: 'Neuer Chat',
+			menu: 'Menü',
+		},
+		menu: { skills: 'Skills', settings: 'Einstellungen' },
+		skills: {
+			title: 'Skills',
+			comingSoon: 'Demnächst verfügbar',
+			description: 'Wiederverwendbare Agenten-Skills werden hier zu finden sein.',
+		},
 		empty: {
 			tip1: 'Aufgabe eingeben, um diese Seite zu automatisieren',
 			tip2: 'Mehrseiten-Aufgaben ausführen',
