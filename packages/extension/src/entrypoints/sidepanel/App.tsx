@@ -1,18 +1,13 @@
-import { History, Send, Settings, Square } from 'lucide-react'
+import { History, Settings } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { Composer } from '@/components/Composer'
 import { ConfigPanel } from '@/components/ConfigPanel'
 import { HistoryDetail } from '@/components/HistoryDetail'
 import { HistoryList } from '@/components/HistoryList'
 import { ActivityCard, EventCard } from '@/components/cards'
 import { EmptyState, MotionOverlay, StatusDot } from '@/components/misc'
 import { Button } from '@/components/ui/button'
-import {
-	InputGroup,
-	InputGroupAddon,
-	InputGroupButton,
-	InputGroupTextarea,
-} from '@/components/ui/input-group'
 import { saveSession } from '@/lib/db'
 import { useT } from '@/lib/i18n'
 
@@ -73,25 +68,14 @@ export default function App() {
 		[execute, status]
 	)
 
-	const handleSubmit = useCallback(
-		(e?: React.SyntheticEvent) => {
-			e?.preventDefault()
-			runTask(inputValue)
-		},
-		[inputValue, runTask]
-	)
+	const handleSubmit = useCallback(() => {
+		runTask(inputValue)
+	}, [inputValue, runTask])
 
 	const handleStop = useCallback(() => {
 		console.log('[SidePanel] Stopping task...')
 		stop()
 	}, [stop])
-
-	const handleKeyDown = (e: React.KeyboardEvent) => {
-		if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
-			e.preventDefault()
-			handleSubmit()
-		}
-	}
 
 	// --- View routing ---
 
@@ -134,102 +118,75 @@ export default function App() {
 	const showEmptyState = !currentTask && history.length === 0 && !isRunning
 
 	return (
-		<div className="relative flex flex-col h-screen bg-background">
+		<div className="relative flex h-screen min-h-0 flex-col overflow-hidden bg-background text-foreground">
 			<MotionOverlay active={isRunning} />
-			{/* Header */}
-			<header className="flex items-center justify-between border-b px-3 py-2">
+
+			{/* Action bar — no border, no separate header bar. Mirrors the
+			    Claude-style shell where Chrome's native side-panel chrome
+			    already shows the extension name. */}
+			<div
+				data-testid="shell-action-bar"
+				className="relative flex items-center justify-between px-3 py-2"
+			>
 				<StatusDot status={status} />
 				<div className="flex items-center gap-1">
 					<Button
 						variant="ghost"
-						size="icon-sm"
+						size="icon"
 						onClick={() => setView({ name: 'history' })}
-						className="cursor-pointer"
+						className="h-7 w-7 cursor-pointer text-muted-foreground hover:bg-white/5 hover:text-foreground"
 						aria-label={t('ext.header.history')}
 						title={t('ext.header.history')}
 					>
-						<History className="size-3.5" />
+						<History className="size-4" />
 					</Button>
 					<Button
 						variant="ghost"
-						size="icon-sm"
+						size="icon"
 						onClick={() => setView({ name: 'config' })}
-						className="cursor-pointer"
+						className="h-7 w-7 cursor-pointer text-muted-foreground hover:bg-white/5 hover:text-foreground"
 						aria-label={t('ext.header.settings')}
 						title={t('ext.header.settings')}
 					>
-						<Settings className="size-3.5" />
+						<Settings className="size-4" />
 					</Button>
 				</div>
-			</header>
+			</div>
 
 			{/* Content */}
-			<main className="flex-1 overflow-hidden flex flex-col">
-				{/* Current task */}
+			<main className="flex min-h-0 flex-1 flex-col overflow-hidden px-3 pb-2">
 				{currentTask && (
-					<div className="border-b px-3 py-2 bg-muted/30">
-						<div className="text-[10px] text-muted-foreground uppercase tracking-wide">
+					<div className="mb-2 rounded-md border border-white/5 bg-neutral-900/60 px-3 py-2">
+						<div className="text-[10px] uppercase tracking-wide text-muted-foreground">
 							{t('ext.task.label')}
 						</div>
-						<div className="text-xs font-medium truncate" title={currentTask}>
+						<div className="truncate text-xs font-medium" title={currentTask}>
 							{currentTask}
 						</div>
 					</div>
 				)}
 
-				{/* History */}
-				<div ref={historyRef} className="flex-1 overflow-y-auto p-3 space-y-2">
+				<div
+					ref={historyRef}
+					data-testid="shell-main"
+					className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto"
+				>
 					{showEmptyState && <EmptyState />}
-
 					{history.map((event, index) => (
 						<EventCard key={index} event={event} />
 					))}
-
-					{/* Activity indicator at bottom */}
 					{activity && <ActivityCard activity={activity} />}
 				</div>
 			</main>
 
-			{/* Input */}
-			<footer className="border-t p-3">
-				<InputGroup className="relative rounded-lg">
-					<InputGroupTextarea
-						ref={textareaRef}
-						placeholder={t('ext.input.placeholder')}
-						value={inputValue}
-						onChange={(e) => setInputValue(e.target.value)}
-						onKeyDown={handleKeyDown}
-						disabled={isRunning}
-						className="text-xs pr-12 min-h-10"
-					/>
-					<InputGroupAddon align="inline-end" className="absolute bottom-0 right-0">
-						{isRunning ? (
-							<InputGroupButton
-								size="icon-sm"
-								variant="destructive"
-								onClick={handleStop}
-								className="size-7"
-								aria-label={t('ext.input.stop')}
-								title={t('ext.input.stop')}
-							>
-								<Square className="size-3" />
-							</InputGroupButton>
-						) : (
-							<InputGroupButton
-								size="icon-sm"
-								variant="default"
-								onClick={() => handleSubmit()}
-								disabled={!inputValue.trim()}
-								className="size-7 cursor-pointer"
-								aria-label={t('ext.input.send')}
-								title={t('ext.input.send')}
-							>
-								<Send className="size-3" />
-							</InputGroupButton>
-						)}
-					</InputGroupAddon>
-				</InputGroup>
-			</footer>
+			<Composer
+				ref={textareaRef}
+				value={inputValue}
+				onChange={setInputValue}
+				onSubmit={handleSubmit}
+				onStop={handleStop}
+				isRunning={isRunning}
+			/>
 		</div>
 	)
 }
