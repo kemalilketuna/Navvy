@@ -13,6 +13,11 @@ Navvy's focus is to **significantly improve the UX of the browser extension** bu
 - When touching existing extension/UI files, prefer updating styles, tokens, and components to the Navvy design system rather than preserving legacy looks.
 - The underlying engine packages (`core`, `llms`, `page-controller`, `page-agent`) retain their original names and APIs — do not rename these unless explicitly asked.
 
+## Code Comments
+
+- Do not write comments longer than one line.
+- Only add a comment when it is truly necessary (non-obvious why, hidden constraint, subtle invariant). Default to no comment.
+
 ## Engineering Reference
 
 See `AGENTS.md` for the inherited monorepo structure, build commands, module boundaries, DOM pipeline, and code standards. Those still apply.
