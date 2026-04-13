@@ -156,11 +156,11 @@ export default function App() {
 			{/* Content */}
 			<main className="flex min-h-0 flex-1 flex-col overflow-hidden px-3 pb-2">
 				{currentTask && (
-					<div className="mb-2 rounded-md border border-white/5 bg-neutral-900/60 px-3 py-2">
+					<div className="mb-3 px-0.5">
 						<div className="text-[10px] uppercase tracking-wide text-muted-foreground">
 							{t('ext.task.label')}
 						</div>
-						<div className="truncate text-xs font-medium" title={currentTask}>
+						<div className="mt-0.5 text-sm font-medium text-foreground" title={currentTask}>
 							{currentTask}
 						</div>
 					</div>

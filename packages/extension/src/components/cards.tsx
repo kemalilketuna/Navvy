@@ -7,150 +7,64 @@ import type {
 	RetryEvent,
 } from '@page-agent/core'
 import {
-	CheckCircle,
+	BrainCircuit,
+	ChevronRight,
+	CircleCheck,
+	CircleDot,
 	Eye,
 	Globe,
 	Keyboard,
 	Mouse,
 	MoveVertical,
 	RefreshCw,
-	Sparkles,
+	Target,
 	XCircle,
 	Zap,
 } from 'lucide-react'
-import { Fragment, useState } from 'react'
+import { motion } from 'motion/react'
+import { type CSSProperties, type ReactNode, useState } from 'react'
 
 import { useT } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
-// Result card for done action
-function ResultCard({
-	success,
-	text,
-	children,
-}: {
-	success: boolean
-	text: string
-	children?: React.ReactNode
-}) {
-	const t = useT()
+// Shimmer applied to running activity labels — gradient slides across the
+// text so the running state visually breathes (borrowed from browser-agent
+// StepList).
+const SHIMMER_STYLE: CSSProperties = {
+	backgroundImage:
+		'linear-gradient(90deg, rgba(255,255,255,0.95), rgba(255,255,255,0.35), rgba(255,255,255,0.95))',
+	backgroundSize: '200% 100%',
+	WebkitBackgroundClip: 'text',
+	backgroundClip: 'text',
+	color: 'transparent',
+}
+
+function EventEnter({ children }: { children: ReactNode }) {
 	return (
-		<div
-			className={cn(
-				'rounded-lg border p-3',
-				success ? 'border-green-500/30 bg-green-500/10' : 'border-destructive/30 bg-destructive/10'
-			)}
+		<motion.div
+			initial={{ opacity: 0, y: 6 }}
+			animate={{ opacity: 1, y: 0 }}
+			transition={{ duration: 0.18, ease: 'easeOut' }}
 		>
-			<div className="flex items-center gap-2 mb-2">
-				{success ? (
-					<CheckCircle className="size-3.5 text-green-500" />
-				) : (
-					<XCircle className="size-3.5 text-destructive" />
-				)}
-				<span
-					className={cn(
-						'text-xs font-medium',
-						success ? 'text-green-600 dark:text-green-400' : 'text-destructive'
-					)}
-				>
-					{t('ext.cards.resultLabel')}:{' '}
-					{success ? t('ext.cards.resultSuccess') : t('ext.cards.resultFailed')}
-				</span>
-			</div>
-			<p className="text-[12px] text-foreground pl-5 whitespace-pre-wrap">{text}</p>
 			{children}
-		</div>
+		</motion.div>
 	)
 }
 
-// Single reflection item with truncation
-function ReflectionItem({ icon, value }: { icon: string; value: string }) {
-	const [expanded, setExpanded] = useState(false)
-
-	return (
-		<Fragment>
-			<span className="text-xs flex justify-center">{icon}</span>
-			<span
-				className={cn(
-					'text-[11px] text-muted-foreground cursor-pointer hover:text-muted-foreground/70',
-					!expanded && 'line-clamp-1'
-				)}
-				onClick={() => setExpanded(!expanded)}
-			>
-				{value}
-			</span>
-		</Fragment>
-	)
-}
-
-// Reflection section in step card
-function ReflectionSection({
-	reflection,
-}: {
-	reflection: {
-		evaluation_previous_goal?: string
-		memory?: string
-		next_goal?: string
-	}
-}) {
-	const items = [
-		{ icon: '☑️', label: 'eval', value: reflection.evaluation_previous_goal },
-		{ icon: '🧠', label: 'memory', value: reflection.memory },
-		{ icon: '🎯', label: 'goal', value: reflection.next_goal },
-	].filter((item) => item.value)
-
-	if (items.length === 0) return null
-
-	return (
-		<div className="mb-2">
-			{/* <div className="text-[11px] font-semibold text-foreground uppercase tracking-wide mb-2">
-				Reflection
-			</div> */}
-			<div className="grid grid-cols-[14px_1fr] gap-x-2 gap-y-2">
-				{items.map((item) => (
-					<ReflectionItem key={item.label} icon={item.icon} value={item.value!} />
-				))}
-			</div>
-		</div>
-	)
-}
-
-// Get icon for action type
 function ActionIcon({ name, className }: { name: string; className?: string }) {
-	const icons: Record<string, React.ReactNode> = {
+	const icons: Record<string, ReactNode> = {
 		click_element_by_index: <Mouse className={className} />,
 		input: <Keyboard className={className} />,
 		scroll: <MoveVertical className={className} />,
 		go_to_url: <Globe className={className} />,
+		open_new_tab: <Globe className={className} />,
 	}
 	return icons[name] || <Zap className={className} />
 }
 
-// Copy button with "Copied!" feedback
-function CopyButton({ text, label }: { text: string; label: string }) {
-	const t = useT()
-	const [copied, setCopied] = useState(false)
-
-	return (
-		<button
-			type="button"
-			onClick={() => {
-				navigator.clipboard.writeText(text)
-				setCopied(true)
-				setTimeout(() => setCopied(false), 1500)
-			}}
-			className="text-[9px] text-muted-foreground hover:text-foreground transition-colors border px-1 rounded shrink-0 cursor-pointer backdrop-blur-xs"
-		>
-			{copied ? t('ext.cards.copied') : label}
-		</button>
-	)
-}
-
-// Extract message content by role from raw request
 function extractPrompt(rawRequest: unknown, role: 'system' | 'user'): string | null {
 	const messages = (rawRequest as { messages?: { role: string; content?: unknown }[] })?.messages
-	if (!messages) return null
-	if (!Array.isArray(messages)) return null
+	if (!messages || !Array.isArray(messages)) return null
 	const msg =
 		role === 'system'
 			? messages.find((m) => m.role === role)
@@ -159,214 +73,336 @@ function extractPrompt(rawRequest: unknown, role: 'system' | 'user'): string | n
 	return typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content, null, 2)
 }
 
-// Raw request/response section (collapsible tabs, for debugging)
-function RawSection({ rawRequest, rawResponse }: { rawRequest?: unknown; rawResponse?: unknown }) {
+function CopyButton({ text, label }: { text: string; label: string }) {
 	const t = useT()
-	const [activeTab, setActiveTab] = useState<'request' | 'response' | null>(null)
+	const [copied, setCopied] = useState(false)
+	return (
+		<button
+			type="button"
+			onClick={() => {
+				navigator.clipboard.writeText(text)
+				setCopied(true)
+				setTimeout(() => setCopied(false), 1500)
+			}}
+			className="cursor-pointer rounded border border-white/10 px-1 text-[9px] text-muted-foreground transition-colors hover:text-foreground"
+		>
+			{copied ? t('ext.cards.copied') : label}
+		</button>
+	)
+}
+
+// Collapsible Raw section — hidden by default behind a small disclosure
+// row to keep the message stream clean.
+function RawDetails({ rawRequest, rawResponse }: { rawRequest?: unknown; rawResponse?: unknown }) {
+	const t = useT()
+	const [open, setOpen] = useState(false)
+	const [tab, setTab] = useState<'request' | 'response'>(rawRequest ? 'request' : 'response')
 
 	if (!rawRequest && !rawResponse) return null
 
-	const handleTabClick = (tab: 'request' | 'response') => {
-		setActiveTab(activeTab === tab ? null : tab)
-	}
-
-	const content =
-		activeTab === 'request' ? rawRequest : activeTab === 'response' ? rawResponse : null
-
-	const systemPrompt = activeTab === 'request' ? extractPrompt(rawRequest, 'system') : null
-	const userPrompt = activeTab === 'request' ? extractPrompt(rawRequest, 'user') : null
+	const content = tab === 'request' ? rawRequest : rawResponse
+	const systemPrompt = tab === 'request' ? extractPrompt(rawRequest, 'system') : null
+	const userPrompt = tab === 'request' ? extractPrompt(rawRequest, 'user') : null
 
 	return (
-		<div className="mt-2 border-t border-dashed pt-2">
-			<div className="flex items-center gap-3 -my-1">
-				{rawRequest != null && (
-					<button
-						type="button"
-						onClick={() => handleTabClick('request')}
-						className={cn(
-							'text-[10px] mt-0.5 transition-colors border-b cursor-pointer',
-							activeTab === 'request'
-								? 'text-foreground border-foreground'
-								: 'text-muted-foreground border-transparent hover:text-foreground'
+		<div className="mt-1.5">
+			<button
+				type="button"
+				onClick={() => setOpen((v) => !v)}
+				className="flex items-center gap-1 text-[10px] text-muted-foreground transition-colors hover:text-foreground"
+			>
+				<ChevronRight
+					className={cn('size-3 transition-transform', open && 'rotate-90')}
+					aria-hidden="true"
+				/>
+				<span>{open ? 'Hide details' : 'Show details'}</span>
+			</button>
+			{open && (
+				<div className="mt-1.5 space-y-1.5">
+					<div className="flex items-center gap-3">
+						{rawRequest != null && (
+							<button
+								type="button"
+								onClick={() => setTab('request')}
+								className={cn(
+									'text-[10px] transition-colors',
+									tab === 'request'
+										? 'text-foreground underline underline-offset-2'
+										: 'text-muted-foreground hover:text-foreground'
+								)}
+							>
+								{t('ext.cards.rawRequest')}
+							</button>
 						)}
-					>
-						{t('ext.cards.rawRequest')}
-					</button>
-				)}
-				{rawResponse != null && (
-					<button
-						type="button"
-						onClick={() => handleTabClick('response')}
-						className={cn(
-							'text-[10px] mt-0.5 transition-colors border-b cursor-pointer',
-							activeTab === 'response'
-								? 'text-foreground border-foreground'
-								: 'text-muted-foreground border-transparent hover:text-foreground'
+						{rawResponse != null && (
+							<button
+								type="button"
+								onClick={() => setTab('response')}
+								className={cn(
+									'text-[10px] transition-colors',
+									tab === 'response'
+										? 'text-foreground underline underline-offset-2'
+										: 'text-muted-foreground hover:text-foreground'
+								)}
+							>
+								{t('ext.cards.rawResponse')}
+							</button>
 						)}
-					>
-						{t('ext.cards.rawResponse')}
-					</button>
-				)}
-			</div>
-			{content != null && (
-				<div className="relative mt-1.5">
-					<div className="absolute top-1 right-1 flex gap-1">
-						{systemPrompt && <CopyButton text={systemPrompt} label={t('ext.cards.copySystem')} />}
-						{userPrompt && <CopyButton text={userPrompt} label={t('ext.cards.copyUser')} />}
-						<CopyButton text={JSON.stringify(content, null, 4)} label={t('ext.cards.copy')} />
 					</div>
-					<pre className="p-2 pt-5 text-[10px] text-foreground/70 bg-muted rounded overflow-x-auto max-h-60 overflow-y-auto">
-						{JSON.stringify(content, null, 4)}
-					</pre>
+					{content != null && (
+						<div className="relative">
+							<div className="absolute right-1 top-1 flex gap-1">
+								{systemPrompt && (
+									<CopyButton text={systemPrompt} label={t('ext.cards.copySystem')} />
+								)}
+								{userPrompt && <CopyButton text={userPrompt} label={t('ext.cards.copyUser')} />}
+								<CopyButton text={JSON.stringify(content, null, 4)} label={t('ext.cards.copy')} />
+							</div>
+							<pre className="max-h-60 overflow-auto rounded border border-white/5 bg-neutral-950/60 p-2 pt-5 text-[10px] text-foreground/70">
+								{JSON.stringify(content, null, 4)}
+							</pre>
+						</div>
+					)}
 				</div>
 			)}
 		</div>
 	)
 }
 
-function StepCard({ event }: { event: AgentStepEvent }) {
-	const t = useT()
+// One reflection bullet — a tiny icon + clamped text the user can expand
+// by clicking. Indent comes from the parent grid.
+function ReflectionRow({ icon, value }: { icon: ReactNode; value: string }) {
+	const [expanded, setExpanded] = useState(false)
 	return (
-		<div className="rounded-lg border-l-2 border-l-blue-500/50 border bg-muted/40 p-2.5">
-			<div className="text-[11px] font-semibold text-foreground tracking-wide mb-2">
-				{t('ext.cards.step')} #{event.stepIndex! + 1}
+		<>
+			<span className="mt-0.5 text-muted-foreground">{icon}</span>
+			<button
+				type="button"
+				onClick={() => setExpanded((v) => !v)}
+				className={cn(
+					'text-left text-[12px] leading-snug text-foreground/80 transition-colors hover:text-foreground',
+					!expanded && 'line-clamp-1'
+				)}
+			>
+				{value}
+			</button>
+		</>
+	)
+}
+
+function ReflectionSection({
+	reflection,
+}: {
+	reflection: { evaluation_previous_goal?: string; memory?: string; next_goal?: string }
+}) {
+	const items = [
+		{
+			key: 'eval',
+			icon: <CircleCheck className="size-3" />,
+			value: reflection.evaluation_previous_goal,
+		},
+		{
+			key: 'memory',
+			icon: <BrainCircuit className="size-3" />,
+			value: reflection.memory,
+		},
+		{
+			key: 'goal',
+			icon: <Target className="size-3" />,
+			value: reflection.next_goal,
+		},
+	].filter((i) => i.value)
+
+	if (items.length === 0) return null
+
+	return (
+		<div className="grid grid-cols-[14px_1fr] gap-x-2 gap-y-1.5">
+			{items.map((item) => (
+				<ReflectionRow key={item.key} icon={item.icon} value={item.value!} />
+			))}
+		</div>
+	)
+}
+
+// Single step rendered as a Claude-Code-style timeline entry: thin left
+// rail, tiny step label, reflection bullets, then a single action row with
+// an indented output. No card chrome.
+function StepCard({ event }: { event: AgentStepEvent }) {
+	return (
+		<div className="relative pl-3.5">
+			<span aria-hidden="true" className="absolute left-0 top-1 bottom-1 w-px bg-white/10" />
+			<div className="mb-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+				Step {(event.stepIndex ?? 0) + 1}
 			</div>
 
-			{/* Reflection */}
-			{event.reflection && <ReflectionSection reflection={event.reflection} />}
-
-			{/* Action */}
-			{event.action && (
-				<div>
-					<div className="text-[11px] font-semibold text-foreground tracking-wide mb-1">
-						{t('ext.cards.actions')}
-					</div>
-					<div className="flex items-start gap-2">
-						<ActionIcon
-							name={event.action.name}
-							className="size-3.5 text-blue-500 shrink-0 mt-0.5"
-						/>
-						<div className="flex-1 min-w-0">
-							<p className="text-xs text-foreground/80 mb-0.5 wrap-anywhere break-all line-clamp-1 hover:line-clamp-none">
-								<span className="font-medium text-foreground/70">{event.action.name}</span>
-								{event.action.name !== 'done' && (
-									<span className="text-muted-foreground/70 ml-1.5">
-										{JSON.stringify(event.action.input)}
-									</span>
-								)}
-							</p>
-							<p className="text-[11px] text-muted-foreground/70 grid grid-cols-[auto_1fr] gap-1.5">
-								<span className="">└</span>
-								<span className="wrap-anywhere break-all line-clamp-1 hover:line-clamp-3">
-									{event.action.output}
-								</span>
-							</p>
-						</div>
-					</div>
+			{event.reflection && (
+				<div className="mb-1.5">
+					<ReflectionSection reflection={event.reflection} />
 				</div>
 			)}
 
-			{/* Raw Response */}
-			<RawSection rawRequest={event.rawRequest} rawResponse={event.rawResponse} />
+			{event.action && (
+				<div className="space-y-0.5 text-[12px] leading-snug">
+					<div className="flex items-start gap-2">
+						<ActionIcon name={event.action.name} className="mt-0.5 size-3 shrink-0 text-blue-400" />
+						<div className="min-w-0 flex-1">
+							<span className="font-mono text-foreground">{event.action.name}</span>
+							{event.action.name !== 'done' && (
+								<span className="ml-1.5 break-all font-mono text-[11px] text-muted-foreground/80">
+									{JSON.stringify(event.action.input)}
+								</span>
+							)}
+						</div>
+					</div>
+					{event.action.output && (
+						<div className="ml-5 flex items-start gap-1 text-[11px] text-muted-foreground">
+							<span aria-hidden="true" className="select-none text-muted-foreground/60">
+								⎿
+							</span>
+							<span className="break-all">{event.action.output}</span>
+						</div>
+					)}
+				</div>
+			)}
+
+			<RawDetails rawRequest={event.rawRequest} rawResponse={event.rawResponse} />
 		</div>
 	)
 }
 
 function ObservationCard({ event }: { event: ObservationEvent }) {
 	return (
-		<div className="rounded-lg border-l-2 border-l-green-500/50 border bg-muted/40 p-2.5">
-			{/* <div className="text-[11px] font-semibold text-foreground uppercase tracking-wide mb-2">
-				Observation
-			</div> */}
-			<div className="flex items-start gap-2">
-				<Eye className="size-3.5 text-green-500 shrink-0 mt-0.5" />
-				<span className="text-[11px] text-muted-foreground">{event.content}</span>
-			</div>
+		<div className="flex items-start gap-2 pl-3.5 text-[12px] text-muted-foreground">
+			<Eye className="mt-0.5 size-3 shrink-0 text-emerald-400" />
+			<span className="break-all">{event.content}</span>
 		</div>
 	)
 }
 
 function RetryCard({ event }: { event: RetryEvent }) {
 	return (
-		<div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-2.5">
-			<div className="flex items-start gap-1.5">
-				<RefreshCw className="size-3 text-amber-500 shrink-0 mt-0.5" />
-				<span className="text-xs text-amber-600 dark:text-amber-400">
-					{event.message} ({event.attempt}/{event.maxAttempts})
+		<div className="flex items-start gap-2 pl-3.5 text-[12px] text-amber-400">
+			<RefreshCw className="mt-0.5 size-3 shrink-0" />
+			<span>
+				{event.message}{' '}
+				<span className="text-muted-foreground/80">
+					({event.attempt}/{event.maxAttempts})
 				</span>
-			</div>
+			</span>
 		</div>
 	)
 }
 
 function ErrorCard({ event }: { event: AgentErrorEvent }) {
 	return (
-		<div className="rounded-lg border border-destructive/30 bg-destructive/10 p-2.5">
-			<div className="flex items-start gap-1.5">
-				<XCircle className="size-3 text-destructive shrink-0 mt-0.5" />
-				<span className="text-xs text-destructive">{event.message}</span>
+		<div className="pl-3.5">
+			<div className="flex items-start gap-2 text-[12px] text-destructive">
+				<XCircle className="mt-0.5 size-3 shrink-0" />
+				<span className="break-all">{event.message}</span>
 			</div>
-			<RawSection rawResponse={event.rawResponse} />
+			<div className="ml-5">
+				<RawDetails rawResponse={event.rawResponse} />
+			</div>
 		</div>
 	)
 }
 
-// History event card component
+function ResultRow({ success, text }: { success: boolean; text: string }) {
+	const t = useT()
+	return (
+		<div className="pl-3.5">
+			<div className="flex items-start gap-2 text-[12px]">
+				{success ? (
+					<CircleCheck className="mt-0.5 size-3.5 shrink-0 text-emerald-400" />
+				) : (
+					<XCircle className="mt-0.5 size-3.5 shrink-0 text-destructive" />
+				)}
+				<div className="min-w-0 flex-1">
+					<div className={cn('font-medium', success ? 'text-emerald-400' : 'text-destructive')}>
+						{success ? t('ext.cards.resultSuccess') : t('ext.cards.resultFailed')}
+					</div>
+					{text && <p className="mt-0.5 whitespace-pre-wrap text-foreground/80">{text}</p>}
+				</div>
+			</div>
+		</div>
+	)
+}
+
+// Top-level dispatcher.
 export function EventCard({ event }: { event: HistoricalEvent }) {
-	// Done action - show as result card
 	if (event.type === 'step' && event.action?.name === 'done') {
 		const input = event.action.input as { text?: string; success?: boolean }
 		return (
-			<>
-				<StepCard event={event as AgentStepEvent} />
-				<ResultCard
-					success={input?.success ?? true}
-					text={input?.text || event.action.output || ''}
-				/>
-			</>
+			<EventEnter>
+				<div className="space-y-1.5">
+					<StepCard event={event as AgentStepEvent} />
+					<ResultRow
+						success={input?.success ?? true}
+						text={input?.text || event.action.output || ''}
+					/>
+				</div>
+			</EventEnter>
 		)
 	}
 
 	if (event.type === 'step') {
-		return <StepCard event={event as AgentStepEvent} />
+		return (
+			<EventEnter>
+				<StepCard event={event as AgentStepEvent} />
+			</EventEnter>
+		)
 	}
 
 	if (event.type === 'observation') {
-		return <ObservationCard event={event as ObservationEvent} />
+		return (
+			<EventEnter>
+				<ObservationCard event={event as ObservationEvent} />
+			</EventEnter>
+		)
 	}
 
 	if (event.type === 'retry') {
-		return <RetryCard event={event as RetryEvent} />
+		return (
+			<EventEnter>
+				<RetryCard event={event as RetryEvent} />
+			</EventEnter>
+		)
 	}
 
 	if (event.type === 'error') {
-		return <ErrorCard event={event as AgentErrorEvent} />
+		return (
+			<EventEnter>
+				<ErrorCard event={event as AgentErrorEvent} />
+			</EventEnter>
+		)
 	}
 
 	return null
 }
 
-// Activity card with animation
+// Activity indicator at the tail of the stream — small loader / sparkle
+// with a shimmering label while the agent is pending. Mirrors the
+// browser-agent PlanningIndicator visual.
 export function ActivityCard({ activity }: { activity: AgentActivity }) {
 	const t = useT()
 	const getActivityInfo = () => {
 		switch (activity.type) {
 			case 'thinking':
-				return { text: t('ext.activity.thinking'), color: 'text-blue-500' }
+				return { text: t('ext.activity.thinking'), color: 'text-blue-400' }
 			case 'executing':
 				return {
 					text: t('ext.activity.executing', { tool: activity.tool }),
-					color: 'text-amber-500',
+					color: 'text-amber-400',
 				}
 			case 'executed':
-				return { text: t('ext.activity.done', { tool: activity.tool }), color: 'text-green-500' }
+				return { text: t('ext.activity.done', { tool: activity.tool }), color: 'text-emerald-400' }
 			case 'retrying':
 				return {
 					text: t('ext.activity.retrying', {
 						attempt: activity.attempt,
 						max: activity.maxAttempts,
 					}),
-					color: 'text-amber-500',
+					color: 'text-amber-400',
 				}
 			case 'error':
 				return { text: activity.message, color: 'text-destructive' }
@@ -374,27 +410,43 @@ export function ActivityCard({ activity }: { activity: AgentActivity }) {
 	}
 
 	const info = getActivityInfo()
+	const isPending =
+		activity.type === 'thinking' || activity.type === 'executing' || activity.type === 'retrying'
 
 	return (
-		<div className="flex items-center gap-2 rounded-lg border bg-muted/40 p-2.5 animate-pulse">
-			<div className="relative">
-				<Sparkles className={cn('size-3.5', info.color)} />
-				<span
-					className={cn(
-						'absolute -top-0.5 -right-0.5 size-1.5 rounded-full animate-ping',
-						activity.type === 'thinking'
-							? 'bg-blue-500'
-							: activity.type === 'executing'
-								? 'bg-amber-500'
-								: activity.type === 'retrying'
-									? 'bg-amber-500'
-									: activity.type === 'error'
-										? 'bg-destructive'
-										: 'bg-green-500'
-					)}
+		<motion.div
+			initial={{ opacity: 0, y: 4 }}
+			animate={{ opacity: 1, y: 0 }}
+			exit={{ opacity: 0, y: -4 }}
+			transition={{ duration: 0.2 }}
+			className="flex items-center gap-2 pl-3.5"
+		>
+			{activity.type === 'thinking' ? (
+				<motion.div
+					data-testid="thinking-spinner"
+					className="size-3 shrink-0 rounded-full border-2 border-blue-400/70 border-t-transparent"
+					animate={{ rotate: 360 }}
+					transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1, ease: 'linear' }}
 				/>
-			</div>
-			<span className={cn('text-xs', info.color)}>{info.text}</span>
-		</div>
+			) : activity.type === 'executed' ? (
+				<CircleCheck className={cn('size-3 shrink-0', info.color)} />
+			) : activity.type === 'error' ? (
+				<XCircle className={cn('size-3 shrink-0', info.color)} />
+			) : (
+				<CircleDot className={cn('size-3 shrink-0', info.color)} />
+			)}
+			<motion.span
+				className={cn('text-[12px]', !isPending && info.color)}
+				animate={isPending ? { backgroundPosition: ['-200% 0', '200% 0'] } : undefined}
+				transition={
+					isPending
+						? { repeat: Number.POSITIVE_INFINITY, duration: 1.8, ease: 'linear' }
+						: undefined
+				}
+				style={isPending ? SHIMMER_STYLE : undefined}
+			>
+				{info.text}
+			</motion.span>
+		</motion.div>
 	)
 }
