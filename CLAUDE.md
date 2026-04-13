@@ -1,29 +1,35 @@
 # Navvy
 
-This project is **Navvy**, a fork of the upstream `page-agent` project. The codebase was originally scaffolded from page-agent, and the monorepo layout, package names (`@page-agent/*`, `page-agent`), and core architecture documented in `AGENTS.md` still apply to the underlying engine.
+Fork of `page-agent`. Monorepo layout, package names (`@page-agent/*`, `page-agent`), and engine architecture documented in `AGENTS.md` still apply.
 
-## Project Goal
+## Goal
 
-Navvy's focus is to **significantly improve the UX of the browser extension** built on top of the page-agent engine. The primary work happens in `packages/extension/` (and the shared `packages/ui/` it depends on).
+Improve the UX of the browser extension in `packages/extension/` (and shared `packages/ui/`).
 
-## Design System Direction
+## Design System
 
-- We are migrating away from the page-agent design system toward a **new "Navvy" design system**.
-- All new UI work in the extension and `packages/ui/` should follow Navvy's design language, not legacy page-agent styling.
-- When touching existing extension/UI files, prefer updating styles, tokens, and components to the Navvy design system rather than preserving legacy looks.
-- The underlying engine packages (`core`, `llms`, `page-controller`, `page-agent`) retain their original names and APIs — do not rename these unless explicitly asked.
+Migrating from page-agent styling to a new **Navvy** design system. New UI work in `extension/` and `ui/` follows Navvy. Engine packages (`core`, `llms`, `page-controller`, `page-agent`) keep their names and APIs.
 
 ## Package Manager
 
-This project uses **pnpm**, not npm. Run all install/script commands with `pnpm` (e.g., `pnpm install`, `pnpm run build`). Ignore any `npm ...` examples in `AGENTS.md` — substitute `pnpm`.
+Use **pnpm** only. Never `npm`. Substitute `pnpm` for any `npm` examples in `AGENTS.md`.
+
+## Builds (pnpm workspace)
+
+Downstream packages don't see source changes until upstream is rebuilt.
+
+- Edited a library (`core`, `llms`, `page-controller`, `ui`, `page-agent`) → `pnpm run build:libs` before building extension/website.
+- Edited `extension/` → `pnpm run build:ext` (build libs first if you also touched one).
+- Edited `website/` → `pnpm start` (dev) or `pnpm run build`.
+- Edits contained within a single package during dev → `pnpm run typecheck` is usually enough.
+- When unsure → `pnpm run build` from repo root.
 
 ## Code Comments
 
-- Do not write comments longer than one line.
-- Only add a comment when it is truly necessary (non-obvious why, hidden constraint, subtle invariant). Default to no comment.
+Default to none. One line max, only when the *why* is non-obvious.
 
 ## Engineering Reference
 
-See `AGENTS.md` for the inherited monorepo structure, build commands, module boundaries, DOM pipeline, and code standards. Those still apply.
+See `AGENTS.md` for monorepo structure, module boundaries, DOM pipeline, and standards.
 
 @AGENTS.md
