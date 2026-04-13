@@ -221,7 +221,7 @@ export class TabsController {
 			payload: {
 				groupId: this.tabGroupId,
 				properties: {
-					title: `PageAgent(${this.task})`,
+					title: summarizeTask(this.task),
 					color: randomColor(),
 					collapsed: false,
 				},
@@ -388,6 +388,70 @@ type TabGroupColor = (typeof TAB_GROUP_COLORS)[number]
 
 function randomColor(): TabGroupColor {
 	return TAB_GROUP_COLORS[Math.floor(Math.random() * TAB_GROUP_COLORS.length)]
+}
+
+const TASK_TITLE_STOPWORDS = new Set([
+	'a',
+	'an',
+	'the',
+	'this',
+	'that',
+	'these',
+	'those',
+	'please',
+	'can',
+	'could',
+	'would',
+	'will',
+	'just',
+	'go',
+	'open',
+	'visit',
+	'navigate',
+	'browse',
+	'find',
+	'search',
+	'look',
+	'get',
+	'show',
+	'tell',
+	'check',
+	'research',
+	'summarize',
+	'summarise',
+	'read',
+	'fetch',
+	'and',
+	'or',
+	'to',
+	'for',
+	'on',
+	'in',
+	'of',
+	'with',
+	'me',
+	'my',
+	'us',
+	'page',
+	'site',
+	'website',
+])
+
+const TASK_TITLE_MAX_LEN = 24
+
+function summarizeTask(task: string): string {
+	const trimmed = task.trim()
+	if (!trimmed) return 'task'
+
+	const urlMatch = /https?:\/\/(?:www\.)?([a-z0-9-]+)\.[a-z]{2,}/i.exec(trimmed)
+	if (urlMatch) return urlMatch[1].toLowerCase().slice(0, TASK_TITLE_MAX_LEN)
+
+	const words = trimmed.match(/[A-Za-z][A-Za-z0-9-]*/g) ?? []
+	if (!words.length) return trimmed.slice(0, TASK_TITLE_MAX_LEN)
+
+	const meaningful = words.filter((w) => !TASK_TITLE_STOPWORDS.has(w.toLowerCase()))
+	const picked = (meaningful.length ? meaningful : words).slice(0, 2).join(' ').toLowerCase()
+	return picked.slice(0, TASK_TITLE_MAX_LEN)
 }
 
 /**
