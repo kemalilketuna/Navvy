@@ -8,14 +8,17 @@ import {
 	HatGlasses,
 	Home,
 	Loader2,
+	Plus,
 	Scale,
+	Trash2,
 	UnfoldVertical,
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { siGithub } from 'simple-icons'
 
 import { DEMO_BASE_URL, DEMO_MODEL, isTestingEndpoint } from '@/agent/constants'
-import type { ExtConfig, LanguagePreference } from '@/agent/useAgent'
+import { PROVIDERS, PROVIDERS_BY_KEY, type ProviderKey } from '@/agent/providers'
+import type { ExtConfig, LLMProfile, LanguagePreference } from '@/agent/useAgent'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
@@ -27,11 +30,14 @@ interface ConfigPanelProps {
 	onClose: () => void
 }
 
+function newProfileId(): string {
+	return `p_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
+}
+
 export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 	const t = useT()
-	const [baseURL, setBaseURL] = useState(config?.baseURL || DEMO_BASE_URL)
-	const [model, setModel] = useState(config?.model || DEMO_MODEL)
-	const [apiKey, setApiKey] = useState(config?.apiKey)
+	const [profiles, setProfiles] = useState<LLMProfile[]>(config?.profiles ?? [])
+	const [activeProfileId, setActiveProfileId] = useState<string>(config?.activeProfileId ?? '')
 	const [language, setLanguage] = useState<LanguagePreference>(config?.language)
 	const [maxSteps, setMaxSteps] = useState(config?.maxSteps)
 	const [systemInstruction, setSystemInstruction] = useState(config?.systemInstruction ?? '')
@@ -54,15 +60,61 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 	const [prevConfig, setPrevConfig] = useState(config)
 	if (prevConfig !== config) {
 		setPrevConfig(config)
-		setBaseURL(config?.baseURL || DEMO_BASE_URL)
-		setModel(config?.model || DEMO_MODEL)
-		setApiKey(config?.apiKey)
+		setProfiles(config?.profiles ?? [])
+		setActiveProfileId(config?.activeProfileId ?? '')
 		setLanguage(config?.language)
 		setMaxSteps(config?.maxSteps)
 		setSystemInstruction(config?.systemInstruction ?? '')
 		setExperimentalLlmsTxt(config?.experimentalLlmsTxt ?? false)
 		setExperimentalIncludeAllTabs(config?.experimentalIncludeAllTabs ?? false)
 		setDisableNamedToolChoice(config?.disableNamedToolChoice ?? false)
+	}
+
+	const activeProfile = useMemo(
+		() => profiles.find((p) => p.id === activeProfileId) ?? profiles[0],
+		[profiles, activeProfileId]
+	)
+
+	const updateActiveProfile = (patch: Partial<LLMProfile>) => {
+		setProfiles((prev) => prev.map((p) => (p.id === activeProfileId ? { ...p, ...patch } : p)))
+	}
+
+	const handleProviderChange = (key: ProviderKey) => {
+		if (!activeProfile) return
+		if (key === 'custom') {
+			updateActiveProfile({ providerKey: 'custom' })
+			return
+		}
+		const preset = PROVIDERS_BY_KEY[key]
+		updateActiveProfile({
+			providerKey: key,
+			baseURL: preset.baseURL,
+			model: preset.defaultModel,
+		})
+	}
+
+	const handleAddProfile = () => {
+		const id = newProfileId()
+		const preset = PROVIDERS_BY_KEY.openai
+		const next: LLMProfile = {
+			id,
+			name: t('ext.config.profileNewName'),
+			providerKey: 'openai',
+			baseURL: preset.baseURL,
+			model: preset.defaultModel,
+			apiKey: '',
+		}
+		setProfiles((prev) => [...prev, next])
+		setActiveProfileId(id)
+	}
+
+	const handleDeleteProfile = () => {
+		if (profiles.length <= 1) return
+		const idx = profiles.findIndex((p) => p.id === activeProfileId)
+		const next = profiles.filter((p) => p.id !== activeProfileId)
+		setProfiles(next)
+		const fallback = next[Math.max(0, idx - 1)]
+		setActiveProfileId(fallback.id)
 	}
 
 	// Poll for user auth token every second until found
@@ -98,23 +150,28 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 	}
 
 	const handleSave = async () => {
+		if (!activeProfile) return
 		setSaving(true)
 		try {
 			await onSave({
-				apiKey,
-				baseURL,
-				model,
+				apiKey: activeProfile.apiKey,
+				baseURL: activeProfile.baseURL,
+				model: activeProfile.model,
 				language,
 				maxSteps: maxSteps || undefined,
 				systemInstruction: systemInstruction || undefined,
 				experimentalLlmsTxt,
 				experimentalIncludeAllTabs,
 				disableNamedToolChoice,
+				profiles,
+				activeProfileId: activeProfile.id,
 			})
 		} finally {
 			setSaving(false)
 		}
 	}
+
+	const currentPreset = activeProfile ? PROVIDERS_BY_KEY[activeProfile.providerKey] : undefined
 
 	return (
 		<div className="flex flex-col gap-4 p-4 relative">
@@ -190,6 +247,83 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 				<ExternalLink className="size-3" />
 			</a>
 
+			{/* Profile selector */}
+			{activeProfile && (
+				<div className="flex flex-col gap-1.5">
+					<label className="text-xs text-muted-foreground">{t('ext.config.profile')}</label>
+					<div className="flex gap-2 items-center">
+						<select
+							value={activeProfile.id}
+							onChange={(e) => setActiveProfileId(e.target.value)}
+							className="h-8 text-xs rounded-md border border-input bg-background px-2 cursor-pointer flex-1 min-w-0"
+						>
+							{profiles.map((p) => (
+								<option key={p.id} value={p.id}>
+									{p.name || t('ext.config.profileUnnamed')}
+								</option>
+							))}
+						</select>
+						<Button
+							variant="outline"
+							size="icon"
+							className="h-8 w-8 shrink-0 cursor-pointer"
+							onClick={handleAddProfile}
+							aria-label={t('ext.config.profileAdd')}
+							title={t('ext.config.profileAdd')}
+						>
+							<Plus className="size-3" />
+						</Button>
+						<Button
+							variant="outline"
+							size="icon"
+							className="h-8 w-8 shrink-0 cursor-pointer"
+							onClick={handleDeleteProfile}
+							disabled={profiles.length <= 1}
+							aria-label={t('ext.config.profileDelete')}
+							title={t('ext.config.profileDelete')}
+						>
+							<Trash2 className="size-3" />
+						</Button>
+					</div>
+					<Input
+						id="profile-name"
+						placeholder={t('ext.config.profileNamePlaceholder')}
+						value={activeProfile.name}
+						onChange={(e) => updateActiveProfile({ name: e.target.value })}
+						className="text-xs h-8"
+					/>
+				</div>
+			)}
+
+			{/* Provider preset */}
+			{activeProfile && (
+				<div className="flex flex-col gap-1.5">
+					<label className="text-xs text-muted-foreground">{t('ext.config.provider')}</label>
+					<select
+						value={activeProfile.providerKey}
+						onChange={(e) => handleProviderChange(e.target.value as ProviderKey)}
+						className="h-8 text-xs rounded-md border border-input bg-background px-2 cursor-pointer"
+					>
+						{PROVIDERS.map((p) => (
+							<option key={p.key} value={p.key}>
+								{p.label}
+							</option>
+						))}
+					</select>
+					{currentPreset?.apiKeyURL && (
+						<a
+							href={currentPreset.apiKeyURL}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1 mt-0.5"
+						>
+							{t('ext.config.getApiKey')}
+							<ExternalLink className="size-2.5" />
+						</a>
+					)}
+				</div>
+			)}
+
 			<div className="flex flex-col gap-1.5">
 				<label htmlFor="base-url" className="text-xs text-muted-foreground">
 					{t('ext.config.baseUrl')}
@@ -197,14 +331,14 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 				<Input
 					id="base-url"
 					placeholder="https://api.openai.com/v1"
-					value={baseURL}
-					onChange={(e) => setBaseURL(e.target.value)}
+					value={activeProfile?.baseURL ?? DEMO_BASE_URL}
+					onChange={(e) => updateActiveProfile({ baseURL: e.target.value, providerKey: 'custom' })}
 					className="text-xs h-8"
 				/>
 			</div>
 
 			{/* Testing API notice */}
-			{isTestingEndpoint(baseURL) && (
+			{activeProfile && isTestingEndpoint(activeProfile.baseURL) && (
 				<div className="p-2.5 rounded-md border border-amber-500/30 bg-amber-500/5 text-[11px] text-muted-foreground leading-relaxed">
 					<Scale className="size-3 inline-block mr-1 -mt-0.5 text-amber-600" />
 					{t('ext.config.testingApiNotice')}{' '}
@@ -225,9 +359,9 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 				</label>
 				<Input
 					id="model"
-					placeholder="gpt-5.1"
-					value={model}
-					onChange={(e) => setModel(e.target.value)}
+					placeholder={currentPreset?.defaultModel || DEMO_MODEL}
+					value={activeProfile?.model ?? ''}
+					onChange={(e) => updateActiveProfile({ model: e.target.value })}
 					className="text-xs h-8"
 				/>
 			</div>
@@ -240,9 +374,8 @@ export function ConfigPanel({ config, onSave, onClose }: ConfigPanelProps) {
 					<Input
 						id="api-key"
 						type={showApiKey ? 'text' : 'password'}
-						// placeholder="sk-..."
-						value={apiKey}
-						onChange={(e) => setApiKey(e.target.value)}
+						value={activeProfile?.apiKey ?? ''}
+						onChange={(e) => updateActiveProfile({ apiKey: e.target.value })}
 						className="text-xs h-8"
 					/>
 					<Button
