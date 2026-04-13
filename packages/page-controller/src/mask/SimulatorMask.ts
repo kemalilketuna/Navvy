@@ -1,14 +1,11 @@
 import { Motion } from 'ai-motion'
 
-import { isPageDark } from './checkDarkMode'
-
 import styles from './SimulatorMask.module.css'
 import cursorStyles from './cursor.module.css'
 
 export class SimulatorMask extends EventTarget {
 	shown: boolean = false
 	wrapper = document.createElement('div')
-	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 	motion: Motion | null = null
 
 	#disposed = false
@@ -31,11 +28,21 @@ export class SimulatorMask extends EventTarget {
 
 		try {
 			const motion = new Motion({
-				mode: isPageDark() ? 'dark' : 'light',
-				// Orange/amber palette matching the extension send button
-				// (Tailwind amber-600 = rgb(217,119,6)).
-				colors: ['rgb(255, 196, 102)', 'rgb(245, 158, 11)', 'rgb(217, 119, 6)', 'rgb(180, 83, 9)'],
-				styles: { position: 'absolute', inset: '0' },
+				// Force 'light' mode regardless of page background — it uses a
+				// glowFactor of 1.0/exponent 1.0 vs. 1.8/2.0 for 'dark',
+				// halving the perceived glow brightness.
+				mode: 'light',
+				// Pure-orange palette — saturated hue rather than red-leaning
+				// burnt tones. Subtlety comes from opacity, not from dulling
+				// the color itself.
+				colors: ['rgb(255, 165, 0)', 'rgb(255, 140, 0)', 'rgb(249, 115, 22)', 'rgb(234, 88, 12)'],
+				// Effectively no inner halo — only a hair-thin colored frame
+				// at the viewport edge remains.
+				glowWidth: 0,
+				borderWidth: 0.6,
+				// Heavily dim the whole overlay so the agent's presence is
+				// a barely-there hint, not a dominating frame.
+				styles: { position: 'absolute', inset: '0', opacity: '0.55' },
 			})
 			this.motion = motion
 			this.wrapper.appendChild(motion.element)
