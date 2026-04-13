@@ -45,11 +45,12 @@ export default function App() {
 
 		if (
 			prev === 'running' &&
-			(status === 'completed' || status === 'error') &&
+			(status === 'completed' || status === 'error' || status === 'stopped') &&
 			history.length > 0 &&
 			currentTask
 		) {
-			saveSession({ task: currentTask, history, status }).catch((err) =>
+			const persistedStatus = status === 'stopped' ? 'error' : status
+			saveSession({ task: currentTask, history, status: persistedStatus }).catch((err) =>
 				console.error('[SidePanel] Failed to save session:', err)
 			)
 		}
@@ -150,22 +151,22 @@ export default function App() {
 					<Button
 						variant="ghost"
 						size="icon"
-						onClick={() => setView({ name: 'history' })}
-						className="h-7 w-7 cursor-pointer text-muted-foreground hover:bg-white/5 hover:text-foreground"
-						aria-label={t('ext.header.history')}
-						title={t('ext.header.history')}
-					>
-						<History className="size-4" />
-					</Button>
-					<Button
-						variant="ghost"
-						size="icon"
 						onClick={handleNewChat}
 						className="h-7 w-7 cursor-pointer text-muted-foreground hover:bg-white/5 hover:text-foreground"
 						aria-label={t('ext.header.newChat')}
 						title={t('ext.header.newChat')}
 					>
 						<SquarePen className="size-4" />
+					</Button>
+					<Button
+						variant="ghost"
+						size="icon"
+						onClick={() => setView({ name: 'history' })}
+						className="h-7 w-7 cursor-pointer text-muted-foreground hover:bg-white/5 hover:text-foreground"
+						aria-label={t('ext.header.history')}
+						title={t('ext.header.history')}
+					>
+						<History className="size-4" />
 					</Button>
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>

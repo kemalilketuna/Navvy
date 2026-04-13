@@ -2,7 +2,13 @@ import type { TranslationSchema } from './en-US'
 
 export const trTR: TranslationSchema = {
 	ext: {
-		status: { ready: 'Hazır', running: 'Çalışıyor', completed: 'Bitti', error: 'Hata' },
+		status: {
+			ready: 'Hazır',
+			running: 'Çalışıyor',
+			completed: 'Bitti',
+			error: 'Hata',
+			stopped: 'Durduruldu',
+		},
 		header: {
 			history: 'Geçmiş',
 			settings: 'Ayarlar',

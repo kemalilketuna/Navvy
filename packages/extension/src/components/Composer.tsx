@@ -75,14 +75,17 @@ export const Composer = forwardRef<HTMLTextAreaElement, ComposerProps>(function 
 					{isRunning ? (
 						<Button
 							type="button"
-							variant="destructive"
 							size="icon"
 							onClick={onStop}
-							className="size-7"
+							className={cn(
+								'size-7 cursor-pointer bg-red-600 text-white shadow-[0_0_0_2px_rgba(239,68,68,0.25)]',
+								'hover:bg-red-500 hover:shadow-[0_0_0_3px_rgba(239,68,68,0.35)] active:bg-red-700',
+								'transition-all duration-150'
+							)}
 							aria-label={t('ext.input.stop')}
 							title={t('ext.input.stop')}
 						>
-							<Square className="size-3.5" aria-hidden="true" />
+							<Square className="size-3.5 fill-current" aria-hidden="true" />
 						</Button>
 					) : (
 						<Button

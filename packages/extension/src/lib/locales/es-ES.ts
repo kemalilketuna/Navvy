@@ -2,7 +2,13 @@ import type { TranslationSchema } from './en-US'
 
 export const esES: TranslationSchema = {
 	ext: {
-		status: { ready: 'Listo', running: 'Ejecutando', completed: 'Hecho', error: 'Error' },
+		status: {
+			ready: 'Listo',
+			running: 'Ejecutando',
+			completed: 'Hecho',
+			error: 'Error',
+			stopped: 'Detenido',
+		},
 		header: {
 			history: 'Historial',
 			settings: 'Ajustes',

@@ -23,8 +23,11 @@ export interface ExtConfig extends LLMConfig, AdvancedConfig {
 	language?: LanguagePreference
 }
 
+// Core reports 'error' for any aborted task; map to 'stopped' when the user explicitly stopped.
+export type ExtStatus = AgentStatus | 'stopped'
+
 export interface UseAgentResult {
-	status: AgentStatus
+	status: ExtStatus
 	history: HistoricalEvent[]
 	activity: AgentActivity | null
 	currentTask: string
@@ -37,7 +40,8 @@ export interface UseAgentResult {
 
 export function useAgent(): UseAgentResult {
 	const agentRef = useRef<MultiPageAgent | null>(null)
-	const [status, setStatus] = useState<AgentStatus>('idle')
+	const stopRequestedRef = useRef(false)
+	const [status, setStatus] = useState<ExtStatus>('idle')
 	const [history, setHistory] = useState<HistoricalEvent[]>([])
 	const [activity, setActivity] = useState<AgentActivity | null>(null)
 	const [currentTask, setCurrentTask] = useState('')
@@ -74,9 +78,19 @@ export function useAgent(): UseAgentResult {
 		agentRef.current = agent
 
 		const handleStatusChange = (e: Event) => {
-			const newStatus = agent.status as AgentStatus
-			setStatus(newStatus)
-			if (newStatus === 'idle' || newStatus === 'completed' || newStatus === 'error') {
+			const coreStatus = agent.status as AgentStatus
+			const mapped: ExtStatus =
+				coreStatus === 'error' && stopRequestedRef.current ? 'stopped' : coreStatus
+			if (coreStatus === 'running') {
+				stopRequestedRef.current = false
+			}
+			setStatus(mapped)
+			if (
+				mapped === 'idle' ||
+				mapped === 'completed' ||
+				mapped === 'error' ||
+				mapped === 'stopped'
+			) {
 				setActivity(null)
 			}
 		}
@@ -112,17 +126,17 @@ export function useAgent(): UseAgentResult {
 	}, [])
 
 	const stop = useCallback(() => {
+		stopRequestedRef.current = true
 		agentRef.current?.stop()
 	}, [])
 
 	const newChat = useCallback(() => {
+		stopRequestedRef.current = false
 		agentRef.current?.stop()
 		setHistory([])
 		setActivity(null)
 		setCurrentTask('')
 		setStatus('idle')
-		// Force a fresh MultiPageAgent instance so no internal state
-		// (observations, lastURL, in-flight tool calls) leaks into the next task.
 		setResetCounter((n) => n + 1)
 	}, [])
 
