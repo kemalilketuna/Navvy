@@ -1,4 +1,4 @@
-import { ArrowUp, ChevronDown, ChevronsRight, Mic, Plus, Square } from 'lucide-react'
+import { ArrowUp, Mic, Plus, Square } from 'lucide-react'
 import { type ChangeEvent, type KeyboardEvent, forwardRef } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -48,25 +48,7 @@ export const Composer = forwardRef<HTMLTextAreaElement, ComposerProps>(function 
 				placeholder={t('ext.input.placeholder')}
 				disabled={isRunning}
 			/>
-			<div className="mt-1 flex items-center justify-between">
-				{/* Mode pill — placeholder for future "Ask before action" / "Standalone" / "Speed" modes */}
-				<Button
-					type="button"
-					variant="ghost"
-					size="sm"
-					disabled
-					className={cn(
-						'h-auto gap-1 px-2 py-1 text-xs text-muted-foreground',
-						'disabled:opacity-100 disabled:pointer-events-none'
-					)}
-					aria-label="Mode (coming soon)"
-					title="Mode (coming soon)"
-				>
-					<ChevronsRight className="size-3.5" aria-hidden="true" />
-					<span>Ask before action</span>
-					<ChevronDown className="size-3" aria-hidden="true" />
-				</Button>
-
+			<div className="mt-1 flex items-center justify-end">
 				<div className="flex items-center gap-1">
 					<Button
 						type="button"
