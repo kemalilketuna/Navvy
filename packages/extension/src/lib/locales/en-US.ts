@@ -9,6 +9,7 @@ export const enUS = {
 			running: 'Running',
 			completed: 'Done',
 			error: 'Error',
+			stopped: 'Stopped',
 		},
 		header: {
 			history: 'History',

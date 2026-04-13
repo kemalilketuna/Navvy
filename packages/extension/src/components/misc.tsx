@@ -1,21 +1,22 @@
-import type { AgentStatus } from '@page-agent/core'
 import { Motion } from 'ai-motion'
 import { BookOpen, Globe } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { siGithub } from 'simple-icons'
 
+import type { ExtStatus } from '@/agent/useAgent'
 import { TypingAnimation } from '@/components/ui/typing-animation'
 import { useT } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
 // Status dot indicator
-export function StatusDot({ status }: { status: AgentStatus }) {
+export function StatusDot({ status }: { status: ExtStatus }) {
 	const t = useT()
 	const colorClass = {
 		idle: 'bg-green-500',
 		running: 'bg-blue-500',
 		completed: 'bg-green-500',
 		error: 'bg-destructive',
+		stopped: 'bg-amber-500',
 	}[status]
 
 	const label = {
@@ -23,6 +24,7 @@ export function StatusDot({ status }: { status: AgentStatus }) {
 		running: t('ext.status.running'),
 		completed: t('ext.status.completed'),
 		error: t('ext.status.error'),
+		stopped: t('ext.status.stopped'),
 	}[status]
 
 	return (
