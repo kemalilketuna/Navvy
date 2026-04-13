@@ -3,7 +3,19 @@ import type { TranslationSchema } from './en-US'
 export const ptPT: TranslationSchema = {
 	ext: {
 		status: { ready: 'Pronto', running: 'A executar', completed: 'Concluído', error: 'Erro' },
-		header: { history: 'Histórico', settings: 'Definições', back: 'Voltar' },
+		header: {
+			history: 'Histórico',
+			settings: 'Definições',
+			back: 'Voltar',
+			newChat: 'Nova conversa',
+			menu: 'Menu',
+		},
+		menu: { skills: 'Competências', settings: 'Definições' },
+		skills: {
+			title: 'Competências',
+			comingSoon: 'Em breve',
+			description: 'As competências reutilizáveis do agente viverão aqui.',
+		},
 		empty: {
 			tip1: 'Insira uma tarefa para automatizar esta página',
 			tip2: 'Execute tarefas em várias páginas',
