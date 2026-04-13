@@ -32,10 +32,16 @@ export class SimulatorMask extends EventTarget {
 		try {
 			const motion = new Motion({
 				mode: isPageDark() ? 'dark' : 'light',
-				// Orange/amber palette matching the extension send button
-				// (Tailwind amber-600 = rgb(217,119,6)).
-				colors: ['rgb(255, 196, 102)', 'rgb(245, 158, 11)', 'rgb(217, 119, 6)', 'rgb(180, 83, 9)'],
-				styles: { position: 'absolute', inset: '0' },
+				colors: [
+					'rgb(255, 170, 64)',
+					'rgb(244, 63, 94)',
+					'rgb(168, 85, 247)',
+					'rgb(56, 189, 248)',
+					'rgb(34, 197, 94)',
+				],
+				glowWidth: 18,
+				borderWidth: 1,
+				styles: { position: 'absolute', inset: '0', opacity: '0.65' },
 			})
 			this.motion = motion
 			this.wrapper.appendChild(motion.element)
@@ -116,20 +122,18 @@ export class SimulatorMask extends EventTarget {
 	#createCursor() {
 		this.#cursor.className = cursorStyles.cursor
 
-		// Create ripple effect container
-		const rippleContainer = document.createElement('div')
-		rippleContainer.className = cursorStyles.cursorRipple
-		this.#cursor.appendChild(rippleContainer)
+		const pointer = document.createElement('div')
+		pointer.className = cursorStyles.pointer
+		pointer.innerHTML =
+			'<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+			'<path fill="currentColor" stroke="#ffffff" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="round" ' +
+			'd="M3 2.4 L20.6 10.3 Q21.6 10.75 20.7 11.4 L13.2 13.5 L10.9 20.9 Q10.55 22 9.95 21 L3 2.4 Z"/>' +
+			'</svg>'
+		this.#cursor.appendChild(pointer)
 
-		// Create filling layer
-		const fillingLayer = document.createElement('div')
-		fillingLayer.className = cursorStyles.cursorFilling
-		this.#cursor.appendChild(fillingLayer)
-
-		// Create border layer
-		const borderLayer = document.createElement('div')
-		borderLayer.className = cursorStyles.cursorBorder
-		this.#cursor.appendChild(borderLayer)
+		const ripple = document.createElement('div')
+		ripple.className = cursorStyles.ripple
+		this.#cursor.appendChild(ripple)
 
 		this.wrapper.appendChild(this.#cursor)
 	}
