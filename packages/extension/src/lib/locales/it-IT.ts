@@ -2,7 +2,13 @@ import type { TranslationSchema } from './en-US'
 
 export const itIT: TranslationSchema = {
 	ext: {
-		status: { ready: 'Pronto', running: 'In corso', completed: 'Fatto', error: 'Errore' },
+		status: {
+			ready: 'Pronto',
+			running: 'In corso',
+			completed: 'Fatto',
+			error: 'Errore',
+			stopped: 'Fermato',
+		},
 		header: {
 			history: 'Cronologia',
 			settings: 'Impostazioni',

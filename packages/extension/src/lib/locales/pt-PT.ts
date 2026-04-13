@@ -2,7 +2,13 @@ import type { TranslationSchema } from './en-US'
 
 export const ptPT: TranslationSchema = {
 	ext: {
-		status: { ready: 'Pronto', running: 'A executar', completed: 'Concluído', error: 'Erro' },
+		status: {
+			ready: 'Pronto',
+			running: 'A executar',
+			completed: 'Concluído',
+			error: 'Erro',
+			stopped: 'Parado',
+		},
 		header: {
 			history: 'Histórico',
 			settings: 'Definições',
