@@ -78,11 +78,11 @@ importers:
   packages/core:
     dependencies:
       '@page-agent/llms':
-        specifier: 1.8.2
-        version: 1.8.2(zod@4.4.3)
+        specifier: workspace:*
+        version: link:../llms
       '@page-agent/page-controller':
-        specifier: 1.8.2
-        version: 1.8.2
+        specifier: workspace:*
+        version: link:../page-controller
       chalk:
         specifier: ^5.6.2
         version: 5.6.2
@@ -228,17 +228,17 @@ importers:
   packages/page-agent:
     dependencies:
       '@page-agent/core':
-        specifier: 1.8.2
-        version: 1.8.2(zod@4.4.3)
+        specifier: workspace:*
+        version: link:../core
       '@page-agent/llms':
-        specifier: 1.8.2
-        version: 1.8.2(zod@4.4.3)
+        specifier: workspace:*
+        version: link:../llms
       '@page-agent/page-controller':
-        specifier: 1.8.2
-        version: 1.8.2
+        specifier: workspace:*
+        version: link:../page-controller
       '@page-agent/ui':
-        specifier: 1.8.2
-        version: 1.8.2
+        specifier: workspace:*
+        version: link:../ui
       chalk:
         specifier: ^5.6.2
         version: 5.6.2
@@ -808,22 +808,6 @@ packages:
 
   '@oxc-project/types@0.129.0':
     resolution: {integrity: sha512-3oz8m3FGdr2nDXVqmFUw7jolKliC4MoyXYIG2c7gpjBnzUWQpUGIYcXYKxTdTi+N2jusvt610ckTMkxdwHkYEg==}
-
-  '@page-agent/core@1.8.2':
-    resolution: {integrity: sha512-Yf2IJShdwP0tP5ejw3MImo2nBEqTLQuxgB/RtYREwQvDBya8aZuOLciTgC1ZFex8jeuViAXgnWQ54CfZ3Rbneg==}
-    peerDependencies:
-      zod: ^3.25.0 || ^4.0.0
-
-  '@page-agent/llms@1.8.2':
-    resolution: {integrity: sha512-KQUdo0GS9E+w8mw7K+wE+IMnkKqP0ZEOROM1z5G3UQUQrpdO5cCRwN0/BQdr0AIorJbLCCbkAcsWi67PFIcdKA==}
-    peerDependencies:
-      zod: ^3.25.0 || ^4.0.0
-
-  '@page-agent/page-controller@1.8.2':
-    resolution: {integrity: sha512-Fms9UJl9YHga+0Xcp2MEl4FPXTa1HRwUKo+q4ruS1HfJqRH4UuaVtL0NvH7GMiXAw3eO2BMOTAz1+e+WOIxyig==}
-
-  '@page-agent/ui@1.8.2':
-    resolution: {integrity: sha512-cofvbsk1K/xzo33QDh20ipl8WY7Eow9CS5I81JHI9ezjBwB8RgNYV0yUmCaltJpqZl95HPpTNBpTZR+xV8m+kQ==}
 
   '@pnpm/config.env-replace@1.1.0':
     resolution: {integrity: sha512-htyl8TWnKL7K/ESFa1oW2UB5lVDxuF5DpM7tBi6Hu2LNL3mWkIzNLG6N4zoCUP1lCKNxWy/3iu8mS8MvToGd6w==}
@@ -4606,24 +4590,6 @@ snapshots:
     optional: true
 
   '@oxc-project/types@0.129.0': {}
-
-  '@page-agent/core@1.8.2(zod@4.4.3)':
-    dependencies:
-      '@page-agent/llms': 1.8.2(zod@4.4.3)
-      '@page-agent/page-controller': 1.8.2
-      chalk: 5.6.2
-      zod: 4.4.3
-
-  '@page-agent/llms@1.8.2(zod@4.4.3)':
-    dependencies:
-      chalk: 5.6.2
-      zod: 4.4.3
-
-  '@page-agent/page-controller@1.8.2':
-    dependencies:
-      ai-motion: 0.4.8
-
-  '@page-agent/ui@1.8.2': {}
 
   '@pnpm/config.env-replace@1.1.0': {}
 
