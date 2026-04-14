@@ -2,6 +2,7 @@ import { type AgentConfig, PageAgentCore } from '@page-agent/core'
 
 import { RemotePageController } from './RemotePageController'
 import { TabsController } from './TabsController'
+import { PROVIDERS_BY_KEY, detectProvider } from './providers'
 import SYSTEM_PROMPT from './system_prompt.md?raw'
 import { createTabTools } from './tabTools'
 
@@ -77,11 +78,15 @@ export class MultiPageAgent extends PageAgentCore {
 		 */
 		let heartBeatInterval: null | number = null
 
+		const provider = PROVIDERS_BY_KEY[detectProvider(config.baseURL)]
+		const restrictedToolset = provider?.restrictsSystemPrompt === true
+
 		super({
 			...restConfig,
 			pageController: pageController as any,
 			customTools: customTools,
 			customSystemPrompt: systemPrompt,
+			restrictedToolset,
 
 			onBeforeTask: async (agent) => {
 				await tabsController.init(agent.task, {

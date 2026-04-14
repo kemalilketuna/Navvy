@@ -148,6 +148,12 @@ export class PageAgentCore extends EventTarget {
 		if (!this.config.experimentalScriptExecutionTool) {
 			this.tools.delete('execute_javascript')
 		}
+
+		if (this.config.restrictedToolset) {
+			for (const [name, t] of this.tools) {
+				if (t.requiresFullProvider) this.tools.delete(name)
+			}
+		}
 	}
 
 	/** Get current agent status */
