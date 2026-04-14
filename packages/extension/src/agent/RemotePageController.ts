@@ -114,6 +114,17 @@ export class RemotePageController {
 		const res = await this.remoteCallDomAction('click_element', args)
 		// @note may cause page navigation, wait for 1 second to ensure the page loading started
 		await new Promise((resolve) => setTimeout(resolve, 1000))
+
+		// A disconnected content script after a click almost always means the click
+		// triggered a navigation that tore down the page. Surface it as a successful
+		// click with a clear message instead of a generic failure.
+		if (res && res.disconnected) {
+			return {
+				success: true,
+				message: 'Click succeeded; page navigated or reloaded before response.',
+			}
+		}
+
 		return res
 	}
 
@@ -168,7 +179,9 @@ export class RemotePageController {
 
 interface DomActionReturn {
 	success: boolean
-	message: string
+	message?: string
+	error?: string
+	disconnected?: boolean
 }
 
 /**
