@@ -245,8 +245,19 @@ export class TabsController {
 				[
 					{
 						role: 'system',
-						content:
-							'You name a browser tab group for an in-progress task. Pick the shortest possible label (1–2 words, <=24 characters, Title Case) that captures the topic. No quotes, no punctuation, no trailing period.',
+						content: [
+							'You name a browser tab group for an in-progress task.',
+							'Name the GOAL of the task (the subject the user cares about), not the steps to reach it.',
+							'Ignore navigation verbs and filler: go, open, visit, browse, navigate, search, find, look, click, type, scroll, then, first, next, finally, please.',
+							'Ignore generic destinations (wikipedia, google, youtube, etc.) unless the destination IS the goal.',
+							'Prefer the most specific named entity or subject in the task.',
+							'Output 1–2 words, ≤24 characters, Title Case. No quotes, no punctuation, no trailing period.',
+							'Examples:',
+							'  Task: "First, go to Wikipedia. Search for \\"Turkish War of Independence\\". Then click random links." → "Independence War"',
+							'  Task: "Open YouTube and find lo-fi study music" → "Lofi Music"',
+							'  Task: "Go to amazon.com and buy a usb-c cable" → "USB-C Cable"',
+							'  Task: "Check the weather in Tokyo tomorrow" → "Tokyo Weather"',
+						].join('\n'),
 					},
 					{ role: 'user', content: task },
 				],
