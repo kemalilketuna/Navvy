@@ -16,6 +16,13 @@ import {
 	waitFor,
 } from './utils'
 
+export interface DropdownOption {
+	value: string
+	text: string
+	index: number
+	selected: boolean
+}
+
 /**
  * Get the HTMLElement by index from a selectorMap.
  * @private Internal method, subject to change at any time.
@@ -414,6 +421,176 @@ export async function scrollVertically(scroll_amount: number, element?: HTMLElem
 			return `✅ ${warningMsg} Scrolled container (${el!.tagName}) by ${scrolled}px. Reached the top.`
 		return `✅ ${warningMsg} Scrolled container (${el!.tagName}) by ${scrolled}px.`
 	}
+}
+
+/**
+ * Parse a key combo like "ctrl+shift+a" or "Enter" into a KeyboardEventInit.
+ * @private Internal method, subject to change at any time.
+ */
+function parseKeyCombo(combo: string): KeyboardEventInit & { key: string } {
+	const parts = combo
+		.split('+')
+		.map((s) => s.trim())
+		.filter(Boolean)
+	const main = parts.pop() ?? ''
+	const init: KeyboardEventInit & { key: string } = {
+		key: main,
+		bubbles: true,
+		cancelable: true,
+	}
+	for (const mod of parts) {
+		const m = mod.toLowerCase()
+		if (m === 'ctrl' || m === 'control') init.ctrlKey = true
+		else if (m === 'shift') init.shiftKey = true
+		else if (m === 'alt' || m === 'option') init.altKey = true
+		else if (m === 'meta' || m === 'cmd' || m === 'command') init.metaKey = true
+	}
+	if (main.length === 1) {
+		init.code = `Key${main.toUpperCase()}`
+	} else {
+		init.code = main
+	}
+	return init
+}
+
+/**
+ * Dispatch a sequence of key events to the focused element (or body).
+ * Multiple combos can be separated by whitespace, e.g. "Tab Enter" or "ctrl+a Delete".
+ * @private Internal method, subject to change at any time.
+ */
+export async function sendKeys(keys: string): Promise<string> {
+	const combos = keys.split(/\s+/).filter(Boolean)
+	if (combos.length === 0) {
+		throw new Error('No keys provided')
+	}
+	const target = (document.activeElement as HTMLElement | null) ?? document.body
+	for (const combo of combos) {
+		const init = parseKeyCombo(combo)
+		target.dispatchEvent(new KeyboardEvent('keydown', init))
+		target.dispatchEvent(new KeyboardEvent('keyup', init))
+		await waitFor(0.05)
+	}
+	return `Dispatched keys: ${combos.join(', ')} to <${target.tagName.toLowerCase()}>`
+}
+
+/**
+ * Navigate back in browser history.
+ * @private Internal method, subject to change at any time.
+ */
+export async function goBack(): Promise<string> {
+	if (window.history.length <= 1) {
+		return 'No previous page in history'
+	}
+	window.history.back()
+	await waitFor(0.3)
+	return `Navigated back. Current URL: ${window.location.href}`
+}
+
+/**
+ * Find first text occurrence in the page and scroll it into view.
+ * Case-insensitive substring match across visible text nodes.
+ * @private Internal method, subject to change at any time.
+ */
+export async function scrollToText(text: string): Promise<HTMLElement | null> {
+	const needle = text.toLowerCase().trim()
+	if (!needle) return null
+
+	const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+		acceptNode(node) {
+			const value = node.nodeValue?.toLowerCase() ?? ''
+			if (!value.includes(needle)) return NodeFilter.FILTER_REJECT
+			const parent = node.parentElement
+			if (!parent) return NodeFilter.FILTER_REJECT
+			const style = window.getComputedStyle(parent)
+			if (style.display === 'none' || style.visibility === 'hidden') {
+				return NodeFilter.FILTER_REJECT
+			}
+			return NodeFilter.FILTER_ACCEPT
+		},
+	})
+	const node = walker.nextNode()
+	const parent = node?.parentElement
+	if (!parent) return null
+
+	await scrollIntoViewIfNeeded(parent)
+	return parent
+}
+
+/**
+ * Read all options from a native <select> element.
+ * @private Internal method, subject to change at any time.
+ */
+export function getDropdownOptions(element: HTMLElement): DropdownOption[] {
+	if (!isSelectElement(element)) {
+		throw new Error('Element is not a <select>')
+	}
+	return Array.from(element.options).map((opt, i) => ({
+		index: i,
+		value: opt.value,
+		text: (opt.textContent ?? '').trim(),
+		selected: opt.selected,
+	}))
+}
+
+/**
+ * Simulate a drag-and-drop gesture from source to target element.
+ * Dispatches both Pointer/Mouse events and HTML5 DragEvents.
+ * @private Internal method, subject to change at any time.
+ */
+export async function dragAndDrop(source: HTMLElement, target: HTMLElement): Promise<string> {
+	await scrollIntoViewIfNeeded(source)
+	const sr = source.getBoundingClientRect()
+	const tr = target.getBoundingClientRect()
+	const sx = sr.left + sr.width / 2
+	const sy = sr.top + sr.height / 2
+	const tx = tr.left + tr.width / 2
+	const ty = tr.top + tr.height / 2
+
+	const pointerOpts = (x: number, y: number) => ({
+		bubbles: true,
+		cancelable: true,
+		clientX: x,
+		clientY: y,
+		pointerType: 'mouse',
+	})
+	const mouseOpts = (x: number, y: number) => ({
+		bubbles: true,
+		cancelable: true,
+		clientX: x,
+		clientY: y,
+		button: 0,
+	})
+	const dataTransfer = new DataTransfer()
+	const dragOpts = (x: number, y: number) => ({
+		bubbles: true,
+		cancelable: true,
+		clientX: x,
+		clientY: y,
+		dataTransfer,
+	})
+
+	source.dispatchEvent(new PointerEvent('pointerdown', pointerOpts(sx, sy)))
+	source.dispatchEvent(new MouseEvent('mousedown', mouseOpts(sx, sy)))
+	source.dispatchEvent(new DragEvent('dragstart', dragOpts(sx, sy)))
+
+	const steps = 8
+	for (let i = 1; i <= steps; i++) {
+		const x = sx + ((tx - sx) * i) / steps
+		const y = sy + ((ty - sy) * i) / steps
+		document.dispatchEvent(new PointerEvent('pointermove', pointerOpts(x, y)))
+		source.dispatchEvent(new DragEvent('drag', dragOpts(x, y)))
+		target.dispatchEvent(new DragEvent('dragenter', dragOpts(x, y)))
+		target.dispatchEvent(new DragEvent('dragover', dragOpts(x, y)))
+		await waitFor(0.02)
+	}
+
+	target.dispatchEvent(new DragEvent('drop', dragOpts(tx, ty)))
+	source.dispatchEvent(new DragEvent('dragend', dragOpts(tx, ty)))
+	target.dispatchEvent(new PointerEvent('pointerup', pointerOpts(tx, ty)))
+	target.dispatchEvent(new MouseEvent('mouseup', mouseOpts(tx, ty)))
+
+	await waitFor(0.1)
+	return `Dragged <${source.tagName.toLowerCase()}> → <${target.tagName.toLowerCase()}>`
 }
 
 export async function scrollHorizontally(scroll_amount: number, element?: HTMLElement | null) {

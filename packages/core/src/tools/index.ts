@@ -170,6 +170,79 @@ tools.set(
 )
 
 tools.set(
+	'send_keys',
+	tool({
+		description:
+			'Dispatch keyboard key combos to the focused element. Use for special keys like Enter, Tab, Escape, Backspace, Delete, ArrowUp/Down/Left/Right, or combos like "ctrl+a", "shift+Tab". Separate multiple combos with whitespace, e.g. "ctrl+a Delete".',
+		inputSchema: z.object({
+			keys: z.string(),
+		}),
+		execute: async function (this: PageAgentCore, input) {
+			const result = await this.pageController.sendKeys(input.keys)
+			return result.message
+		},
+	})
+)
+
+tools.set(
+	'go_back',
+	tool({
+		description: 'Navigate back to the previous page in browser history.',
+		inputSchema: z.object({}),
+		execute: async function (this: PageAgentCore) {
+			const result = await this.pageController.goBack()
+			return result.message
+		},
+	})
+)
+
+tools.set(
+	'scroll_to_text',
+	tool({
+		description:
+			'Find the first occurrence of given text on the page and scroll it into view. Case-insensitive substring match.',
+		inputSchema: z.object({
+			text: z.string(),
+		}),
+		execute: async function (this: PageAgentCore, input) {
+			const result = await this.pageController.scrollToText(input.text)
+			return result.message
+		},
+	})
+)
+
+tools.set(
+	'get_dropdown_options',
+	tool({
+		description:
+			'Read all options of a native <select> element by index. Returns option index, value, text, and selected state.',
+		inputSchema: z.object({
+			index: z.int().min(0),
+		}),
+		execute: async function (this: PageAgentCore, input) {
+			const result = await this.pageController.getDropdownOptions(input.index)
+			return result.message
+		},
+	})
+)
+
+tools.set(
+	'drag_and_drop',
+	tool({
+		description:
+			'Drag the element at source_index onto the element at target_index. Useful for reordering lists or kanban-style boards.',
+		inputSchema: z.object({
+			source_index: z.int().min(0),
+			target_index: z.int().min(0),
+		}),
+		execute: async function (this: PageAgentCore, input) {
+			const result = await this.pageController.dragAndDrop(input.source_index, input.target_index)
+			return result.message
+		},
+	})
+)
+
+tools.set(
 	'execute_javascript',
 	tool({
 		description:
@@ -184,7 +257,5 @@ tools.set(
 	})
 )
 
-// @todo send_keys
 // @todo upload_file
-// @todo go_back
 // @todo extract_structured_data
