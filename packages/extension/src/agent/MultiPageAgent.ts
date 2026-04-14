@@ -32,7 +32,8 @@ export function detectLanguage(): ExtensionLanguage {
 }
 
 interface MultiPageAgentConfig extends Omit<AgentConfig, 'language'> {
-	language?: ExtensionLanguage
+	/** Language the agent uses to reply. 'auto' = mirror the user's task language. */
+	responseLanguage?: 'auto' | ExtensionLanguage
 	includeInitialTab?: boolean
 	experimentalIncludeAllTabs?: boolean
 }
@@ -49,15 +50,19 @@ export class MultiPageAgent extends PageAgentCore {
 		const pageController = new RemotePageController(tabsController)
 		const customTools = createTabTools(tabsController)
 
-		// system prompt - auto-detect language if not specified
-		const language = config.language ?? detectLanguage()
-		const targetLanguage = LANGUAGE_NAMES[language] ?? 'English'
+		// Resolve response-language directive. 'auto' (or unset) means the agent
+		// should mirror the language of the user's task.
+		const responseLanguage = config.responseLanguage ?? 'auto'
+		const directive =
+			responseLanguage === 'auto'
+				? 'Match the language of the user'
+				: (LANGUAGE_NAMES[responseLanguage] ?? 'English')
 
-		// Strip language so it doesn't reach the core (which has a narrower type).
-		const { language: _ignored, ...restConfig } = config
+		// Strip extension-only field so it doesn't reach the core.
+		const { responseLanguage: _ignored, ...restConfig } = config
 		const systemPrompt = SYSTEM_PROMPT.replace(
 			/Default working language: \*\*.*?\*\*/,
-			`Default working language: **${targetLanguage}**`
+			`Default working language: **${directive}**`
 		)
 
 		const includeInitialTab = config.includeInitialTab ?? true

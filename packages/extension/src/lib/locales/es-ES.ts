@@ -100,7 +100,12 @@ export const esES: TranslationSchema = {
 			tabSkills: 'Habilidades',
 			tabAdvanced: 'Avanzado',
 			tabAbout: 'Acerca de',
-			languageHelp: 'Idioma que el agente usa para responder.',
+			uiLanguage: 'Idioma de la interfaz',
+			uiLanguageHelp: 'Idioma usado para la interfaz de la extensión.',
+			responseLanguage: 'Idioma de respuesta',
+			responseLanguageHelp:
+				'Idioma que el agente usa para responder. Auto coincide con el idioma de tu tarea.',
+			languageAuto: 'Auto',
 			unsavedNotice: 'Tienes cambios sin guardar',
 			savedNotice: 'Guardado',
 		},

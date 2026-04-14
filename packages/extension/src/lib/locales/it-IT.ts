@@ -100,7 +100,12 @@ export const itIT: TranslationSchema = {
 			tabSkills: 'Competenze',
 			tabAdvanced: 'Avanzate',
 			tabAbout: 'Informazioni',
-			languageHelp: 'Lingua usata dall’agente per rispondere.',
+			uiLanguage: 'Lingua dell’interfaccia',
+			uiLanguageHelp: 'Lingua usata per l’interfaccia dell’estensione.',
+			responseLanguage: 'Lingua delle risposte',
+			responseLanguageHelp:
+				'Lingua usata dall’agente per rispondere. Auto corrisponde alla lingua della tua richiesta.',
+			languageAuto: 'Auto',
 			unsavedNotice: 'Ci sono modifiche non salvate',
 			savedNotice: 'Salvato',
 		},

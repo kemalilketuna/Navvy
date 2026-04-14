@@ -6,6 +6,9 @@ import { type LLMProfile, buildProfilesState } from './profiles'
 
 export type LanguagePreference = ExtensionLanguage | undefined
 
+/** Agent response language. 'auto' = mirror the language of the user's task. */
+export type ResponseLanguage = 'auto' | ExtensionLanguage
+
 export interface AdvancedConfig {
 	maxSteps?: number
 	systemInstruction?: string
@@ -16,14 +19,32 @@ export interface AdvancedConfig {
 
 export interface ExtConfig extends LLMConfig, AdvancedConfig {
 	language?: LanguagePreference
+	responseLanguage: ResponseLanguage
 	profiles: LLMProfile[]
 	activeProfileId: string
+}
+
+function normalizeResponseLanguage(raw: unknown): ResponseLanguage {
+	if (raw === 'auto') return 'auto'
+	if (
+		raw === 'en-US' ||
+		raw === 'fr-FR' ||
+		raw === 'de-DE' ||
+		raw === 'es-ES' ||
+		raw === 'it-IT' ||
+		raw === 'pt-PT' ||
+		raw === 'tr-TR'
+	) {
+		return raw
+	}
+	return 'auto'
 }
 
 export async function loadConfig(): Promise<ExtConfig> {
 	const result = await chrome.storage.local.get([
 		'llmConfig',
 		'language',
+		'responseLanguage',
 		'advancedConfig',
 		'llmProfiles',
 		'activeProfileId',
@@ -31,6 +52,7 @@ export async function loadConfig(): Promise<ExtConfig> {
 
 	let legacyLlm = (result.llmConfig as LLMConfig) ?? DEMO_CONFIG
 	const language = (result.language as ExtensionLanguage) || undefined
+	const responseLanguage = normalizeResponseLanguage(result.responseLanguage)
 	const advancedConfig = (result.advancedConfig as AdvancedConfig) ?? {}
 
 	const migrated = migrateLegacyEndpoint(legacyLlm)
@@ -59,6 +81,7 @@ export async function loadConfig(): Promise<ExtConfig> {
 		apiKey: active.apiKey,
 		...advancedConfig,
 		language,
+		responseLanguage,
 		profiles,
 		activeProfileId: active.id,
 	}
@@ -67,6 +90,7 @@ export async function loadConfig(): Promise<ExtConfig> {
 export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 	const {
 		language,
+		responseLanguage,
 		maxSteps,
 		systemInstruction,
 		experimentalLlmsTxt,
@@ -93,6 +117,11 @@ export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 	} else {
 		await chrome.storage.local.remove('language')
 	}
+	if (responseLanguage && responseLanguage !== 'auto') {
+		await chrome.storage.local.set({ responseLanguage })
+	} else {
+		await chrome.storage.local.remove('responseLanguage')
+	}
 	const advancedConfig: AdvancedConfig = {
 		maxSteps,
 		systemInstruction,
@@ -106,6 +135,7 @@ export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 		...llmConfig,
 		...advancedConfig,
 		language,
+		responseLanguage,
 		profiles,
 		activeProfileId: active.id,
 	}
