@@ -155,6 +155,11 @@ export class PageAgentCore extends EventTarget {
 		return this.#status
 	}
 
+	/** Access the underlying LLM (for ancillary calls like title summarization) */
+	get llm(): LLM {
+		return this.#llm
+	}
+
 	/** Emit statuschange event */
 	#emitStatusChange(): void {
 		this.dispatchEvent(new Event('statuschange'))
