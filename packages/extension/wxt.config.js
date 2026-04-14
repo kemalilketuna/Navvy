@@ -12,6 +12,7 @@ export default defineConfig({
 	srcDir: 'src',
 	modules: ['@wxt-dev/module-react'],
 	webExt: {
+		disabled: true,
 		chromiumProfile: chromeProfile,
 		keepProfileChanges: true,
 		chromiumArgs: ['--hide-crash-restore-bubble'],
