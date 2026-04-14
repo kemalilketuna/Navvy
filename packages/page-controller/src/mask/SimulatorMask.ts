@@ -119,16 +119,55 @@ export class SimulatorMask extends EventTarget {
 		})
 	}
 
+	/**
+	 * Build the cursor arrow SVG. The arrow shape is adapted from the Navvy
+	 * extension logo (`logo.svg`): the original path `M44 42 L88 58 L66 66 L58 90`
+	 * in a 128x128 viewBox is rescaled to a 24x24 viewBox with the tip pinned
+	 * at (3, 3) so it lines up with the cursor's transform-origin.
+	 */
+	#buildCursorSvg(): SVGSVGElement {
+		const svgNS = 'http://www.w3.org/2000/svg'
+		const svg = document.createElementNS(svgNS, 'svg')
+		svg.setAttribute('viewBox', '0 0 24 24')
+		svg.setAttribute('aria-hidden', 'true')
+
+		const defs = document.createElementNS(svgNS, 'defs')
+		const gradient = document.createElementNS(svgNS, 'linearGradient')
+		gradient.setAttribute('id', 'navvy-cursor-fill')
+		gradient.setAttribute('x1', '3')
+		gradient.setAttribute('y1', '3')
+		gradient.setAttribute('x2', '22')
+		gradient.setAttribute('y2', '24')
+		gradient.setAttribute('gradientUnits', 'userSpaceOnUse')
+		const stop1 = document.createElementNS(svgNS, 'stop')
+		stop1.setAttribute('offset', '0%')
+		stop1.setAttribute('stop-color', '#F5E9D4')
+		const stop2 = document.createElementNS(svgNS, 'stop')
+		stop2.setAttribute('offset', '100%')
+		stop2.setAttribute('stop-color', '#E8C789')
+		gradient.appendChild(stop1)
+		gradient.appendChild(stop2)
+		defs.appendChild(gradient)
+		svg.appendChild(defs)
+
+		const path = document.createElementNS(svgNS, 'path')
+		path.setAttribute('fill', 'url(#navvy-cursor-fill)')
+		path.setAttribute('stroke', '#1F1F1F')
+		path.setAttribute('stroke-width', '1.1')
+		path.setAttribute('stroke-linejoin', 'round')
+		path.setAttribute('stroke-linecap', 'round')
+		path.setAttribute('d', 'M3 3 L21.9 9.9 L12.5 13.3 L9 23.6 Z')
+		svg.appendChild(path)
+
+		return svg
+	}
+
 	#createCursor() {
 		this.#cursor.className = cursorStyles.cursor
 
 		const pointer = document.createElement('div')
 		pointer.className = cursorStyles.pointer
-		pointer.innerHTML =
-			'<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
-			'<path fill="currentColor" stroke="#ffffff" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="round" ' +
-			'd="M3 2.4 L20.6 10.3 Q21.6 10.75 20.7 11.4 L13.2 13.5 L10.9 20.9 Q10.55 22 9.95 21 L3 2.4 Z"/>' +
-			'</svg>'
+		pointer.appendChild(this.#buildCursorSvg())
 		this.#cursor.appendChild(pointer)
 
 		const ripple = document.createElement('div')
