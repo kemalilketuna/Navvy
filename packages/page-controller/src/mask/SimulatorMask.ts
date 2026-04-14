@@ -14,12 +14,22 @@ export class SimulatorMask extends EventTarget {
 	#disposed = false
 
 	#cursor = document.createElement('div')
+	#pointer = document.createElement('div')
 
 	#currentCursorX = 0
 	#currentCursorY = 0
 
 	#targetCursorX = 0
 	#targetCursorY = 0
+
+	// The arrow SVG tip points up-left when rotation is 0 — see #buildCursorSvg.
+	// This is the screen-space angle (in degrees) the tip naturally faces.
+	static readonly #DEFAULT_TIP_ANGLE_DEG = -132
+
+	#cursorAngleDeg = 0
+
+	static readonly #STORAGE_KEY = 'navvy.cursorPos'
+	#lastSavedAt = 0
 
 	constructor() {
 		super()
@@ -32,13 +42,7 @@ export class SimulatorMask extends EventTarget {
 		try {
 			const motion = new Motion({
 				mode: isPageDark() ? 'dark' : 'light',
-				colors: [
-					'rgb(255, 170, 64)',
-					'rgb(244, 63, 94)',
-					'rgb(168, 85, 247)',
-					'rgb(56, 189, 248)',
-					'rgb(34, 197, 94)',
-				],
+				colors: ['rgb(255, 170, 64)', 'rgb(244, 63, 94)', 'rgb(168, 85, 247)', 'rgb(56, 189, 248)'],
 				glowWidth: 18,
 				borderWidth: 1,
 				styles: { position: 'absolute', inset: '0', opacity: '0.65' },
@@ -165,10 +169,10 @@ export class SimulatorMask extends EventTarget {
 	#createCursor() {
 		this.#cursor.className = cursorStyles.cursor
 
-		const pointer = document.createElement('div')
-		pointer.className = cursorStyles.pointer
-		pointer.appendChild(this.#buildCursorSvg())
-		this.#cursor.appendChild(pointer)
+		this.#pointer.className = cursorStyles.pointer
+		this.#pointer.appendChild(this.#buildCursorSvg())
+		this.#pointer.style.setProperty('--cursor-angle', '0deg')
+		this.#cursor.appendChild(this.#pointer)
 
 		const ripple = document.createElement('div')
 		ripple.className = cursorStyles.ripple
@@ -180,8 +184,8 @@ export class SimulatorMask extends EventTarget {
 	#moveCursorToTarget() {
 		if (this.#disposed) return
 
-		const newX = this.#currentCursorX + (this.#targetCursorX - this.#currentCursorX) * 0.2
-		const newY = this.#currentCursorY + (this.#targetCursorY - this.#currentCursorY) * 0.2
+		const newX = this.#currentCursorX + (this.#targetCursorX - this.#currentCursorX) * 0.08
+		const newY = this.#currentCursorY + (this.#targetCursorY - this.#currentCursorY) * 0.08
 
 		const xDistance = Math.abs(newX - this.#targetCursorX)
 		if (xDistance > 0) {
@@ -209,8 +213,85 @@ export class SimulatorMask extends EventTarget {
 	setCursorPosition(x: number, y: number) {
 		if (this.#disposed) return
 
+		const dx = x - this.#currentCursorX
+		const dy = y - this.#currentCursorY
+		// Only re-aim for moves long enough to have a meaningful direction;
+		// short hops would otherwise cause the cursor to twitch.
+		if (dx * dx + dy * dy >= 16 * 16) {
+			const targetAngleDeg = (Math.atan2(dy, dx) * 180) / Math.PI
+			const rotationDeg = this.#shortestRotation(
+				this.#cursorAngleDeg,
+				targetAngleDeg - SimulatorMask.#DEFAULT_TIP_ANGLE_DEG
+			)
+			this.#cursorAngleDeg = rotationDeg
+			this.#pointer.style.setProperty('--cursor-angle', `${rotationDeg}deg`)
+		}
+
 		this.#targetCursorX = x
 		this.#targetCursorY = y
+		this.#savePositionThrottled(x, y)
+	}
+
+	// Pick the next-angle representation closest to `from` (no >180° spins).
+	#shortestRotation(from: number, to: number): number {
+		const delta = ((((to - from) % 360) + 540) % 360) - 180
+		return from + delta
+	}
+
+	#savePositionThrottled(x: number, y: number) {
+		const now = Date.now()
+		if (now - this.#lastSavedAt < 120) return
+		this.#lastSavedAt = now
+		const payload = JSON.stringify({ x, y, w: window.innerWidth, h: window.innerHeight })
+		try {
+			sessionStorage.setItem(SimulatorMask.#STORAGE_KEY, payload)
+		} catch {
+			/* ignore */
+		}
+		// chrome.storage.local survives cross-origin navigations and is reachable from content scripts.
+		const c = (globalThis as any).chrome
+		if (c?.storage?.local?.set) {
+			try {
+				c.storage.local.set({ [SimulatorMask.#STORAGE_KEY]: payload })
+			} catch {
+				/* ignore */
+			}
+		}
+	}
+
+	async #loadSavedPosition(): Promise<{ x: number; y: number; w: number; h: number } | null> {
+		const parse = (raw: unknown) => {
+			if (typeof raw !== 'string') return null
+			try {
+				const p = JSON.parse(raw)
+				if (
+					typeof p.x === 'number' &&
+					typeof p.y === 'number' &&
+					typeof p.w === 'number' &&
+					typeof p.h === 'number'
+				) {
+					return p as { x: number; y: number; w: number; h: number }
+				}
+			} catch {
+				/* ignore */
+			}
+			return null
+		}
+		const c = (globalThis as any).chrome
+		if (c?.storage?.local?.get) {
+			try {
+				const data = await c.storage.local.get(SimulatorMask.#STORAGE_KEY)
+				const p = parse(data[SimulatorMask.#STORAGE_KEY])
+				if (p) return p
+			} catch {
+				/* ignore */
+			}
+		}
+		try {
+			return parse(sessionStorage.getItem(SimulatorMask.#STORAGE_KEY))
+		} catch {
+			return null
+		}
 	}
 
 	triggerClickAnimation() {
@@ -239,6 +320,28 @@ export class SimulatorMask extends EventTarget {
 			this.#targetCursorY = this.#currentCursorY
 			this.#cursor.style.left = `${this.#currentCursorX}px`
 			this.#cursor.style.top = `${this.#currentCursorY}px`
+
+			// Try to restore the last position from a previous page (async).
+			void this.#loadSavedPosition().then((saved) => {
+				if (!saved || this.#disposed) return
+				// Skip if the agent already moved the cursor since show().
+				if (
+					this.#targetCursorX !== this.#currentCursorX ||
+					this.#targetCursorY !== this.#currentCursorY
+				)
+					return
+				// Scale to the current viewport in case it changed across pages.
+				const scaleX = window.innerWidth / saved.w
+				const scaleY = window.innerHeight / saved.h
+				const x = Math.max(0, Math.min(window.innerWidth, saved.x * scaleX))
+				const y = Math.max(0, Math.min(window.innerHeight, saved.y * scaleY))
+				this.#currentCursorX = x
+				this.#currentCursorY = y
+				this.#targetCursorX = x
+				this.#targetCursorY = y
+				this.#cursor.style.left = `${x}px`
+				this.#cursor.style.top = `${y}px`
+			})
 		}
 	}
 
