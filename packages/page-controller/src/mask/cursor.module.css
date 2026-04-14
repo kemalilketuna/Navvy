@@ -11,13 +11,10 @@
 .pointer {
 	position: absolute;
 	inset: 0;
-	color: #f59e0b;
-	filter: drop-shadow(0 2px 4px rgba(120, 53, 15, 0.35))
-		drop-shadow(0 0 1px rgba(255, 255, 255, 0.9));
+	filter: drop-shadow(0 2px 4px rgba(31, 31, 31, 0.45))
+		drop-shadow(0 0 1px rgba(245, 233, 212, 0.6));
 	transform-origin: 3px 3px;
-	transition:
-		transform 140ms ease,
-		color 140ms ease;
+	transition: transform 140ms ease;
 }
 
 .pointer svg {
@@ -32,7 +29,7 @@
 	left: 3px;
 	width: 14px;
 	height: 14px;
-	border: 2px solid #f59e0b;
+	border: 2px solid #da7757;
 	border-radius: 50%;
 	transform: translate(-50%, -50%) scale(0.4);
 	opacity: 0;
@@ -41,7 +38,7 @@
 
 .cursor.clicking .pointer {
 	transform: scale(0.85);
-	color: #d97706;
+	filter: drop-shadow(0 2px 4px rgba(31, 31, 31, 0.55)) drop-shadow(0 0 2px rgba(218, 119, 87, 0.7));
 }
 
 .cursor.clicking .ripple {
