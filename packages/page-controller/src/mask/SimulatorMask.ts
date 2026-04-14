@@ -29,6 +29,7 @@ export class SimulatorMask extends EventTarget {
 	#cursorAngleDeg = 0
 
 	static readonly #STORAGE_KEY = 'navvy.cursorPos'
+	static readonly #VISIBLE_KEY = 'navvy.maskVisible'
 	#lastSavedAt = 0
 
 	constructor() {
@@ -279,6 +280,31 @@ export class SimulatorMask extends EventTarget {
 		}
 	}
 
+	#writeVisibility(visible: boolean) {
+		const payload = visible ? '1' : '0'
+		try {
+			sessionStorage.setItem(SimulatorMask.#VISIBLE_KEY, payload)
+		} catch (e) {
+			console.warn('[SimulatorMask] sessionStorage write failed:', e)
+		}
+		const c = (globalThis as any).chrome
+		if (c?.storage?.local?.set) {
+			c.storage.local
+				.set({ [SimulatorMask.#VISIBLE_KEY]: payload })
+				.catch((e: unknown) =>
+					console.warn('[SimulatorMask] chrome.storage.local write failed:', e)
+				)
+		}
+	}
+
+	#wasVisibleSync(): boolean {
+		try {
+			return sessionStorage.getItem(SimulatorMask.#VISIBLE_KEY) === '1'
+		} catch {
+			return false
+		}
+	}
+
 	async #loadSavedPosition(): Promise<{
 		x: number
 		y: number
@@ -334,7 +360,14 @@ export class SimulatorMask extends EventTarget {
 
 		this.shown = true
 		this.motion?.start()
-		this.motion?.fadeIn()
+		// On a fresh page after a navigation while the agent was already running,
+		// skip the fade-in so the border looks continuous instead of flashing in.
+		// sessionStorage covers same-origin navigations; cross-origin falls back to fade-in.
+		const continuing = this.#wasVisibleSync()
+		if (!continuing) {
+			this.motion?.fadeIn()
+		}
+		this.#writeVisibility(true)
 
 		this.wrapper.classList.add(styles.visible)
 
@@ -382,6 +415,7 @@ export class SimulatorMask extends EventTarget {
 		if (!this.shown || this.#disposed) return
 
 		this.shown = false
+		this.#writeVisibility(false)
 		this.motion?.fadeOut()
 		this.motion?.pause()
 
@@ -394,6 +428,8 @@ export class SimulatorMask extends EventTarget {
 
 	dispose() {
 		this.#disposed = true
+		// Only clear the visibility flag if we were still shown; an explicit hide() already cleared it.
+		if (this.shown) this.#writeVisibility(false)
 		console.log('dispose SimulatorMask')
 		this.motion?.dispose()
 		this.wrapper.remove()
