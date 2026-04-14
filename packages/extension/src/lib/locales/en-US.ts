@@ -115,6 +115,7 @@ export const enUS = {
 			languageAuto: 'Auto',
 			unsavedNotice: 'You have unsaved changes',
 			savedNotice: 'Saved',
+			close: 'Close',
 		},
 		error: {
 			title: 'Something went wrong',

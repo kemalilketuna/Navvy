@@ -108,6 +108,7 @@ export const deDE: TranslationSchema = {
 			languageAuto: 'Auto',
 			unsavedNotice: 'Du hast nicht gespeicherte Änderungen',
 			savedNotice: 'Gespeichert',
+			close: 'Schließen',
 		},
 		error: {
 			title: 'Etwas ist schiefgelaufen',

@@ -108,6 +108,7 @@ export const trTR: TranslationSchema = {
 			languageAuto: 'Otomatik',
 			unsavedNotice: 'Kaydedilmemiş değişiklikleriniz var',
 			savedNotice: 'Kaydedildi',
+			close: 'Kapat',
 		},
 		error: {
 			title: 'Bir şeyler ters gitti',

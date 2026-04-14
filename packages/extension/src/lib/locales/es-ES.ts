@@ -108,6 +108,7 @@ export const esES: TranslationSchema = {
 			languageAuto: 'Auto',
 			unsavedNotice: 'Tienes cambios sin guardar',
 			savedNotice: 'Guardado',
+			close: 'Cerrar',
 		},
 		error: {
 			title: 'Algo salió mal',
