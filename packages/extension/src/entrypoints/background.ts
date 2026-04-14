@@ -44,13 +44,13 @@ export default defineBackground(() => {
 
 	// keyboard shortcut to open the side panel
 
-	chrome.commands.onCommand.addListener(async (command) => {
+	chrome.commands.onCommand.addListener((command, tab) => {
 		if (command !== 'open-side-panel') return
-
-		const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
 		if (tab?.windowId === undefined) return
 
-		await chrome.sidePanel.open({ windowId: tab.windowId })
+		chrome.sidePanel.open({ windowId: tab.windowId }).catch((err) => {
+			console.error('[Background] sidePanel.open failed:', err)
+		})
 	})
 
 	// setup
