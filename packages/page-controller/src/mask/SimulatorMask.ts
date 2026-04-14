@@ -229,7 +229,7 @@ export class SimulatorMask extends EventTarget {
 
 		this.#targetCursorX = x
 		this.#targetCursorY = y
-		this.#savePositionThrottled(x, y)
+		this.#savePositionThrottled(x, y, this.#cursorAngleDeg)
 	}
 
 	// Pick the next-angle representation closest to `from` (no >180° spins).
@@ -238,43 +238,54 @@ export class SimulatorMask extends EventTarget {
 		return from + delta
 	}
 
-	#savePositionThrottled(x: number, y: number) {
+	#savePositionThrottled(x: number, y: number, angleDeg: number) {
 		const now = Date.now()
 		if (now - this.#lastSavedAt < 120) return
 		this.#lastSavedAt = now
-		const payload = JSON.stringify({ x, y, w: window.innerWidth, h: window.innerHeight })
+		const payload = JSON.stringify({
+			x,
+			y,
+			angleDeg,
+			w: window.innerWidth,
+			h: window.innerHeight,
+		})
 		try {
 			sessionStorage.setItem(SimulatorMask.#STORAGE_KEY, payload)
-		} catch {
-			/* ignore */
+		} catch (e) {
+			console.warn('[SimulatorMask] sessionStorage write failed:', e)
 		}
 		// chrome.storage.local survives cross-origin navigations and is reachable from content scripts.
 		const c = (globalThis as any).chrome
 		if (c?.storage?.local?.set) {
-			try {
-				c.storage.local.set({ [SimulatorMask.#STORAGE_KEY]: payload })
-			} catch {
-				/* ignore */
-			}
+			c.storage.local
+				.set({ [SimulatorMask.#STORAGE_KEY]: payload })
+				.catch((e: unknown) =>
+					console.warn('[SimulatorMask] chrome.storage.local write failed:', e)
+				)
 		}
 	}
 
-	async #loadSavedPosition(): Promise<{ x: number; y: number; w: number; h: number } | null> {
+	async #loadSavedPosition(): Promise<{
+		x: number
+		y: number
+		angleDeg: number
+		w: number
+		h: number
+	} | null> {
 		const parse = (raw: unknown) => {
 			if (typeof raw !== 'string') return null
-			try {
-				const p = JSON.parse(raw)
-				if (
-					typeof p.x === 'number' &&
-					typeof p.y === 'number' &&
-					typeof p.w === 'number' &&
-					typeof p.h === 'number'
-				) {
-					return p as { x: number; y: number; w: number; h: number }
-				}
-			} catch {
-				/* ignore */
+			const p = JSON.parse(raw)
+			if (
+				typeof p.x === 'number' &&
+				typeof p.y === 'number' &&
+				typeof p.w === 'number' &&
+				typeof p.h === 'number'
+			) {
+				// angleDeg was added later; tolerate older payloads by defaulting to 0.
+				const angleDeg = typeof p.angleDeg === 'number' ? p.angleDeg : 0
+				return { x: p.x, y: p.y, angleDeg, w: p.w, h: p.h }
 			}
+			console.warn('[SimulatorMask] discarding saved cursor position with unexpected shape:', p)
 			return null
 		}
 		const c = (globalThis as any).chrome
@@ -283,13 +294,14 @@ export class SimulatorMask extends EventTarget {
 				const data = await c.storage.local.get(SimulatorMask.#STORAGE_KEY)
 				const p = parse(data[SimulatorMask.#STORAGE_KEY])
 				if (p) return p
-			} catch {
-				/* ignore */
+			} catch (e) {
+				console.warn('[SimulatorMask] chrome.storage.local read failed:', e)
 			}
 		}
 		try {
 			return parse(sessionStorage.getItem(SimulatorMask.#STORAGE_KEY))
-		} catch {
+		} catch (e) {
+			console.warn('[SimulatorMask] sessionStorage read failed:', e)
 			return null
 		}
 	}
@@ -341,6 +353,13 @@ export class SimulatorMask extends EventTarget {
 				this.#targetCursorY = y
 				this.#cursor.style.left = `${x}px`
 				this.#cursor.style.top = `${y}px`
+				this.#cursorAngleDeg = saved.angleDeg
+				// Snap to the saved angle without animating from 0deg.
+				const prevTransition = this.#pointer.style.transition
+				this.#pointer.style.transition = 'none'
+				this.#pointer.style.setProperty('--cursor-angle', `${saved.angleDeg}deg`)
+				void this.#pointer.offsetWidth
+				this.#pointer.style.transition = prevTransition
 			})
 		}
 	}
