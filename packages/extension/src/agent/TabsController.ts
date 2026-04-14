@@ -241,7 +241,7 @@ export class TabsController {
 		if (!this.llm) return fallback
 
 		try {
-			const result = await this.llm.invoke(
+			const result = await this.llm.client.invoke(
 				[
 					{
 						role: 'system',
