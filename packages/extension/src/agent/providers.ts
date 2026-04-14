@@ -32,6 +32,12 @@ export interface ProviderPreset {
 	defaultModel: string
 	docsURL?: string
 	apiKeyURL?: string
+	/**
+	 * Provider only accepts the canonical page-agent system prompt and rejects
+	 * any other request shape. Disables ancillary LLM calls (e.g. tab-group
+	 * title summarization) that would otherwise be guaranteed to fail.
+	 */
+	restrictsSystemPrompt?: boolean
 }
 
 export const PROVIDERS: ProviderPreset[] = [
@@ -40,6 +46,7 @@ export const PROVIDERS: ProviderPreset[] = [
 		label: 'Navvy Demo (testing)',
 		baseURL: DEMO_BASE_URL,
 		defaultModel: DEMO_MODEL,
+		restrictsSystemPrompt: true,
 	},
 	{
 		key: 'openai',
