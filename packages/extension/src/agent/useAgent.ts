@@ -2,31 +2,19 @@
  * React hook for using AgentController
  */
 import type { AgentActivity, AgentStatus, ExecutionResult, HistoricalEvent } from '@page-agent/core'
-import type { LLMConfig } from '@page-agent/llms'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { type ExtensionLanguage, MultiPageAgent } from './MultiPageAgent'
-import { DEMO_CONFIG, migrateLegacyEndpoint } from './constants'
-import { type LLMProfile, buildProfilesState } from './profiles'
+import { MultiPageAgent } from './MultiPageAgent'
+import {
+	type AdvancedConfig,
+	type ExtConfig,
+	type LanguagePreference,
+	loadConfig,
+	saveConfig,
+} from './configStore'
 
 export type { LLMProfile } from './profiles'
-
-/** Language preference: undefined means follow system */
-export type LanguagePreference = ExtensionLanguage | undefined
-
-export interface AdvancedConfig {
-	maxSteps?: number
-	systemInstruction?: string
-	experimentalLlmsTxt?: boolean
-	experimentalIncludeAllTabs?: boolean
-	disableNamedToolChoice?: boolean
-}
-
-export interface ExtConfig extends LLMConfig, AdvancedConfig {
-	language?: LanguagePreference
-	profiles: LLMProfile[]
-	activeProfileId: string
-}
+export type { AdvancedConfig, ExtConfig, LanguagePreference }
 
 // Core reports 'error' for any aborted task; map to 'stopped' when the user explicitly stopped.
 export type ExtStatus = AgentStatus | 'stopped'
@@ -54,45 +42,25 @@ export function useAgent(): UseAgentResult {
 	const [resetCounter, setResetCounter] = useState(0)
 
 	useEffect(() => {
-		chrome.storage.local
-			.get(['llmConfig', 'language', 'advancedConfig', 'llmProfiles', 'activeProfileId'])
-			.then((result) => {
-				let legacyLlm = (result.llmConfig as LLMConfig) ?? DEMO_CONFIG
-				const language = (result.language as ExtensionLanguage) || undefined
-				const advancedConfig = (result.advancedConfig as AdvancedConfig) ?? {}
+		loadConfig().then(setConfig)
+	}, [])
 
-				// Auto-migrate legacy testing endpoints
-				const migrated = migrateLegacyEndpoint(legacyLlm)
-				if (migrated !== legacyLlm) {
-					legacyLlm = migrated
-					chrome.storage.local.set({ llmConfig: migrated })
-				} else if (!result.llmConfig) {
-					chrome.storage.local.set({ llmConfig: DEMO_CONFIG })
-				}
-
-				const { profiles, activeProfileId } = buildProfilesState(
-					result.llmProfiles as LLMProfile[] | undefined,
-					result.activeProfileId as string | undefined,
-					legacyLlm
-				)
-
-				// Persist initial profile state if missing
-				if (!result.llmProfiles || !result.activeProfileId) {
-					chrome.storage.local.set({ llmProfiles: profiles, activeProfileId })
-				}
-
-				const active = profiles.find((p) => p.id === activeProfileId) ?? profiles[0]
-
-				setConfig({
-					baseURL: active.baseURL,
-					model: active.model,
-					apiKey: active.apiKey,
-					...advancedConfig,
-					language,
-					profiles,
-					activeProfileId: active.id,
-				})
-			})
+	// Pick up settings changes saved from the standalone settings page.
+	useEffect(() => {
+		const onChange = (changes: Record<string, chrome.storage.StorageChange>, areaName: string) => {
+			if (areaName !== 'local') return
+			if (
+				'llmConfig' in changes ||
+				'language' in changes ||
+				'advancedConfig' in changes ||
+				'llmProfiles' in changes ||
+				'activeProfileId' in changes
+			) {
+				loadConfig().then(setConfig)
+			}
+		}
+		chrome.storage.onChanged.addListener(onChange)
+		return () => chrome.storage.onChanged.removeListener(onChange)
 	}, [])
 
 	useEffect(() => {
@@ -170,58 +138,10 @@ export function useAgent(): UseAgentResult {
 		setResetCounter((n) => n + 1)
 	}, [])
 
-	const configure = useCallback(
-		async ({
-			language,
-			maxSteps,
-			systemInstruction,
-			experimentalLlmsTxt,
-			experimentalIncludeAllTabs,
-			disableNamedToolChoice,
-			profiles,
-			activeProfileId,
-			baseURL,
-			model,
-			apiKey,
-		}: ExtConfig) => {
-			const active = profiles.find((p) => p.id === activeProfileId) ?? profiles[0]
-			const llmConfig: LLMConfig = {
-				baseURL: active.baseURL,
-				model: active.model,
-				apiKey: active.apiKey,
-			}
-			void baseURL
-			void model
-			void apiKey
-
-			await chrome.storage.local.set({
-				llmConfig,
-				llmProfiles: profiles,
-				activeProfileId: active.id,
-			})
-			if (language) {
-				await chrome.storage.local.set({ language })
-			} else {
-				await chrome.storage.local.remove('language')
-			}
-			const advancedConfig: AdvancedConfig = {
-				maxSteps,
-				systemInstruction,
-				experimentalLlmsTxt,
-				experimentalIncludeAllTabs,
-				disableNamedToolChoice,
-			}
-			await chrome.storage.local.set({ advancedConfig })
-			setConfig({
-				...llmConfig,
-				...advancedConfig,
-				language,
-				profiles,
-				activeProfileId: active.id,
-			})
-		},
-		[]
-	)
+	const configure = useCallback(async (next: ExtConfig) => {
+		const saved = await saveConfig(next)
+		setConfig(saved)
+	}, [])
 
 	return {
 		status,

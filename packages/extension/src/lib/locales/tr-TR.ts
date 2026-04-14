@@ -94,6 +94,16 @@ export const trTR: TranslationSchema = {
 			testingApiNotice: 'Test API’mizi kullanıyorsunuz. Kullanarak şu koşulları kabul edersiniz:',
 			termsAndPrivacy: 'Kullanım Koşulları ve Gizlilik Politikası',
 		},
+		settings: {
+			tabGeneral: 'Genel',
+			tabProviders: 'Sağlayıcılar',
+			tabSkills: 'Beceriler',
+			tabAdvanced: 'Gelişmiş',
+			tabAbout: 'Hakkında',
+			languageHelp: 'Ajanın yanıt verirken kullandığı dil.',
+			unsavedNotice: 'Kaydedilmemiş değişiklikleriniz var',
+			savedNotice: 'Kaydedildi',
+		},
 		error: {
 			title: 'Bir şeyler ters gitti',
 			unexpected: 'Beklenmeyen bir hata oluştu',

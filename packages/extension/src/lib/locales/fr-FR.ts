@@ -94,6 +94,16 @@ export const frFR: TranslationSchema = {
 			testingApiNotice: 'Vous utilisez notre API de test. En l’utilisant, vous acceptez les',
 			termsAndPrivacy: 'Conditions d’utilisation et politique de confidentialité',
 		},
+		settings: {
+			tabGeneral: 'Général',
+			tabProviders: 'Fournisseurs',
+			tabSkills: 'Compétences',
+			tabAdvanced: 'Avancé',
+			tabAbout: 'À propos',
+			languageHelp: 'Langue utilisée par l’agent pour répondre.',
+			unsavedNotice: 'Vous avez des modifications non enregistrées',
+			savedNotice: 'Enregistré',
+		},
 		error: {
 			title: 'Une erreur est survenue',
 			unexpected: 'Une erreur inattendue s’est produite',
