@@ -94,6 +94,16 @@ export const esES: TranslationSchema = {
 			testingApiNotice: 'Estás usando nuestra API de prueba. Al usarla aceptas los',
 			termsAndPrivacy: 'Términos de uso y política de privacidad',
 		},
+		settings: {
+			tabGeneral: 'General',
+			tabProviders: 'Proveedores',
+			tabSkills: 'Habilidades',
+			tabAdvanced: 'Avanzado',
+			tabAbout: 'Acerca de',
+			languageHelp: 'Idioma que el agente usa para responder.',
+			unsavedNotice: 'Tienes cambios sin guardar',
+			savedNotice: 'Guardado',
+		},
 		error: {
 			title: 'Algo salió mal',
 			unexpected: 'Ha ocurrido un error inesperado',

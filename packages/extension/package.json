@@ -46,6 +46,7 @@
         "@page-agent/page-controller": "workspace:*",
         "@page-agent/ui": "workspace:*",
         "@radix-ui/react-dropdown-menu": "^2.1.16",
+        "@radix-ui/react-tabs": "^1.1.13",
         "ai-motion": "^0.4.8",
         "chalk": "^5.6.2"
     },

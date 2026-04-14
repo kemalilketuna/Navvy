@@ -94,6 +94,16 @@ export const deDE: TranslationSchema = {
 			testingApiNotice: 'Sie verwenden unsere Test-API. Mit der Nutzung akzeptieren Sie die',
 			termsAndPrivacy: 'Nutzungsbedingungen und Datenschutzerklärung',
 		},
+		settings: {
+			tabGeneral: 'Allgemein',
+			tabProviders: 'Anbieter',
+			tabSkills: 'Fähigkeiten',
+			tabAdvanced: 'Erweitert',
+			tabAbout: 'Über',
+			languageHelp: 'Sprache, in der der Agent antwortet.',
+			unsavedNotice: 'Du hast nicht gespeicherte Änderungen',
+			savedNotice: 'Gespeichert',
+		},
 		error: {
 			title: 'Etwas ist schiefgelaufen',
 			unexpected: 'Ein unerwarteter Fehler ist aufgetreten',

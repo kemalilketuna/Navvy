@@ -94,6 +94,16 @@ export const ptPT: TranslationSchema = {
 			testingApiNotice: 'Está a usar a nossa API de teste. Ao usá-la aceita os',
 			termsAndPrivacy: 'Termos de uso e política de privacidade',
 		},
+		settings: {
+			tabGeneral: 'Geral',
+			tabProviders: 'Provedores',
+			tabSkills: 'Capacidades',
+			tabAdvanced: 'Avançado',
+			tabAbout: 'Sobre',
+			languageHelp: 'Idioma que o agente usa para responder.',
+			unsavedNotice: 'Tem alterações por guardar',
+			savedNotice: 'Guardado',
+		},
 		error: {
 			title: 'Algo correu mal',
 			unexpected: 'Ocorreu um erro inesperado',

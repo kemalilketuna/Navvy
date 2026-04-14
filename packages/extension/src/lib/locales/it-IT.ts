@@ -94,6 +94,16 @@ export const itIT: TranslationSchema = {
 			testingApiNotice: 'Stai usando la nostra API di test. Usandola accetti i',
 			termsAndPrivacy: 'Termini d’uso e informativa sulla privacy',
 		},
+		settings: {
+			tabGeneral: 'Generale',
+			tabProviders: 'Provider',
+			tabSkills: 'Competenze',
+			tabAdvanced: 'Avanzate',
+			tabAbout: 'Informazioni',
+			languageHelp: 'Lingua usata dall’agente per rispondere.',
+			unsavedNotice: 'Ci sono modifiche non salvate',
+			savedNotice: 'Salvato',
+		},
 		error: {
 			title: 'Qualcosa è andato storto',
 			unexpected: 'Si è verificato un errore imprevisto',
