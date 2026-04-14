@@ -84,7 +84,11 @@ export class MultiPageAgent extends PageAgentCore {
 			customSystemPrompt: systemPrompt,
 
 			onBeforeTask: async (agent) => {
-				await tabsController.init(agent.task, { includeInitialTab, experimentalIncludeAllTabs })
+				await tabsController.init(agent.task, {
+					includeInitialTab,
+					experimentalIncludeAllTabs,
+					llm: agent.llm,
+				})
 
 				heartBeatInterval = window.setInterval(() => {
 					chrome.storage.local.set({

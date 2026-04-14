@@ -1,3 +1,6 @@
+import type { LLM } from '@page-agent/llms'
+import * as z from 'zod/v4'
+
 import { isContentScriptAllowed } from './RemotePageController'
 
 const PREFIX = '[TabsController]'
@@ -33,9 +36,11 @@ export class TabsController {
 	private tabGroupId: number | null = null
 	private experimentalIncludeAllTabs = false
 	private task: string = ''
+	private llm: LLM | null = null
 
 	async init(task: string, options: TabsInitOptions = {}) {
-		const { includeInitialTab = true, experimentalIncludeAllTabs = false } = options
+		const { includeInitialTab = true, experimentalIncludeAllTabs = false, llm = null } = options
+		this.llm = llm
 		debug('init', task, options)
 
 		if (this.disposed) {
@@ -215,18 +220,59 @@ export class TabsController {
 
 		this.tabGroupId = result.groupId as number
 
+		const title = await this.summarizeTaskTitle(this.task)
+
 		await sendMessage({
 			type: 'TAB_CONTROL',
 			action: 'update_tab_group',
 			payload: {
 				groupId: this.tabGroupId,
 				properties: {
-					title: summarizeTask(this.task),
+					title,
 					color: randomColor(),
 					collapsed: false,
 				},
 			},
 		})
+	}
+
+	private async summarizeTaskTitle(task: string): Promise<string> {
+		const fallback = summarizeTaskHeuristic(task)
+		if (!this.llm) return fallback
+
+		try {
+			const result = await this.llm.invoke(
+				[
+					{
+						role: 'system',
+						content:
+							'You name a browser tab group for an in-progress task. Pick the shortest possible label (1–2 words, <=24 characters, Title Case) that captures the topic. No quotes, no punctuation, no trailing period.',
+					},
+					{ role: 'user', content: task },
+				],
+				{
+					set_tab_group_title: {
+						description: 'Set the tab group title summarizing the task in 1–2 words.',
+						inputSchema: z.object({
+							title: z
+								.string()
+								.min(1)
+								.max(TASK_TITLE_MAX_LEN)
+								.describe('1–2 word title, max 24 chars, Title Case.'),
+						}),
+						execute: async ({ title }: { title: string }) => title,
+					},
+				},
+				new AbortController().signal,
+				{ toolChoiceName: 'set_tab_group_title' }
+			)
+			const title = ((result.toolResult as string) ?? '').trim()
+			if (!title) return fallback
+			return title.replace(/^["'`]+|["'`.]+$/g, '').slice(0, TASK_TITLE_MAX_LEN) || fallback
+		} catch (error) {
+			console.warn(PREFIX, 'summarizeTaskTitle failed, falling back to heuristic', error)
+			return fallback
+		}
 	}
 
 	private addTab(meta: TabMeta) {
@@ -361,6 +407,8 @@ export class TabsController {
 export interface TabsInitOptions {
 	includeInitialTab?: boolean
 	experimentalIncludeAllTabs?: boolean
+	/** Optional LLM used to summarize the task into a 1–2 word tab group title. */
+	llm?: LLM | null
 }
 
 export type TabAction =
@@ -439,7 +487,7 @@ const TASK_TITLE_STOPWORDS = new Set([
 
 const TASK_TITLE_MAX_LEN = 24
 
-function summarizeTask(task: string): string {
+function summarizeTaskHeuristic(task: string): string {
 	const trimmed = task.trim()
 	if (!trimmed) return 'task'
 
