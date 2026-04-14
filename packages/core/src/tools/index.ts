@@ -15,6 +15,12 @@ export interface PageAgentTool<TParams = any> {
 	description: string
 	inputSchema: z.ZodType<TParams>
 	execute: (this: PageAgentCore, args: TParams) => Promise<string>
+	/**
+	 * If true, this tool is stripped from the registry when the active provider
+	 * is restricted (e.g. the Navvy Demo testing proxy, which expects a
+	 * canonical tool set and breaks on any addition).
+	 */
+	requiresFullProvider?: boolean
 }
 
 export function tool<TParams>(options: PageAgentTool<TParams>): PageAgentTool<TParams> {
@@ -177,6 +183,7 @@ tools.set(
 		inputSchema: z.object({
 			keys: z.string(),
 		}),
+		requiresFullProvider: true,
 		execute: async function (this: PageAgentCore, input) {
 			const result = await this.pageController.sendKeys(input.keys)
 			return result.message
@@ -189,6 +196,7 @@ tools.set(
 	tool({
 		description: 'Navigate back to the previous page in browser history.',
 		inputSchema: z.object({}),
+		requiresFullProvider: true,
 		execute: async function (this: PageAgentCore) {
 			const result = await this.pageController.goBack()
 			return result.message
@@ -204,6 +212,7 @@ tools.set(
 		inputSchema: z.object({
 			text: z.string(),
 		}),
+		requiresFullProvider: true,
 		execute: async function (this: PageAgentCore, input) {
 			const result = await this.pageController.scrollToText(input.text)
 			return result.message
@@ -219,6 +228,7 @@ tools.set(
 		inputSchema: z.object({
 			index: z.int().min(0),
 		}),
+		requiresFullProvider: true,
 		execute: async function (this: PageAgentCore, input) {
 			const result = await this.pageController.getDropdownOptions(input.index)
 			return result.message
@@ -235,6 +245,7 @@ tools.set(
 			source_index: z.int().min(0),
 			target_index: z.int().min(0),
 		}),
+		requiresFullProvider: true,
 		execute: async function (this: PageAgentCore, input) {
 			const result = await this.pageController.dragAndDrop(input.source_index, input.target_index)
 			return result.message
