@@ -4,6 +4,11 @@ import { InvokeError, InvokeErrorTypes } from './errors'
 import type { InvokeOptions, InvokeResult, LLMClient, LLMConfig, Message, Tool } from './types'
 
 export { InvokeError, InvokeErrorTypes }
+
+export function isAbortError(error: unknown): boolean {
+	const e = error as { name?: string; rawError?: { name?: string } } | null
+	return e?.name === 'AbortError' || e?.rawError?.name === 'AbortError'
+}
 export type { InvokeOptions, InvokeResult, LLMClient, LLMConfig, Message, Tool }
 
 export function parseLLMConfig(config: LLMConfig): Required<LLMConfig> {
@@ -53,7 +58,7 @@ export class LLM extends EventTarget {
 		return await withRetry(
 			async () => {
 				// in case user aborted before invoking
-				if (abortSignal.aborted) throw new Error('AbortError')
+				if (abortSignal.aborted) throw new DOMException('Aborted', 'AbortError')
 
 				const result = await this.client.invoke(messages, tools, abortSignal, options)
 
@@ -95,7 +100,7 @@ async function withRetry<T>(
 			return await fn()
 		} catch (error: unknown) {
 			// do not retry if aborted by user
-			if ((error as any)?.rawError?.name === 'AbortError') throw error
+			if (isAbortError(error)) throw error
 
 			console.error(error)
 			settings.onError(error as Error)
