@@ -231,13 +231,15 @@ export class SimulatorMask extends EventTarget {
 
 		this.wrapper.classList.add(styles.visible)
 
-		// Initialize cursor position
-		this.#currentCursorX = window.innerWidth / 2
-		this.#currentCursorY = window.innerHeight / 2
-		this.#targetCursorX = this.#currentCursorX
-		this.#targetCursorY = this.#currentCursorY
-		this.#cursor.style.left = `${this.#currentCursorX}px`
-		this.#cursor.style.top = `${this.#currentCursorY}px`
+		// Initialize cursor position only on first show; subsequent shows keep the last position.
+		if (this.#currentCursorX === 0 && this.#currentCursorY === 0) {
+			this.#currentCursorX = window.innerWidth / 2
+			this.#currentCursorY = window.innerHeight / 2
+			this.#targetCursorX = this.#currentCursorX
+			this.#targetCursorY = this.#currentCursorY
+			this.#cursor.style.left = `${this.#currentCursorX}px`
+			this.#cursor.style.top = `${this.#currentCursorY}px`
+		}
 	}
 
 	hide() {
