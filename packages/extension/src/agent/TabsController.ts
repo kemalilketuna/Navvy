@@ -274,8 +274,7 @@ export class TabsController {
 						execute: async ({ title }: { title: string }) => title,
 					},
 				},
-				new AbortController().signal,
-				{ toolChoiceName: 'set_tab_group_title' }
+				new AbortController().signal
 			)
 			const title = ((result.toolResult as string) ?? '').trim()
 			if (!title) return fallback
