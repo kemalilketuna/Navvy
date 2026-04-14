@@ -280,7 +280,25 @@ export class TabsController {
 			if (!title) return fallback
 			return title.replace(/^["'`]+|["'`.]+$/g, '').slice(0, TASK_TITLE_MAX_LEN) || fallback
 		} catch (error) {
-			console.warn(PREFIX, 'summarizeTaskTitle failed, falling back to heuristic', error)
+			const err = error as {
+				message?: string
+				type?: string
+				statusCode?: number
+				rawError?: unknown
+				rawResponse?: unknown
+			}
+			console.warn(
+				PREFIX,
+				'summarizeTaskTitle failed, falling back to heuristic.',
+				'\n  type:',
+				err?.type,
+				'\n  message:',
+				err?.message,
+				'\n  providerErrorBody:',
+				err?.rawError,
+				'\n  rawResponse:',
+				err?.rawResponse
+			)
 			return fallback
 		}
 	}

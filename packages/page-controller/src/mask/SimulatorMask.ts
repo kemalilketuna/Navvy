@@ -110,16 +110,22 @@ export class SimulatorMask extends EventTarget {
 			this.wrapper.style.pointerEvents = 'auto'
 		}
 
+		// Flush the latest cursor state right before navigation so the next page can restore it.
+		// Without this, the 120 ms throttle on saves can drop the last move.
+		const pagehideListener = () => this.#savePositionNow()
+
 		window.addEventListener('PageAgent::MovePointerTo', movePointerToListener)
 		window.addEventListener('PageAgent::ClickPointer', clickPointerListener)
 		window.addEventListener('PageAgent::EnablePassThrough', enablePassThroughListener)
 		window.addEventListener('PageAgent::DisablePassThrough', disablePassThroughListener)
+		window.addEventListener('pagehide', pagehideListener)
 
 		this.addEventListener('dispose', () => {
 			window.removeEventListener('PageAgent::MovePointerTo', movePointerToListener)
 			window.removeEventListener('PageAgent::ClickPointer', clickPointerListener)
 			window.removeEventListener('PageAgent::EnablePassThrough', enablePassThroughListener)
 			window.removeEventListener('PageAgent::DisablePassThrough', disablePassThroughListener)
+			window.removeEventListener('pagehide', pagehideListener)
 		})
 	}
 
@@ -242,6 +248,14 @@ export class SimulatorMask extends EventTarget {
 		const now = Date.now()
 		if (now - this.#lastSavedAt < 120) return
 		this.#lastSavedAt = now
+		this.#writePosition(x, y, angleDeg)
+	}
+
+	#savePositionNow() {
+		this.#writePosition(this.#targetCursorX, this.#targetCursorY, this.#cursorAngleDeg)
+	}
+
+	#writePosition(x: number, y: number, angleDeg: number) {
 		const payload = JSON.stringify({
 			x,
 			y,
