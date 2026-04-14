@@ -169,6 +169,15 @@ export class TabsController {
 			throw new Error(`Tab ID ${tabId} not found in tab list.`)
 		}
 
+		const result = await sendMessage({
+			type: 'TAB_CONTROL',
+			action: 'activate_tab',
+			payload: { tabId },
+		})
+		if (!result?.success) {
+			throw new Error(`Failed to activate tab ${tabId}: ${result?.error ?? 'unknown'}`)
+		}
+
 		await this.updateCurrentTabId(tabId)
 
 		return `✅ Switched to tab ID ${tabId}.`
@@ -449,6 +458,7 @@ export type TabAction =
 	| 'get_active_tab'
 	| 'get_tab_info'
 	| 'open_new_tab'
+	| 'activate_tab'
 	| 'create_tab_group'
 	| 'update_tab_group'
 	| 'add_tab_to_group'

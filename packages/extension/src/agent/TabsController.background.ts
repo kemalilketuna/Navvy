@@ -111,6 +111,19 @@ export function handleTabControlMessage(
 			return true // async response
 		}
 
+		case 'activate_tab': {
+			debug('activate_tab', payload)
+			chrome.tabs
+				.update(payload.tabId, { active: true })
+				.then(() => {
+					sendResponse({ success: true })
+				})
+				.catch((error) => {
+					sendResponse({ error: error instanceof Error ? error.message : String(error) })
+				})
+			return true // async response
+		}
+
 		case 'get_window_tabs': {
 			debug('get_window_tabs', payload)
 			chrome.tabs

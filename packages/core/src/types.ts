@@ -124,6 +124,13 @@ export interface AgentConfig extends LLMConfig {
 	experimentalScriptExecutionTool?: boolean
 
 	/**
+	 * When true, tools marked `requiresFullProvider: true` are stripped from the
+	 * registry. Set by the extension when the active provider has
+	 * `restrictsSystemPrompt: true` (e.g. the Navvy Demo testing proxy).
+	 */
+	restrictedToolset?: boolean
+
+	/**
 	 * @experimental
 	 * Fetch /llms.txt from current site origin and include as context.
 	 * Only fetched once per origin per task.
