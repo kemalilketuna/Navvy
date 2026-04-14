@@ -23,6 +23,11 @@ import type {
 } from './types'
 import { assert, fetchLlmsTxt, normalizeResponse, uid, waitFor } from './utils'
 
+function isAbortError(error: unknown): boolean {
+	const e = error as { name?: string; rawError?: { name?: string } } | null
+	return e?.name === 'AbortError' || e?.rawError?.name === 'AbortError'
+}
+
 export { tool, type PageAgentTool } from './tools'
 export type * from './types'
 
@@ -118,7 +123,7 @@ export class PageAgentCore extends EventTarget {
 		})
 		this.#llm.addEventListener('error', (e) => {
 			const error = (e as CustomEvent).detail.error as Error | InvokeError
-			if ((error as any)?.rawError?.name === 'AbortError') return
+			if (isAbortError(error)) return
 			const message = String(error)
 			this.#emitActivity({ type: 'error', message })
 			// Also push to history for panel rendering
@@ -312,10 +317,10 @@ export class PageAgentCore extends EventTarget {
 				}
 			} catch (error: unknown) {
 				console.groupEnd() // to prevent nested groups
-				const isAbortError = (error as any)?.rawError?.name === 'AbortError'
+				const aborted = isAbortError(error)
 
-				console.error('Task failed', error)
-				const errorMessage = isAbortError ? 'Task stopped' : String(error)
+				if (!aborted) console.error('Task failed', error)
+				const errorMessage = aborted ? 'Task stopped' : String(error)
 				this.#emitActivity({ type: 'error', message: errorMessage })
 				this.history.push({ type: 'error', message: errorMessage, rawResponse: error })
 				this.#emitHistoryChange()
@@ -379,7 +384,7 @@ export class PageAgentCore extends EventTarget {
 			inputSchema: macroToolSchema as z.ZodType<MacroToolInput>,
 			execute: async (input: MacroToolInput): Promise<MacroToolResult> => {
 				// abort
-				if (this.#abortController.signal.aborted) throw new Error('AbortError')
+				if (this.#abortController.signal.aborted) throw new DOMException('Aborted', 'AbortError')
 
 				console.log(chalk.blue.bold('MacroTool input'), input)
 				const action = input.action
