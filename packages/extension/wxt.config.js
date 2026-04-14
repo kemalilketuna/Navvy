@@ -61,8 +61,8 @@ export default defineConfig({
 		commands: {
 			'open-side-panel': {
 				suggested_key: {
-					default: 'Ctrl+Shift+E',
-					mac: 'Command+Shift+E',
+					default: 'Ctrl+E',
+					mac: 'Command+E',
 				},
 				description: '__MSG_openSidePanelCommand__',
 			},
