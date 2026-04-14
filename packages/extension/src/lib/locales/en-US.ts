@@ -101,6 +101,16 @@ export const enUS = {
 			testingApiNotice: 'You are using our testing API. By using this you agree to the',
 			termsAndPrivacy: 'Terms of Use & Privacy Policy',
 		},
+		settings: {
+			tabGeneral: 'General',
+			tabProviders: 'Providers',
+			tabSkills: 'Skills',
+			tabAdvanced: 'Advanced',
+			tabAbout: 'About',
+			languageHelp: 'Language the agent uses when responding to you.',
+			unsavedNotice: 'You have unsaved changes',
+			savedNotice: 'Saved',
+		},
 		error: {
 			title: 'Something went wrong',
 			unexpected: 'An unexpected error occurred',

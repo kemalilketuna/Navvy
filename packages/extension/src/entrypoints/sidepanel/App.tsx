@@ -2,10 +2,8 @@ import { History, MoreVertical, Settings, Sparkles, SquarePen } from 'lucide-rea
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Composer } from '@/components/Composer'
-import { ConfigPanel } from '@/components/ConfigPanel'
 import { HistoryDetail } from '@/components/HistoryDetail'
 import { HistoryList } from '@/components/HistoryList'
-import { SkillsPanel } from '@/components/SkillsPanel'
 import { ActivityCard, EventCard } from '@/components/cards'
 import { EmptyState, StatusDot } from '@/components/misc'
 import { Button } from '@/components/ui/button'
@@ -20,12 +18,23 @@ import { useT } from '@/lib/i18n'
 
 import { useAgent } from '../../agent/useAgent'
 
-type View =
-	| { name: 'chat' }
-	| { name: 'config' }
-	| { name: 'history' }
-	| { name: 'history-detail'; sessionId: string }
-	| { name: 'skills' }
+type View = { name: 'chat' } | { name: 'history' } | { name: 'history-detail'; sessionId: string }
+
+function openSettings(section: 'general' | 'skills') {
+	const url = chrome.runtime.getURL(`settings.html#${section}`)
+	chrome.tabs.create({ url }).then(() => {
+		const sp = (chrome as unknown as { sidePanel?: { close?: () => void } }).sidePanel
+		if (sp?.close) {
+			try {
+				sp.close()
+				return
+			} catch {
+				// fall through to window.close
+			}
+		}
+		window.close()
+	})
+}
 
 export default function App() {
 	const t = useT()
@@ -34,8 +43,7 @@ export default function App() {
 	const historyRef = useRef<HTMLDivElement>(null)
 	const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-	const { status, history, activity, currentTask, config, execute, stop, newChat, configure } =
-		useAgent()
+	const { status, history, activity, currentTask, execute, stop, newChat } = useAgent()
 
 	// Persist session when task finishes
 	const prevStatusRef = useRef(status)
@@ -95,19 +103,6 @@ export default function App() {
 
 	// --- View routing ---
 
-	if (view.name === 'config') {
-		return (
-			<ConfigPanel
-				config={config}
-				onSave={async (newConfig) => {
-					await configure(newConfig)
-					setView({ name: 'chat' })
-				}}
-				onClose={() => setView({ name: 'chat' })}
-			/>
-		)
-	}
-
 	if (view.name === 'history') {
 		return (
 			<HistoryList
@@ -128,10 +123,6 @@ export default function App() {
 		)
 	}
 
-	if (view.name === 'skills') {
-		return <SkillsPanel onClose={() => setView({ name: 'chat' })} />
-	}
-
 	// --- Chat view ---
 
 	const isRunning = status === 'running'
@@ -139,9 +130,6 @@ export default function App() {
 
 	return (
 		<div className="relative flex h-screen min-h-0 flex-col overflow-hidden bg-background text-foreground">
-			{/* Action bar — no border, no separate header bar. Mirrors the
-			    Claude-style shell where Chrome's native side-panel chrome
-			    already shows the extension name. */}
 			<div
 				data-testid="shell-action-bar"
 				className="relative flex items-center justify-between px-3 py-2"
@@ -181,11 +169,11 @@ export default function App() {
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent>
-							<DropdownMenuItem onSelect={() => setView({ name: 'skills' })}>
+							<DropdownMenuItem onSelect={() => openSettings('skills')}>
 								<Sparkles />
 								{t('ext.menu.skills')}
 							</DropdownMenuItem>
-							<DropdownMenuItem onSelect={() => setView({ name: 'config' })}>
+							<DropdownMenuItem onSelect={() => openSettings('general')}>
 								<Settings />
 								{t('ext.menu.settings')}
 							</DropdownMenuItem>
@@ -194,7 +182,6 @@ export default function App() {
 				</div>
 			</div>
 
-			{/* Content */}
 			<main className="flex min-h-0 flex-1 flex-col overflow-hidden px-3 pb-2">
 				{currentTask && (
 					<div className="mb-3 px-0.5">
