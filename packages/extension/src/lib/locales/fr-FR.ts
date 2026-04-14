@@ -108,6 +108,7 @@ export const frFR: TranslationSchema = {
 			languageAuto: 'Auto',
 			unsavedNotice: 'Vous avez des modifications non enregistrées',
 			savedNotice: 'Enregistré',
+			close: 'Fermer',
 		},
 		error: {
 			title: 'Une erreur est survenue',

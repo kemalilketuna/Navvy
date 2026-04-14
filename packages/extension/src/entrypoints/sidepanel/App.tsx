@@ -20,20 +20,33 @@ import { useAgent } from '../../agent/useAgent'
 
 type View = { name: 'chat' } | { name: 'history' } | { name: 'history-detail'; sessionId: string }
 
+async function stashReturnTab() {
+	try {
+		const [active] = await chrome.tabs.query({ active: true, currentWindow: true })
+		if (active?.id != null) {
+			await chrome.storage.session.set({ settingsReturnTabId: active.id })
+		}
+	} catch {
+		// session storage or tabs query unavailable — skip stashing
+	}
+}
+
 function openSettings(section: 'general' | 'skills') {
 	const url = chrome.runtime.getURL(`settings.html#${section}`)
-	chrome.tabs.create({ url }).then(() => {
-		const sp = (chrome as unknown as { sidePanel?: { close?: () => void } }).sidePanel
-		if (sp?.close) {
-			try {
-				sp.close()
-				return
-			} catch {
-				// fall through to window.close
+	stashReturnTab()
+		.then(() => chrome.tabs.create({ url }))
+		.then(() => {
+			const sp = (chrome as unknown as { sidePanel?: { close?: () => void } }).sidePanel
+			if (sp?.close) {
+				try {
+					sp.close()
+					return
+				} catch {
+					// fall through to window.close
+				}
 			}
-		}
-		window.close()
-	})
+			window.close()
+		})
 }
 
 export default function App() {

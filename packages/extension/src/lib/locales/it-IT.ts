@@ -108,6 +108,7 @@ export const itIT: TranslationSchema = {
 			languageAuto: 'Auto',
 			unsavedNotice: 'Ci sono modifiche non salvate',
 			savedNotice: 'Salvato',
+			close: 'Chiudi',
 		},
 		error: {
 			title: 'Qualcosa è andato storto',

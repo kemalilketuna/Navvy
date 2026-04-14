@@ -108,6 +108,7 @@ export const ptPT: TranslationSchema = {
 			languageAuto: 'Auto',
 			unsavedNotice: 'Tem alterações por guardar',
 			savedNotice: 'Guardado',
+			close: 'Fechar',
 		},
 		error: {
 			title: 'Algo correu mal',
