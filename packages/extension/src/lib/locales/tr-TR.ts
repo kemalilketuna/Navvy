@@ -100,7 +100,12 @@ export const trTR: TranslationSchema = {
 			tabSkills: 'Beceriler',
 			tabAdvanced: 'Gelişmiş',
 			tabAbout: 'Hakkında',
-			languageHelp: 'Ajanın yanıt verirken kullandığı dil.',
+			uiLanguage: 'Arayüz dili',
+			uiLanguageHelp: 'Eklenti arayüzünde kullanılan dil.',
+			responseLanguage: 'Yanıt dili',
+			responseLanguageHelp:
+				'Ajanın yanıt verirken kullandığı dil. Otomatik, görevinizin dilini kullanır.',
+			languageAuto: 'Otomatik',
 			unsavedNotice: 'Kaydedilmemiş değişiklikleriniz var',
 			savedNotice: 'Kaydedildi',
 		},

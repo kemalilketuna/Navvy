@@ -100,7 +100,12 @@ export const deDE: TranslationSchema = {
 			tabSkills: 'Fähigkeiten',
 			tabAdvanced: 'Erweitert',
 			tabAbout: 'Über',
-			languageHelp: 'Sprache, in der der Agent antwortet.',
+			uiLanguage: 'Oberflächensprache',
+			uiLanguageHelp: 'Sprache der Benutzeroberfläche der Erweiterung.',
+			responseLanguage: 'Antwortsprache',
+			responseLanguageHelp:
+				'Sprache, in der der Agent antwortet. „Auto“ passt sich der Sprache deiner Aufgabe an.',
+			languageAuto: 'Auto',
 			unsavedNotice: 'Du hast nicht gespeicherte Änderungen',
 			savedNotice: 'Gespeichert',
 		},

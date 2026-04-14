@@ -66,9 +66,16 @@ export function useAgent(): UseAgentResult {
 	useEffect(() => {
 		if (!config) return
 
-		const { systemInstruction, profiles, activeProfileId, ...agentConfig } = config
+		const {
+			systemInstruction,
+			profiles,
+			activeProfileId,
+			language: _uiLanguage,
+			...agentConfig
+		} = config
 		void profiles
 		void activeProfileId
+		void _uiLanguage
 		const agent = new MultiPageAgent({
 			...agentConfig,
 			instructions: systemInstruction ? { system: systemInstruction } : undefined,

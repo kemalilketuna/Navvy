@@ -107,7 +107,12 @@ export const enUS = {
 			tabSkills: 'Skills',
 			tabAdvanced: 'Advanced',
 			tabAbout: 'About',
-			languageHelp: 'Language the agent uses when responding to you.',
+			uiLanguage: 'UI Language',
+			uiLanguageHelp: 'Language used for the extension interface.',
+			responseLanguage: 'Response Language',
+			responseLanguageHelp:
+				'Language the agent uses to reply. Auto matches the language of your task.',
+			languageAuto: 'Auto',
 			unsavedNotice: 'You have unsaved changes',
 			savedNotice: 'Saved',
 		},

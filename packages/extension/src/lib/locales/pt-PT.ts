@@ -100,7 +100,12 @@ export const ptPT: TranslationSchema = {
 			tabSkills: 'Capacidades',
 			tabAdvanced: 'Avançado',
 			tabAbout: 'Sobre',
-			languageHelp: 'Idioma que o agente usa para responder.',
+			uiLanguage: 'Idioma da interface',
+			uiLanguageHelp: 'Idioma usado para a interface da extensão.',
+			responseLanguage: 'Idioma das respostas',
+			responseLanguageHelp:
+				'Idioma que o agente usa para responder. Auto corresponde ao idioma da sua tarefa.',
+			languageAuto: 'Auto',
 			unsavedNotice: 'Tem alterações por guardar',
 			savedNotice: 'Guardado',
 		},

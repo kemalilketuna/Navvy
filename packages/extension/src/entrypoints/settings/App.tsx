@@ -126,7 +126,9 @@ export default function App() {
 						<TabsContent value="general">
 							<GeneralSection
 								language={draft.language}
+								responseLanguage={draft.responseLanguage}
 								onLanguageChange={(language) => patch({ language })}
+								onResponseLanguageChange={(responseLanguage) => patch({ responseLanguage })}
 							/>
 						</TabsContent>
 						<TabsContent value="providers">

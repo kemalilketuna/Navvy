@@ -100,7 +100,12 @@ export const frFR: TranslationSchema = {
 			tabSkills: 'Compétences',
 			tabAdvanced: 'Avancé',
 			tabAbout: 'À propos',
-			languageHelp: 'Langue utilisée par l’agent pour répondre.',
+			uiLanguage: 'Langue de l’interface',
+			uiLanguageHelp: 'Langue utilisée pour l’interface de l’extension.',
+			responseLanguage: 'Langue des réponses',
+			responseLanguageHelp:
+				'Langue dans laquelle l’agent répond. Auto correspond à la langue de votre demande.',
+			languageAuto: 'Auto',
 			unsavedNotice: 'Vous avez des modifications non enregistrées',
 			savedNotice: 'Enregistré',
 		},
