@@ -4,6 +4,7 @@ import {
 	Settings as SettingsIcon,
 	SlidersHorizontal,
 	Sparkles,
+	X,
 	Zap,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
@@ -90,12 +91,65 @@ export default function App() {
 		if (config) setDraft(config)
 	}
 
+	const handleClose = async () => {
+		try {
+			const stored = await chrome.storage.session.get('settingsReturnTabId')
+			let tabId = stored.settingsReturnTabId as number | undefined
+
+			if (tabId != null) {
+				try {
+					await chrome.tabs.get(tabId)
+				} catch {
+					tabId = undefined
+				}
+			}
+
+			if (tabId == null) {
+				const tabs = await chrome.tabs.query({ currentWindow: true })
+				const settingsUrl = chrome.runtime.getURL('settings.html')
+				const fallback = tabs.find((tab) => tab.id != null && tab.url !== settingsUrl)
+				tabId = fallback?.id ?? undefined
+			}
+
+			if (tabId != null) {
+				await chrome.tabs.update(tabId, { active: true })
+				try {
+					await chrome.sidePanel.open({ tabId })
+				} catch (err) {
+					console.warn('[Settings] sidePanel.open failed:', err)
+				}
+			}
+
+			await chrome.storage.session.remove('settingsReturnTabId')
+
+			const current = await chrome.tabs.getCurrent()
+			if (current?.id != null) {
+				await chrome.tabs.remove(current.id)
+			} else {
+				window.close()
+			}
+		} catch (err) {
+			console.error('[Settings] Failed to close:', err)
+			window.close()
+		}
+	}
+
 	return (
 		<div className="min-h-screen bg-background text-foreground">
 			<div className="mx-auto flex max-w-5xl flex-col gap-6 px-6 py-8">
 				<header className="flex items-center gap-3">
 					<SettingsIcon className="size-5 text-muted-foreground" />
 					<h1 className="text-xl font-semibold">{t('ext.config.title')}</h1>
+					<Button
+						variant="ghost"
+						size="icon"
+						onClick={handleClose}
+						className="ml-auto cursor-pointer text-muted-foreground hover:text-foreground"
+						aria-label={t('ext.settings.close')}
+						title={t('ext.settings.close')}
+					>
+						<X className="size-4" />
+					</Button>
 				</header>
 
 				<Tabs orientation="vertical" value={tab} onValueChange={handleTabChange} className="gap-8">
