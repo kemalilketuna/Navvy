@@ -7,12 +7,18 @@
  * All public methods are async for potential remote calling support.
  */
 import {
+	type DropdownOption,
 	clickElement,
+	dragAndDrop,
+	getDropdownOptions,
 	getElementByIndex,
+	goBack,
 	inputTextElement,
 	scrollHorizontally,
+	scrollToText,
 	scrollVertically,
 	selectOptionElement,
+	sendKeys,
 } from './actions'
 import * as dom from './dom'
 import type { FlatDomTree, InteractiveElementDomNode } from './dom/dom_tree/type'
@@ -372,6 +378,87 @@ export class PageController extends EventTarget {
 				success: false,
 				message: `❌ Failed to scroll horizontally: ${error}`,
 			}
+		}
+	}
+
+	/**
+	 * Get all options of a native <select> element by index.
+	 */
+	async getDropdownOptions(index: number): Promise<ActionResult & { options?: DropdownOption[] }> {
+		try {
+			this.assertIndexed()
+			const element = getElementByIndex(this.selectorMap, index)
+			const options = getDropdownOptions(element)
+			const summary = options
+				.map((o) => `${o.index}: "${o.text}"${o.selected ? ' (selected)' : ''}`)
+				.join('\n')
+			return {
+				success: true,
+				message: `✅ Found ${options.length} option(s):\n${summary}`,
+				options,
+			}
+		} catch (error) {
+			return {
+				success: false,
+				message: `❌ Failed to get dropdown options: ${error}`,
+			}
+		}
+	}
+
+	/**
+	 * Send keyboard key combos to the focused element.
+	 */
+	async sendKeys(keys: string): Promise<ActionResult> {
+		try {
+			const message = await sendKeys(keys)
+			return { success: true, message: `✅ ${message}` }
+		} catch (error) {
+			return { success: false, message: `❌ Failed to send keys: ${error}` }
+		}
+	}
+
+	/**
+	 * Navigate back in browser history.
+	 */
+	async goBack(): Promise<ActionResult> {
+		try {
+			const message = await goBack()
+			return { success: true, message: `✅ ${message}` }
+		} catch (error) {
+			return { success: false, message: `❌ Failed to go back: ${error}` }
+		}
+	}
+
+	/**
+	 * Find and scroll to the first occurrence of text on the page.
+	 */
+	async scrollToText(text: string): Promise<ActionResult> {
+		try {
+			const el = await scrollToText(text)
+			if (!el) {
+				return { success: false, message: `❌ Text "${text}" not found on page` }
+			}
+			return {
+				success: true,
+				message: `✅ Scrolled to text "${text}" inside <${el.tagName.toLowerCase()}>`,
+			}
+		} catch (error) {
+			return { success: false, message: `❌ Failed to scroll to text: ${error}` }
+		}
+	}
+
+	/**
+	 * Drag element at sourceIndex onto element at targetIndex.
+	 */
+	async dragAndDrop(sourceIndex: number, targetIndex: number): Promise<ActionResult> {
+		try {
+			this.assertIndexed()
+			const source = getElementByIndex(this.selectorMap, sourceIndex)
+			const target = getElementByIndex(this.selectorMap, targetIndex)
+			const message = await dragAndDrop(source, target)
+			return { success: true, message: `✅ ${message}` }
+		} catch (error) {
+			return { success: false, message: `❌ Failed to drag-and-drop: ${error}` }
 		}
 	}
 
