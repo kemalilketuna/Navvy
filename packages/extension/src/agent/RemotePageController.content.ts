@@ -27,7 +27,7 @@ export function initPageController() {
 		return pageController
 	}
 
-	intervalID = window.setInterval(async () => {
+	async function tick() {
 		const agentHeartbeat = (await chrome.storage.local.get('agentHeartbeat')).agentHeartbeat
 		const now = Date.now()
 		const agentInTouch = typeof agentHeartbeat === 'number' && now - agentHeartbeat < 2_000
@@ -55,7 +55,12 @@ export function initPageController() {
 				pageController = null
 			}
 		}
-	}, 500)
+	}
+
+	// Run once immediately so a navigation mid-task shows the mask on the new page
+	// without waiting up to 500ms for the first interval tick.
+	void tick()
+	intervalID = window.setInterval(tick, 500)
 
 	chrome.runtime.onMessage.addListener((message, sender, sendResponse): true | undefined => {
 		if (message.type !== 'PAGE_CONTROL') {
