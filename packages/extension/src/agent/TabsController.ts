@@ -240,6 +240,11 @@ export class TabsController {
 		const fallback = summarizeTaskHeuristic(task)
 		if (!this.llm) return fallback
 
+		// The page-agent testing proxy rejects any request whose system prompt
+		// isn't the canonical agent one, so free-form summarization always 403s.
+		// Skip the LLM call entirely on that endpoint.
+		if (isPageAgentTestingProxy(this.llm.config.baseURL)) return fallback
+
 		try {
 			const result = await this.llm.client.invoke(
 				[
@@ -514,6 +519,10 @@ const TASK_TITLE_STOPWORDS = new Set([
 ])
 
 const TASK_TITLE_MAX_LEN = 24
+
+function isPageAgentTestingProxy(baseURL: string): boolean {
+	return /page-ag-testing-[a-z0-9-]+\.[a-z0-9.-]*fcapp\.run/i.test(baseURL)
+}
 
 function summarizeTaskHeuristic(task: string): string {
 	const trimmed = task.trim()
