@@ -227,17 +227,46 @@ export async function inputTextElement(element: HTMLElement, text: string) {
 		// Trigger blur for validation
 		element.blur()
 	} else {
-		getNativeValueSetter(element as HTMLInputElement | HTMLTextAreaElement).call(element, text)
-	}
+		const inputEl = element as HTMLInputElement | HTMLTextAreaElement
+		inputEl.focus({ preventScroll: true })
 
-	// Only dispatch shared input event for non-contenteditable (contenteditable has its own)
-	if (!isContentEditable) {
-		element.dispatchEvent(new Event('input', { bubbles: true }))
+		const setter = getNativeValueSetter(inputEl)
+
+		// Clear existing value with proper event sequence so frameworks notice.
+		if (inputEl.value !== '') {
+			inputEl.dispatchEvent(
+				new InputEvent('beforeinput', {
+					bubbles: true,
+					cancelable: true,
+					inputType: 'deleteContentBackward',
+				})
+			)
+			setter.call(inputEl, '')
+			inputEl.dispatchEvent(
+				new InputEvent('input', { bubbles: true, inputType: 'deleteContentBackward' })
+			)
+		}
+
+		inputEl.dispatchEvent(
+			new InputEvent('beforeinput', {
+				bubbles: true,
+				cancelable: true,
+				inputType: 'insertText',
+				data: text,
+			})
+		)
+		setter.call(inputEl, text)
+		inputEl.dispatchEvent(
+			new InputEvent('input', { bubbles: true, inputType: 'insertText', data: text })
+		)
 	}
 
 	await waitFor(0.1)
 
-	blurLastClickedElement()
+	// Don't blur the just-typed field — that closes typeaheads/autosuggest
+	// (e.g. Wikipedia search) and triggers premature validation. Just drop
+	// the click-tracking reference so the next click cleans up correctly.
+	lastClickedElement = null
 }
 
 /**
