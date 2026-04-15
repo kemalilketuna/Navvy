@@ -91,6 +91,11 @@ export const enUS = {
 			modelDisabledBaseUrl: 'Enter a base URL to select a model.',
 			modelNoMatch: 'No matching models',
 			addAnotherProfile: 'Add another configuration',
+			profileName: 'Name this configuration',
+			profileNameHelp: 'A label to tell your saved configurations apart.',
+			profileDeleteConfirmTitle: 'Delete this configuration?',
+			profileDeleteConfirmBody:
+				'"{{name}}" and all its saved API keys will be permanently removed from this device. This cannot be undone.',
 			responseLanguage: 'Response Language',
 			languageSystem: 'System',
 			advanced: 'Advanced',

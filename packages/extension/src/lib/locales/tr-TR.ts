@@ -84,6 +84,11 @@ export const trTR: TranslationSchema = {
 			modelDisabledBaseUrl: 'Model seçmek için bir temel URL girin.',
 			modelNoMatch: 'Eşleşen model yok',
 			addAnotherProfile: 'Başka bir yapılandırma ekle',
+			profileName: 'Bu yapılandırmaya isim ver',
+			profileNameHelp: 'Kayıtlı yapılandırmalarını birbirinden ayırt etmek için bir etiket.',
+			profileDeleteConfirmTitle: 'Bu yapılandırma silinsin mi?',
+			profileDeleteConfirmBody:
+				'"{{name}}" ve kayıtlı tüm API anahtarları bu cihazdan kalıcı olarak kaldırılacak. Bu işlem geri alınamaz.',
 			responseLanguage: 'Yanıt dili',
 			languageSystem: 'Sistem',
 			advanced: 'Gelişmiş',
