@@ -16,6 +16,7 @@ export const InvokeErrorTypes = {
 	// Non-retryable
 	CONFIG_ERROR: 'config_error', // Invalid local configuration or hook
 	AUTH_ERROR: 'auth_error', // Authentication failed
+	QUOTA_EXCEEDED: 'quota_exceeded', // Account/credit/quota exhausted — not a transient rate limit
 	CONTEXT_LENGTH: 'context_length', // Prompt too long
 	CONTENT_FILTER: 'content_filter', // Content filtered
 } as const
