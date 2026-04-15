@@ -135,7 +135,7 @@ console.log(chalk.green.bold(`\n✓ Version synced: ${newVersion}\n`))
 if (hasChanges) {
 	const tagName = `v${newVersion}`
 	console.log(chalk.cyan.bold('📋 Next steps:\n'))
-	console.log(chalk.blueBright(`npm i`))
+	console.log(chalk.blueBright(`pnpm install`))
 	console.log(
 		chalk.blueBright(`git add . && git commit -m "chore(version): bump version to ${newVersion}"`)
 	)

@@ -33,16 +33,16 @@ if (isMainBranch()) {
 	console.log(chalk.dim(' ▸ commitlint (skipped on main)'))
 } else {
 	const from = execSync('git merge-base origin/main HEAD', { encoding: 'utf-8' }).trim()
-	run('commitlint', `npx commitlint --from ${from} --to HEAD`)
+	run('commitlint', `pnpm exec commitlint --from ${from} --to HEAD`)
 }
 
 // 2. Lint + Format + Typecheck in parallel
 console.log(chalk.bgBlue.white.bold(' ▸ lint + format + typecheck '))
 await parallelTask(
 	[
-		{ label: 'lint', command: 'npm run lint' },
-		{ label: 'format', command: 'npx prettier --check .' },
-		{ label: 'typecheck', command: 'npm run typecheck' },
+		{ label: 'lint', command: 'pnpm run lint' },
+		{ label: 'format', command: 'pnpm exec prettier --check .' },
+		{ label: 'typecheck', command: 'pnpm run typecheck' },
 	],
 	{ timeoutMs: 120_000 }
 )
@@ -51,5 +51,5 @@ await parallelTask(
 if (skipBuild) {
 	console.log(chalk.dim(' ▸ build (skipped)'))
 } else {
-	run('build', 'npm run build')
+	run('build', 'pnpm run build')
 }

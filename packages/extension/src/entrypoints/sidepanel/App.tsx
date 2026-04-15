@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Composer } from '@/components/Composer'
 import { HistoryDetail } from '@/components/HistoryDetail'
 import { HistoryList } from '@/components/HistoryList'
-import { ActivityCard, EventCard } from '@/components/cards'
+import { HistoryStream } from '@/components/cards'
 import { EmptyState, StatusDot } from '@/components/misc'
 import { Button } from '@/components/ui/button'
 import {
@@ -213,10 +213,7 @@ export default function App() {
 					className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto"
 				>
 					{showEmptyState && <EmptyState />}
-					{history.map((event, index) => (
-						<EventCard key={index} event={event} />
-					))}
-					{activity && <ActivityCard activity={activity} />}
+					<HistoryStream history={history} activity={activity} />
 				</div>
 			</main>
 
