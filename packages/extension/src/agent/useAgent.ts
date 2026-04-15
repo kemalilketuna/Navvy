@@ -31,103 +31,19 @@ export interface UseAgentResult {
 	configure: (config: ExtConfig) => Promise<void>
 }
 
-interface UseAgentOptions {
-	chatStorageKey?: string
-}
-
-interface ChatSnapshot {
-	currentTask: string
-	history: HistoricalEvent[]
-	status: ExtStatus
-	updatedAt: number
-}
-
-function normalizeRestoredStatus(status: ExtStatus): ExtStatus {
-	return status === 'running' ? 'stopped' : status
-}
-
-export function useAgent(options: UseAgentOptions = {}): UseAgentResult {
+export function useAgent(): UseAgentResult {
 	const agentRef = useRef<MultiPageAgent | null>(null)
 	const stopRequestedRef = useRef(false)
-	const snapshotHydratedRef = useRef(!options.chatStorageKey)
 	const [status, setStatus] = useState<ExtStatus>('idle')
 	const [history, setHistory] = useState<HistoricalEvent[]>([])
 	const [activity, setActivity] = useState<AgentActivity | null>(null)
 	const [currentTask, setCurrentTask] = useState('')
 	const [config, setConfig] = useState<ExtConfig | null>(null)
 	const [resetCounter, setResetCounter] = useState(0)
-	const currentTaskRef = useRef(currentTask)
-	const historyRef = useRef(history)
-	const chatStorageKey = options.chatStorageKey
-		? `agentChatSnapshot:${options.chatStorageKey}`
-		: null
-
-	useEffect(() => {
-		currentTaskRef.current = currentTask
-		historyRef.current = history
-	}, [currentTask, history])
 
 	useEffect(() => {
 		loadConfig().then(setConfig)
 	}, [])
-
-	useEffect(() => {
-		if (!chatStorageKey) {
-			snapshotHydratedRef.current = true
-			return
-		}
-
-		let alive = true
-		snapshotHydratedRef.current = false
-
-		chrome.storage.session
-			.get(chatStorageKey)
-			.then((stored) => {
-				if (!alive) return
-
-				const snapshot = stored[chatStorageKey] as ChatSnapshot | undefined
-				if (snapshot?.currentTask || snapshot?.history?.length) {
-					const restoredHistory = Array.isArray(snapshot.history) ? snapshot.history : []
-					const restoredStatus = normalizeRestoredStatus(snapshot.status ?? 'idle')
-					setCurrentTask(snapshot.currentTask ?? '')
-					setHistory(restoredHistory)
-					setStatus(restoredStatus)
-					setActivity(null)
-
-					const agent = agentRef.current
-					if (agent) {
-						agent.task = snapshot.currentTask ?? ''
-						agent.history = [...restoredHistory]
-					}
-				}
-			})
-			.catch((err) => console.error('[useAgent] Failed to restore chat snapshot:', err))
-			.finally(() => {
-				if (alive) snapshotHydratedRef.current = true
-			})
-
-		return () => {
-			alive = false
-		}
-	}, [chatStorageKey])
-
-	useEffect(() => {
-		if (!chatStorageKey || !snapshotHydratedRef.current) return
-
-		const snapshot: ChatSnapshot = {
-			currentTask,
-			history,
-			status: normalizeRestoredStatus(status),
-			updatedAt: Date.now(),
-		}
-
-		const hasChat = currentTask || history.length > 0
-		const write = hasChat
-			? chrome.storage.session.set({ [chatStorageKey]: snapshot })
-			: chrome.storage.session.remove(chatStorageKey)
-
-		write.catch((err) => console.error('[useAgent] Failed to save chat snapshot:', err))
-	}, [chatStorageKey, currentTask, history, status])
 
 	// Pick up settings changes saved from the standalone settings page.
 	useEffect(() => {
@@ -164,8 +80,6 @@ export function useAgent(options: UseAgentOptions = {}): UseAgentResult {
 			...agentConfig,
 			instructions: systemInstruction ? { system: systemInstruction } : undefined,
 		})
-		agent.task = currentTaskRef.current
-		agent.history = [...historyRef.current]
 		agentRef.current = agent
 
 		const handleStatusChange = (e: Event) => {
