@@ -50,7 +50,7 @@ export function GeneralSection({
 				<select
 					value={language ?? ''}
 					onChange={(e) => onLanguageChange((e.target.value || undefined) as LanguagePreference)}
-					className="mt-1 h-9 text-sm rounded-md border border-input bg-background px-2 cursor-pointer max-w-xs"
+					className="native-select-chevron mt-1 h-9 max-w-xs cursor-pointer rounded-md border border-input bg-background px-2 pr-10 text-sm"
 				>
 					{UI_OPTIONS.map((opt) => (
 						<option key={opt.value || 'system'} value={opt.value}>
@@ -66,7 +66,7 @@ export function GeneralSection({
 				<select
 					value={responseLanguage}
 					onChange={(e) => onResponseLanguageChange(e.target.value as ResponseLanguage)}
-					className="mt-1 h-9 text-sm rounded-md border border-input bg-background px-2 cursor-pointer max-w-xs"
+					className="native-select-chevron mt-1 h-9 max-w-xs cursor-pointer rounded-md border border-input bg-background px-2 pr-10 text-sm"
 				>
 					{RESPONSE_OPTIONS.map((opt) => (
 						<option key={opt.value} value={opt.value}>
