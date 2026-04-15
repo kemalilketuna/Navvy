@@ -466,7 +466,31 @@ export class PageAgentCore extends EventTarget {
 			return this.config.customSystemPrompt
 		}
 
-		const targetLanguage = this.config.language === 'zh-CN' ? '中文' : 'English'
+		let targetLanguage: string
+		switch (this.config.language) {
+			case 'fr-FR':
+				targetLanguage = 'Français'
+				break
+			case 'de-DE':
+				targetLanguage = 'Deutsch'
+				break
+			case 'es-ES':
+				targetLanguage = 'Español'
+				break
+			case 'it-IT':
+				targetLanguage = 'Italiano'
+				break
+			case 'pt-PT':
+				targetLanguage = 'Português'
+				break
+			case 'tr-TR':
+				targetLanguage = 'Türkçe'
+				break
+			case 'en-US':
+			default:
+				targetLanguage = 'English'
+				break
+		}
 		const systemPrompt = SYSTEM_PROMPT.replace(
 			/Default working language: \*\*.*?\*\*/,
 			`Default working language: **${targetLanguage}**`

@@ -210,7 +210,7 @@ const result = await agent.execute('Fill in the form with test data')`}
 					properties={[
 						{
 							name: 'language',
-							type: "'en-US' | 'zh-CN'",
+							type: "'en-US' | 'fr-FR' | 'de-DE' | 'es-ES' | 'it-IT' | 'pt-PT' | 'tr-TR'",
 							defaultValue: "'en-US'",
 							description: isZh ? 'Agent 输出语言' : 'Agent output language',
 						},

@@ -107,7 +107,7 @@ import { PageAgent } from 'page-agent'`}
   model: 'qwen3.5-plus',
   baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
   apiKey: 'YOUR_API_KEY',
-  language: '${isZh ? 'zh-CN' : 'en-US'}'
+  language: 'en-US'
 })`}
 						language="javascript"
 					/>
