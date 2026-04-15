@@ -35,18 +35,7 @@ function openSettings(section: 'general' | 'skills') {
 	const url = chrome.runtime.getURL(`settings.html#${section}`)
 	stashReturnTab()
 		.then(() => chrome.tabs.create({ url }))
-		.then(() => {
-			const sp = (chrome as unknown as { sidePanel?: { close?: () => void } }).sidePanel
-			if (sp?.close) {
-				try {
-					sp.close()
-					return
-				} catch {
-					// fall through to window.close
-				}
-			}
-			window.close()
-		})
+		.catch((err) => console.error('[SidePanel] Failed to open settings:', err))
 }
 
 export default function App() {
@@ -56,9 +45,7 @@ export default function App() {
 	const historyRef = useRef<HTMLDivElement>(null)
 	const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-	const { status, history, activity, currentTask, execute, stop, newChat } = useAgent({
-		chatStorageKey: 'sidepanel',
-	})
+	const { status, history, activity, currentTask, execute, stop, newChat } = useAgent()
 
 	// Persist session when task finishes
 	const prevStatusRef = useRef(status)
