@@ -1,5 +1,6 @@
+import type { TaskAttachment } from '@page-agent/core'
 import { History, MoreVertical, Settings, Sparkles, SquarePen } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Composer } from '@/components/Composer'
 import { HistoryDetail } from '@/components/HistoryDetail'
@@ -16,6 +17,7 @@ import {
 import { saveSession } from '@/lib/db'
 import { useT } from '@/lib/i18n'
 
+import { modelSupportsImages } from '../../agent/providers'
 import { useAgent } from '../../agent/useAgent'
 
 type View = { name: 'chat' } | { name: 'history' } | { name: 'history-detail'; sessionId: string }
@@ -42,10 +44,21 @@ export default function App() {
 	const t = useT()
 	const [view, setView] = useState<View>({ name: 'chat' })
 	const [inputValue, setInputValue] = useState('')
+	const [attachments, setAttachments] = useState<TaskAttachment[]>([])
 	const historyRef = useRef<HTMLDivElement>(null)
 	const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-	const { status, history, activity, currentTask, execute, stop, newChat } = useAgent()
+	const { status, history, activity, currentTask, config, execute, stop, newChat } = useAgent()
+
+	const supportsImages = useMemo(() => {
+		if (!config) return false
+		const active = config.profiles.find((p) => p.id === config.activeProfileId)
+		return active ? modelSupportsImages(active) : false
+	}, [config])
+
+	useEffect(() => {
+		if (!supportsImages && attachments.length > 0) setAttachments([])
+	}, [supportsImages, attachments.length])
 
 	// Persist session when task finishes
 	const prevStatusRef = useRef(status)
@@ -74,14 +87,15 @@ export default function App() {
 	}, [history, activity])
 
 	const runTask = useCallback(
-		(task: string) => {
+		(task: string, taskAttachments?: TaskAttachment[]) => {
 			const normalizedTask = task.trim()
 			if (!normalizedTask || status === 'running') return
 
 			setInputValue('')
+			setAttachments([])
 			setView({ name: 'chat' })
 
-			execute(normalizedTask).catch((error) => {
+			execute(normalizedTask, taskAttachments).catch((error) => {
 				console.error('[SidePanel] Failed to execute task:', error)
 			})
 		},
@@ -89,8 +103,8 @@ export default function App() {
 	)
 
 	const handleSubmit = useCallback(() => {
-		runTask(inputValue)
-	}, [inputValue, runTask])
+		runTask(inputValue, attachments)
+	}, [inputValue, attachments, runTask])
 
 	const handleStop = useCallback(() => {
 		console.log('[SidePanel] Stopping task...')
@@ -100,6 +114,7 @@ export default function App() {
 	const handleNewChat = useCallback(() => {
 		newChat()
 		setInputValue('')
+		setAttachments([])
 		setView({ name: 'chat' })
 	}, [newChat])
 
@@ -213,6 +228,9 @@ export default function App() {
 				onSubmit={handleSubmit}
 				onStop={handleStop}
 				isRunning={isRunning}
+				attachments={attachments}
+				onAttachmentsChange={setAttachments}
+				modelSupportsImages={supportsImages}
 			/>
 		</div>
 	)

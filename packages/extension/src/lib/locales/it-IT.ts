@@ -36,6 +36,16 @@ export const itIT: TranslationSchema = {
 			placeholder: 'Descrivi la tua attività... (Invio per inviare)',
 			send: 'Invia',
 			stop: 'Ferma attività',
+			attach: {
+				label: 'Allega',
+				unsupported: 'Il modello selezionato non supporta le immagini',
+				captureTab: 'Cattura scheda attiva',
+				uploadImage: 'Carica immagine',
+				remove: 'Rimuovi immagine',
+				thumbAlt: 'Immagine allegata',
+				captureFailed: 'Impossibile catturare la scheda',
+				uploadFailed: 'Impossibile leggere il file immagine',
+			},
 		},
 		history: {
 			title: 'Cronologia',
