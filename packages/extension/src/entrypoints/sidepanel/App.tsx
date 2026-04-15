@@ -56,7 +56,9 @@ export default function App() {
 	const historyRef = useRef<HTMLDivElement>(null)
 	const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-	const { status, history, activity, currentTask, execute, stop, newChat } = useAgent()
+	const { status, history, activity, currentTask, execute, stop, newChat } = useAgent({
+		chatStorageKey: 'sidepanel',
+	})
 
 	// Persist session when task finishes
 	const prevStatusRef = useRef(status)
