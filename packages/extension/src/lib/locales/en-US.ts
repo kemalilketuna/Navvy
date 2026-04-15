@@ -166,6 +166,9 @@ export const enUS = {
 			copied: 'Copied!',
 			copySystem: 'Copy System',
 			copyUser: 'Copy User',
+			hintQuotaExceeded: 'Your provider quota or credits appear to be exhausted.',
+			hintAuthFailed: 'Your API key may be invalid or expired.',
+			openProviderSettings: 'Open provider settings',
 		},
 		activity: {
 			thinking: 'Thinking...',

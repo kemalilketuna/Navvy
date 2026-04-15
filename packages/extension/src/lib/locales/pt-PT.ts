@@ -159,6 +159,9 @@ export const ptPT: TranslationSchema = {
 			copied: 'Copiado!',
 			copySystem: 'Copiar sistema',
 			copyUser: 'Copiar utilizador',
+			hintQuotaExceeded: 'A quota ou os créditos do seu fornecedor parecem esgotados.',
+			hintAuthFailed: 'A sua chave de API pode ser inválida ou estar expirada.',
+			openProviderSettings: 'Abrir definições do fornecedor',
 		},
 		activity: {
 			thinking: 'A pensar...',
