@@ -1,4 +1,14 @@
-import { ExternalLink, Eye, EyeOff, Plus, Scale, Trash2 } from 'lucide-react'
+import {
+	CheckCircle2,
+	ExternalLink,
+	Eye,
+	EyeOff,
+	Loader2,
+	Plus,
+	Scale,
+	Trash2,
+	XCircle,
+} from 'lucide-react'
 import { useState } from 'react'
 
 import { DEMO_BASE_URL, DEMO_MODEL, isTestingEndpoint } from '@/agent/constants'
@@ -36,6 +46,12 @@ export function ProvidersSection({
 	const t = useT()
 	const [showApiKey, setShowApiKey] = useState(false)
 	const [deleteOpen, setDeleteOpen] = useState(false)
+	const [testState, setTestState] = useState<
+		| { status: 'idle' }
+		| { status: 'running' }
+		| { status: 'success' }
+		| { status: 'error'; message: string }
+	>({ status: 'idle' })
 
 	const activeProfile = profiles.find((p) => p.id === activeProfileId) ?? profiles[0]
 	const preset = activeProfile ? PROVIDERS_BY_KEY[activeProfile.providerKey] : undefined
@@ -95,6 +111,60 @@ export function ProvidersSection({
 		const fallback = next[Math.max(0, idx - 1)]
 		onActiveProfileChange(fallback.id)
 		setDeleteOpen(false)
+	}
+
+	const handleTestConnection = async () => {
+		if (preset.requiresApiKey && !activeProfile.apiKey) {
+			setTestState({ status: 'error', message: t('ext.config.testConnectionMissingApiKey') })
+			return
+		}
+		if (preset.requiresAccountId && !activeProfile.accountId) {
+			setTestState({ status: 'error', message: t('ext.config.testConnectionMissingAccountId') })
+			return
+		}
+		if (!activeProfile.model) {
+			setTestState({ status: 'error', message: t('ext.config.testConnectionMissingModel') })
+			return
+		}
+		const baseURL = preset.buildBaseURL
+			? preset.buildBaseURL({ accountId: activeProfile.accountId })
+			: (activeProfile.baseURL ?? preset.baseURL)
+		if (!baseURL) {
+			setTestState({ status: 'error', message: t('ext.config.testConnectionMissingBaseUrl') })
+			return
+		}
+
+		setTestState({ status: 'running' })
+		try {
+			const controller = new AbortController()
+			const timeout = setTimeout(() => controller.abort(), 15000)
+			const res = await fetch(`${baseURL.replace(/\/+$/, '')}/chat/completions`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					...(activeProfile.apiKey ? { Authorization: `Bearer ${activeProfile.apiKey}` } : {}),
+				},
+				body: JSON.stringify({
+					model: activeProfile.model,
+					messages: [{ role: 'user', content: 'ping' }],
+					max_tokens: 1,
+				}),
+				signal: controller.signal,
+			}).finally(() => clearTimeout(timeout))
+
+			if (!res.ok) {
+				const data = await res.json().catch(() => null)
+				const message =
+					(data as { error?: { message?: string } } | null)?.error?.message ||
+					`HTTP ${res.status} ${res.statusText}`
+				setTestState({ status: 'error', message })
+				return
+			}
+			setTestState({ status: 'success' })
+		} catch (err) {
+			const message = (err as Error)?.message || 'Network error'
+			setTestState({ status: 'error', message })
+		}
 	}
 
 	const showProfileSelector = profiles.length > 1
@@ -297,6 +367,42 @@ export function ProvidersSection({
 					allowCustom={allowCustomModel}
 					emptyText={t('ext.config.modelNoMatch')}
 				/>
+			</div>
+
+			<div className="flex flex-col gap-2">
+				<div>
+					<Button
+						type="button"
+						variant="outline"
+						size="sm"
+						className="cursor-pointer"
+						onClick={handleTestConnection}
+						disabled={testState.status === 'running'}
+					>
+						{testState.status === 'running' ? (
+							<Loader2 className="size-4 animate-spin" />
+						) : (
+							<CheckCircle2 className="size-4" />
+						)}
+						{testState.status === 'running'
+							? t('ext.config.testConnectionRunning')
+							: t('ext.config.testConnection')}
+					</Button>
+				</div>
+				{testState.status === 'success' && (
+					<div className="flex items-center gap-1.5 text-xs text-emerald-600">
+						<CheckCircle2 className="size-3.5" />
+						{t('ext.config.testConnectionSuccess')}
+					</div>
+				)}
+				{testState.status === 'error' && (
+					<div className="flex items-start gap-1.5 text-xs text-red-500">
+						<XCircle className="size-3.5 mt-0.5 shrink-0" />
+						<span className="break-words">
+							{t('ext.config.testConnectionFailed', { message: testState.message })}
+						</span>
+					</div>
+				)}
 			</div>
 
 			{!showProfileSelector && (
