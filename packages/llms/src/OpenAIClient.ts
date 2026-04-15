@@ -28,19 +28,22 @@ export class OpenAIClient implements LLMClient {
 		// 1. Convert tools to OpenAI format
 		const openaiTools = Object.entries(tools).map(([name, t]) => zodToOpenAITool(name, t))
 
-		// Groq strictly validates that every tool name returned by the model exists in
-		// request.tools. Some Groq models ignore the macro/AgentOutput wrapper and call the
-		// nested action tools directly, which then fails server-side before our autoFixer
-		// can rewrap the call. Mirror the nested action names as dummy tool entries so Groq
-		// accepts the response; normalizeResponse repacks it into AgentOutput downstream.
-		if (/groq\.com/i.test(this.config.baseURL)) {
+		// Groq strictly validates tool calls server-side on two axes: (1) every returned
+		// tool name must exist in request.tools, and (2) if tool_choice names a specific
+		// tool, only that tool may be called. Some Groq models ignore the AgentOutput
+		// macro wrapper and call the nested action directly, which fails both checks
+		// before our autoFixer can rewrap the call. Mirror the nested action names as
+		// dummy tool entries and downgrade tool_choice to 'required' so Groq accepts the
+		// response; normalizeResponse repacks it into AgentOutput downstream.
+		const isGroq = /groq\.com/i.test(this.config.baseURL)
+		if (isGroq) {
 			expandMacroToolForGroq(openaiTools)
 		}
 
 		// Build request body
 
 		let toolChoice: unknown = 'required'
-		if (options?.toolChoiceName && !this.config.disableNamedToolChoice) {
+		if (options?.toolChoiceName && !this.config.disableNamedToolChoice && !isGroq) {
 			toolChoice = { type: 'function', function: { name: options.toolChoiceName } }
 		}
 
@@ -106,11 +109,13 @@ export class OpenAIClient implements LLMClient {
 				)
 			}
 			if (response.status === 429) {
-				throw new InvokeError(
+				const err = new InvokeError(
 					InvokeErrorTypes.RATE_LIMIT,
 					`Rate limit exceeded: ${errorMessage}`,
 					errorData
 				)
+				err.retryAfterMs = parseRetryAfterMs(response.headers.get('retry-after'), errorMessage)
+				throw err
 			}
 			if (response.status >= 500) {
 				throw new InvokeError(
@@ -283,6 +288,30 @@ function isQuotaError(status: number, errorData: unknown, errorMessage: string):
 	return false
 }
 
+/**
+ * Best-effort parse of a rate-limit retry hint. Prefers the standard `Retry-After`
+ * header; falls back to extracting "try again in N(.NN)s|ms" from the error message
+ * (used by Groq and a few other providers). Caps at 60s as a safety net.
+ */
+function parseRetryAfterMs(header: string | null, message?: string): number | undefined {
+	const cap = 60_000
+	if (header) {
+		const seconds = Number(header)
+		if (Number.isFinite(seconds) && seconds >= 0) return Math.min(seconds * 1000, cap)
+		const date = Date.parse(header)
+		if (!Number.isNaN(date)) return Math.min(Math.max(date - Date.now(), 0), cap)
+	}
+	if (message) {
+		const m = /try again in ([\d.]+)\s*(ms|s)/i.exec(message)
+		if (m) {
+			const value = Number(m[1])
+			const ms = m[2]!.toLowerCase() === 'ms' ? value : value * 1000
+			if (Number.isFinite(ms)) return Math.min(Math.max(ms, 0), cap)
+		}
+	}
+	return undefined
+}
+
 type OpenAITool = ReturnType<typeof zodToOpenAITool>
 
 /**
@@ -306,7 +335,14 @@ function expandMacroToolForGroq(openaiTools: OpenAITool[]): void {
 				// enough to pass validation while keeping prompt tokens (and latency) low.
 				additions.push({
 					type: 'function',
-					function: { name, description: '', parameters: { type: 'object', properties: {} } },
+					function: {
+						name,
+						description: '',
+						parameters: {
+							type: 'object',
+							properties: {},
+						} as unknown as OpenAITool['function']['parameters'],
+					},
 				})
 			}
 		}
