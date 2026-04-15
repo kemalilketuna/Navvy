@@ -227,45 +227,99 @@ function ReflectionSection({
 // Single step rendered as a Claude-Code-style timeline entry: thin left
 // rail, tiny step label, reflection bullets, then a single action row with
 // an indented output. No card chrome.
-function StepCard({ event }: { event: AgentStepEvent }) {
+function StepCard({
+	event,
+	children,
+	isActive = false,
+}: {
+	event: AgentStepEvent
+	children?: ReactNode
+	isActive?: boolean
+}) {
+	const [open, setOpen] = useState(false)
+	const summary =
+		compactText(event.reflection?.next_goal) ||
+		compactText(event.reflection?.memory) ||
+		compactText(event.reflection?.evaluation_previous_goal) ||
+		compactText(event.action?.output) ||
+		event.action?.name ||
+		''
+
 	return (
-		<div className="relative pl-3.5">
+		<div className="relative pl-3.5 rounded-md transition-colors hover:bg-white/[0.025]">
 			<span aria-hidden="true" className="absolute left-0 top-1 bottom-1 w-px bg-white/10" />
-			<div className="mb-1 text-[10px] uppercase tracking-wide text-muted-foreground">
-				Step {(event.stepIndex ?? 0) + 1}
-			</div>
-
-			{event.reflection && (
-				<div className="mb-1.5">
-					<ReflectionSection reflection={event.reflection} />
-				</div>
-			)}
-
-			{event.action && (
-				<div className="space-y-0.5 text-[12px] leading-snug">
-					<div className="flex items-start gap-2">
-						<ActionIcon name={event.action.name} className="mt-0.5 size-3 shrink-0 text-blue-400" />
-						<div className="min-w-0 flex-1">
-							<span className="font-mono text-foreground">{event.action.name}</span>
-							{event.action.name !== 'done' && (
-								<span className="ml-1.5 break-all font-mono text-[11px] text-muted-foreground/80">
-									{JSON.stringify(event.action.input)}
-								</span>
-							)}
-						</div>
+			<button
+				type="button"
+				onClick={() => setOpen((v) => !v)}
+				className="flex w-full items-start gap-2 py-1 text-left"
+				aria-expanded={open}
+			>
+				<ChevronRight
+					className={cn(
+						'mt-0.5 size-3.5 shrink-0 text-muted-foreground transition-transform',
+						open && 'rotate-90'
+					)}
+					aria-hidden="true"
+				/>
+				<div className="min-w-0 flex-1">
+					<div className="mb-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+						Step {(event.stepIndex ?? 0) + 1}
 					</div>
-					{event.action.output && (
-						<div className="ml-5 flex items-start gap-1 text-[11px] text-muted-foreground">
-							<span aria-hidden="true" className="select-none text-muted-foreground/60">
-								⎿
-							</span>
-							<span className="break-all">{event.action.output}</span>
+					<motion.div
+						className="line-clamp-2 text-[12px] font-medium leading-snug text-foreground/85"
+						animate={isActive ? { backgroundPosition: ['-200% 0', '200% 0'] } : undefined}
+						transition={
+							isActive
+								? { repeat: Number.POSITIVE_INFINITY, duration: 1.9, ease: 'linear' }
+								: undefined
+						}
+						style={isActive ? SHIMMER_STYLE : undefined}
+					>
+						{summary}
+					</motion.div>
+				</div>
+			</button>
+
+			{open && (
+				<div className="pb-1 pl-5">
+					{event.reflection && (
+						<div className="mb-1.5">
+							<ReflectionSection reflection={event.reflection} />
 						</div>
 					)}
+
+					{event.action && (
+						<div className="space-y-0.5 text-[12px] leading-snug">
+							<div className="flex items-start gap-2">
+								<ActionIcon
+									name={event.action.name}
+									className="mt-0.5 size-3 shrink-0 text-blue-400"
+								/>
+								<div className="min-w-0 flex-1">
+									<span className="font-mono text-foreground">{event.action.name}</span>
+									{event.action.name !== 'done' && (
+										<span className="ml-1.5 break-all font-mono text-[11px] text-muted-foreground/80">
+											{JSON.stringify(event.action.input)}
+										</span>
+									)}
+								</div>
+							</div>
+							{event.action.output && (
+								<div className="ml-5 flex items-start gap-1 text-[11px] text-muted-foreground">
+									<span aria-hidden="true" className="select-none text-muted-foreground/60">
+										⎿
+									</span>
+									<span className="break-all">{event.action.output}</span>
+								</div>
+							)}
+						</div>
+					)}
+
+					{children}
+
+					<RawDetails rawRequest={event.rawRequest} rawResponse={event.rawResponse} />
 				</div>
 			)}
-
-			<RawDetails rawRequest={event.rawRequest} rawResponse={event.rawResponse} />
 		</div>
 	)
 }
@@ -328,19 +382,60 @@ function ResultRow({ success, text }: { success: boolean; text: string }) {
 	)
 }
 
+function compactText(value: unknown): string {
+	if (value == null) return ''
+	if (typeof value === 'string') return value.replace(/\s+/g, ' ').trim()
+	return JSON.stringify(value).replace(/\s+/g, ' ').trim()
+}
+
+function isPendingActivity(activity: AgentActivity | null | undefined): boolean {
+	return (
+		activity?.type === 'thinking' || activity?.type === 'executing' || activity?.type === 'retrying'
+	)
+}
+
+export function HistoryStream({
+	history,
+	activity,
+}: {
+	history: HistoricalEvent[]
+	activity?: AgentActivity | null
+}) {
+	const latestStepIndex = history.findLastIndex((event) => event.type === 'step')
+	const shouldShimmerLatestStep = isPendingActivity(activity)
+
+	return (
+		<>
+			{history.map((event, index) => (
+				<EventCard
+					key={index}
+					event={event}
+					isActiveStep={shouldShimmerLatestStep && index === latestStepIndex}
+				/>
+			))}
+			{activity && <ActivityCard activity={activity} />}
+		</>
+	)
+}
+
 // Top-level dispatcher.
-export function EventCard({ event }: { event: HistoricalEvent }) {
+export function EventCard({
+	event,
+	isActiveStep = false,
+}: {
+	event: HistoricalEvent
+	isActiveStep?: boolean
+}) {
 	if (event.type === 'step' && event.action?.name === 'done') {
 		const input = event.action.input as { text?: string; success?: boolean }
 		return (
 			<EventEnter>
-				<div className="space-y-1.5">
-					<StepCard event={event as AgentStepEvent} />
+				<StepCard event={event as AgentStepEvent} isActive={isActiveStep}>
 					<ResultRow
 						success={input?.success ?? true}
 						text={input?.text || event.action.output || ''}
 					/>
-				</div>
+				</StepCard>
 			</EventEnter>
 		)
 	}
@@ -348,7 +443,7 @@ export function EventCard({ event }: { event: HistoricalEvent }) {
 	if (event.type === 'step') {
 		return (
 			<EventEnter>
-				<StepCard event={event as AgentStepEvent} />
+				<StepCard event={event as AgentStepEvent} isActive={isActiveStep} />
 			</EventEnter>
 		)
 	}

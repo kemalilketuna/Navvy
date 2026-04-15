@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { type SessionRecord, deleteSession, getSession } from '@/lib/db'
 import { useT } from '@/lib/i18n'
 
-import { EventCard } from './cards'
+import { HistoryStream } from './cards'
 
 export function HistoryDetail({
 	sessionId,
@@ -80,9 +80,7 @@ export function HistoryDetail({
 
 			{/* Events (read-only) */}
 			<div className="flex-1 overflow-y-auto p-3 space-y-2">
-				{session.history.map((event, index) => (
-					<EventCard key={index} event={event} />
-				))}
+				<HistoryStream history={session.history} />
 			</div>
 		</div>
 	)
