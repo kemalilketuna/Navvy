@@ -28,6 +28,15 @@ export class OpenAIClient implements LLMClient {
 		// 1. Convert tools to OpenAI format
 		const openaiTools = Object.entries(tools).map(([name, t]) => zodToOpenAITool(name, t))
 
+		// Groq strictly validates that every tool name returned by the model exists in
+		// request.tools. Some Groq models ignore the macro/AgentOutput wrapper and call the
+		// nested action tools directly, which then fails server-side before our autoFixer
+		// can rewrap the call. Mirror the nested action names as dummy tool entries so Groq
+		// accepts the response; normalizeResponse repacks it into AgentOutput downstream.
+		if (/groq\.com/i.test(this.config.baseURL)) {
+			expandMacroToolForGroq(openaiTools)
+		}
+
 		// Build request body
 
 		let toolChoice: unknown = 'required'
@@ -86,6 +95,13 @@ export class OpenAIClient implements LLMClient {
 				throw new InvokeError(
 					InvokeErrorTypes.AUTH_ERROR,
 					`Authentication failed: ${errorMessage}`,
+					errorData
+				)
+			}
+			if (response.status === 402 || isQuotaError(response.status, errorData, errorMessage)) {
+				throw new InvokeError(
+					InvokeErrorTypes.QUOTA_EXCEEDED,
+					`Quota exceeded: ${errorMessage}`,
 					errorData
 				)
 			}
@@ -239,4 +255,61 @@ export class OpenAIClient implements LLMClient {
 			rawRequest: finalRequestBody,
 		}
 	}
+}
+
+const QUOTA_ERROR_CODES = new Set([
+	'insufficient_quota',
+	'insufficient_credit',
+	'insufficient_credits',
+	'credit_exhausted',
+	'credits_exhausted',
+	'billing_hard_limit_reached',
+	'billing_not_active',
+	'account_deactivated',
+	'quota_exceeded',
+])
+
+const QUOTA_HINT_PATTERN =
+	/insufficient[_\s-]?(quota|credit|credits|funds|balance)|exceeded your (current )?quota|out of (credit|credits|free credits)|billing (issue|limit|hard limit)|payment required|please add (a )?payment|free tier (limit|quota)/i
+
+function isQuotaError(status: number, errorData: unknown, errorMessage: string): boolean {
+	const err = (errorData as { error?: { code?: string; type?: string; message?: string } } | null)
+		?.error
+	const code = err?.code?.toLowerCase()
+	const type = err?.type?.toLowerCase()
+	if (code && QUOTA_ERROR_CODES.has(code)) return true
+	if (type && QUOTA_ERROR_CODES.has(type)) return true
+	if (status === 429 && QUOTA_HINT_PATTERN.test(errorMessage)) return true
+	return false
+}
+
+type OpenAITool = ReturnType<typeof zodToOpenAITool>
+
+/**
+ * For each macro tool whose parameters expose an `action` union of single-key objects
+ * (PageAgentCore's AgentOutput shape), append a dummy tool entry per nested action name.
+ * Mutates the array in place.
+ */
+function expandMacroToolForGroq(openaiTools: OpenAITool[]): void {
+	const seen = new Set(openaiTools.map((t) => t.function.name))
+	const additions: OpenAITool[] = []
+	for (const t of openaiTools) {
+		const actionSchema = (t.function.parameters as any)?.properties?.action
+		const variants: any[] = actionSchema?.anyOf ?? actionSchema?.oneOf ?? []
+		for (const variant of variants) {
+			const props = variant?.properties
+			if (!props) continue
+			for (const name of Object.keys(props)) {
+				if (seen.has(name)) continue
+				seen.add(name)
+				// Groq only checks the *name* against request.tools, so a minimal stub is
+				// enough to pass validation while keeping prompt tokens (and latency) low.
+				additions.push({
+					type: 'function',
+					function: { name, description: '', parameters: { type: 'object', properties: {} } },
+				})
+			}
+		}
+	}
+	openaiTools.push(...additions)
 }

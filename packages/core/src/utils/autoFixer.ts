@@ -37,7 +37,14 @@ export function normalizeResponse(response: any, tools?: Map<string, PageAgentTo
 		// case: sometimes the model only returns the action level
 		if (toolCall.function.name && toolCall.function.name !== 'AgentOutput') {
 			log(`#1: fixing tool_call`)
-			resolvedArguments = { action: safeJsonParse(resolvedArguments) }
+			const inner = safeJsonParse(resolvedArguments)
+			// If args are already wrapped under the action name, keep them. Otherwise the
+			// tool_call name *is* the action and args are its raw input; reattach the name
+			// so downstream validation can find the tool. (Seen with Groq direct calls.)
+			const alreadyWrapped = inner && typeof inner === 'object' && toolCall.function.name in inner
+			resolvedArguments = alreadyWrapped
+				? { action: inner }
+				: { action: { [toolCall.function.name]: inner } }
 		}
 	} else {
 		// case: sometimes the model returns json in content instead of tool_calls
