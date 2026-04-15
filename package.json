@@ -26,15 +26,15 @@
         "npm": "^11.6.3"
     },
     "scripts": {
-        "start": "npm run dev --workspace=@page-agent/website",
-        "dev:ext": "npm run dev -w @page-agent/ext",
-        "dev:demo": "npm run dev:demo --workspace=page-agent",
+        "start": "pnpm --filter @page-agent/website run dev",
+        "dev:ext": "pnpm --filter @page-agent/ext run dev",
+        "dev:demo": "pnpm --filter page-agent run dev:demo",
         "build": "node scripts/build.js",
         "build:libs": "node scripts/build-libs.js",
-        "build:website": "npm run build:website --workspace=@page-agent/website",
-        "build:ext": "npm run zip -w @page-agent/ext",
+        "build:website": "pnpm --filter @page-agent/website run build:website",
+        "build:ext": "pnpm --filter @page-agent/ext run zip",
         "version": "node scripts/sync-version.js",
-        "postpublish": "npm run postpublish --workspaces --if-present",
+        "postpublish": "pnpm --recursive --if-present run postpublish",
         "typecheck": "tsc --noEmit -p tsconfig.typecheck.json && tsc --noEmit -p packages/extension/tsconfig.json",
         "lint": "eslint .",
         "ci": "node scripts/ci.js",
@@ -70,15 +70,15 @@
     },
     "lint-staged": {
         "*.{js,ts,cjs,cts,mjs,mts}": [
-            "npx prettier --write --ignore-unknown",
-            "npx eslint --quiet"
+            "pnpm exec prettier --write --ignore-unknown",
+            "pnpm exec eslint --quiet"
         ],
         "*.{jsx,tsx}": [
-            "npx prettier --write --ignore-unknown",
-            "npx eslint --quiet"
+            "pnpm exec prettier --write --ignore-unknown",
+            "pnpm exec eslint --quiet"
         ],
         "*.css": [
-            "npx prettier --write --ignore-unknown"
+            "pnpm exec prettier --write --ignore-unknown"
         ]
     },
     "commitlint": {

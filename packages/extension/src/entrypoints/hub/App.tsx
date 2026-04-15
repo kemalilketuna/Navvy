@@ -2,7 +2,7 @@ import { FoldVertical, Plug, PlugZap, Square, UnfoldVertical, Unplug } from 'luc
 import { useEffect, useRef, useState } from 'react'
 
 import { useAgent } from '@/agent/useAgent'
-import { ActivityCard, EventCard } from '@/components/cards'
+import { HistoryStream } from '@/components/cards'
 import { Logo, MotionOverlay, StatusDot } from '@/components/misc'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
@@ -122,11 +122,7 @@ export default function App() {
 						</div>
 					)}
 
-					{history.map((event, index) => (
-						<EventCard key={index} event={event} />
-					))}
-
-					{activity && <ActivityCard activity={activity} />}
+					<HistoryStream history={history} activity={activity} />
 				</div>
 			</main>
 		</div>

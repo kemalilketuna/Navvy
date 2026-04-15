@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Equivalent to: npm run build --workspaces --if-present
+ * Equivalent to: pnpm --recursive --if-present run build
  *
  * Reads the workspace list from root package.json, filters to those with a
  * "build" script, and runs them all concurrently via parallelTask.
@@ -18,7 +18,7 @@ const tasks = rootPkg.workspaces
 	.map((ws) => {
 		const dir = join(rootDir, ws)
 		const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf-8'))
-		return pkg.scripts?.build ? { label: pkg.name, command: 'npm run build', cwd: dir } : null
+		return pkg.scripts?.build ? { label: pkg.name, command: 'pnpm run build', cwd: dir } : null
 	})
 	.filter(Boolean)
 
