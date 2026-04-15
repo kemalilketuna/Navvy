@@ -75,7 +75,7 @@ export function ProvidersSection({
 					<select
 						value={activeProfile.id}
 						onChange={(e) => onActiveProfileChange(e.target.value)}
-						className="h-9 text-sm rounded-md border border-input bg-background px-2 cursor-pointer flex-1 min-w-0"
+						className="native-select-chevron h-9 min-w-0 flex-1 cursor-pointer rounded-md border border-input bg-background px-2 pr-10 text-sm"
 					>
 						{profiles.map((p) => (
 							<option key={p.id} value={p.id}>
@@ -118,7 +118,7 @@ export function ProvidersSection({
 				<select
 					value={activeProfile.providerKey}
 					onChange={(e) => handleProviderChange(e.target.value as ProviderKey)}
-					className="h-9 text-sm rounded-md border border-input bg-background px-2 cursor-pointer"
+					className="native-select-chevron h-9 cursor-pointer rounded-md border border-input bg-background px-2 pr-10 text-sm"
 				>
 					{PROVIDERS.map((p) => (
 						<option key={p.key} value={p.key}>

@@ -246,27 +246,30 @@ function StepCard({
 		''
 
 	return (
-		<div className="relative pl-3.5 rounded-md transition-colors hover:bg-white/[0.025]">
-			<span aria-hidden="true" className="absolute left-0 top-1 bottom-1 w-px bg-white/10" />
+		<div className="group relative rounded-lg border border-white/[0.07] bg-white/[0.035] shadow-[0_1px_0_rgba(255,255,255,0.04)_inset] transition-colors hover:border-white/[0.13] hover:bg-white/[0.07]">
+			<span
+				aria-hidden="true"
+				className="absolute left-0 top-2 bottom-2 w-px bg-white/10 transition-colors group-hover:bg-white/20"
+			/>
 			<button
 				type="button"
 				onClick={() => setOpen((v) => !v)}
-				className="flex w-full items-start gap-2 py-1 text-left"
+				className="flex w-full items-start gap-2 px-2.5 py-2 text-left"
 				aria-expanded={open}
 			>
 				<ChevronRight
 					className={cn(
-						'mt-0.5 size-3.5 shrink-0 text-muted-foreground transition-transform',
+						'mt-0.5 size-3.5 shrink-0 text-muted-foreground transition-transform group-hover:text-foreground/70',
 						open && 'rotate-90'
 					)}
 					aria-hidden="true"
 				/>
 				<div className="min-w-0 flex-1">
-					<div className="mb-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+					<div className="mb-1 text-[10px] uppercase tracking-wide text-muted-foreground">
 						Step {(event.stepIndex ?? 0) + 1}
 					</div>
 					<motion.div
-						className="line-clamp-2 text-[12px] font-medium leading-snug text-foreground/85"
+						className="line-clamp-2 text-[12px] font-medium leading-snug text-foreground/88"
 						animate={isActive ? { backgroundPosition: ['-200% 0', '200% 0'] } : undefined}
 						transition={
 							isActive
@@ -281,7 +284,7 @@ function StepCard({
 			</button>
 
 			{open && (
-				<div className="pb-1 pl-5">
+				<div className="px-2.5 pb-2 pl-8">
 					{event.reflection && (
 						<div className="mb-1.5">
 							<ReflectionSection reflection={event.reflection} />
