@@ -36,6 +36,16 @@ export const ptPT: TranslationSchema = {
 			placeholder: 'Descreva a sua tarefa... (Enter para enviar)',
 			send: 'Enviar',
 			stop: 'Parar tarefa',
+			attach: {
+				label: 'Anexar',
+				unsupported: 'O modelo selecionado não suporta imagens',
+				captureTab: 'Capturar separador ativo',
+				uploadImage: 'Carregar imagem',
+				remove: 'Remover imagem',
+				thumbAlt: 'Imagem anexada',
+				captureFailed: 'Falha ao capturar separador',
+				uploadFailed: 'Falha ao ler ficheiro de imagem',
+			},
 		},
 		history: {
 			title: 'Histórico',

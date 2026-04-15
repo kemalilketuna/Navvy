@@ -1,7 +1,15 @@
 import { OpenAIClient } from './OpenAIClient'
 import { DEFAULT_TEMPERATURE, LLM_MAX_RETRIES } from './constants'
 import { InvokeError, InvokeErrorTypes } from './errors'
-import type { InvokeOptions, InvokeResult, LLMClient, LLMConfig, Message, Tool } from './types'
+import type {
+	InvokeOptions,
+	InvokeResult,
+	LLMClient,
+	LLMConfig,
+	Message,
+	MessageContentPart,
+	Tool,
+} from './types'
 
 export { InvokeError, InvokeErrorTypes }
 
@@ -9,7 +17,7 @@ export function isAbortError(error: unknown): boolean {
 	const e = error as { name?: string; rawError?: { name?: string } } | null
 	return e?.name === 'AbortError' || e?.rawError?.name === 'AbortError'
 }
-export type { InvokeOptions, InvokeResult, LLMClient, LLMConfig, Message, Tool }
+export type { InvokeOptions, InvokeResult, LLMClient, LLMConfig, Message, MessageContentPart, Tool }
 
 export function parseLLMConfig(config: LLMConfig): Required<LLMConfig> {
 	// Runtime validation as defensive programming (types already guarantee these)

@@ -36,6 +36,16 @@ export const trTR: TranslationSchema = {
 			placeholder: 'Görevinizi yazın... (göndermek için Enter)',
 			send: 'Gönder',
 			stop: 'Görevi durdur',
+			attach: {
+				label: 'Ekle',
+				unsupported: 'Seçili model resim desteklemiyor',
+				captureTab: 'Aktif sekmenin ekran görüntüsü',
+				uploadImage: 'Resim yükle',
+				remove: 'Resmi kaldır',
+				thumbAlt: 'Eklenen resim',
+				captureFailed: 'Sekme ekran görüntüsü alınamadı',
+				uploadFailed: 'Resim dosyası okunamadı',
+			},
 		},
 		history: {
 			title: 'Geçmiş',

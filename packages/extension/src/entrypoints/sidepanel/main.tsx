@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 
 import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { Toaster } from '@/components/ui/sonner'
 import { I18nProvider } from '@/lib/i18n'
 
 import App from './App'
@@ -16,6 +17,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 		<ErrorBoundary>
 			<I18nProvider>
 				<App />
+				<Toaster />
 			</I18nProvider>
 		</ErrorBoundary>
 	</React.StrictMode>

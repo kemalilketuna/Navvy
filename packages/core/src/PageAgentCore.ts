@@ -3,7 +3,7 @@
  * Copyright (C) 2026 SimonLuvRamen
  * All rights reserved.
  */
-import { InvokeError, LLM, type Tool } from '@page-agent/llms'
+import { InvokeError, LLM, type MessageContentPart, type Tool } from '@page-agent/llms'
 import type { BrowserState, PageController } from '@page-agent/page-controller'
 import chalk from 'chalk'
 import * as z from 'zod/v4'
@@ -32,6 +32,19 @@ export { tool, type PageAgentTool } from './tools'
 export type * from './types'
 
 export type PageAgentCoreConfig = AgentConfig & { pageController: PageController }
+
+/**
+ * Image attached by the user to a task. `dataUrl` is a base64-encoded data: URL
+ * (e.g. from FileReader or chrome.tabs.captureVisibleTab). Forwarded verbatim
+ * to the LLM as an `image_url` content part — requires a vision-capable model.
+ */
+export interface TaskAttachment {
+	dataUrl: string
+}
+
+export interface ExecuteOptions {
+	attachments?: TaskAttachment[]
+}
 
 /**
  * AI agent for browser automation.
@@ -88,6 +101,7 @@ export class PageAgentCore extends EventTarget {
 	#llm: LLM
 	#abortController = new AbortController()
 	#observations: string[] = []
+	#attachments: TaskAttachment[] = []
 
 	/** internal states during a single task execution */
 	#states = {
@@ -209,11 +223,12 @@ export class PageAgentCore extends EventTarget {
 		this.#abortController.abort()
 	}
 
-	async execute(task: string): Promise<ExecutionResult> {
+	async execute(task: string, options?: ExecuteOptions): Promise<ExecutionResult> {
 		if (this.disposed) throw new Error('PageAgent has been disposed. Create a new instance.')
 		if (!task) throw new Error('Task is required')
 		this.task = task
 		this.taskId = uid()
+		this.#attachments = options?.attachments ?? []
 
 		// Disable ask_user tool if onAskUser is not set
 		if (!this.onAskUser) {
@@ -262,7 +277,7 @@ export class PageAgentCore extends EventTarget {
 
 				const messages = [
 					{ role: 'system' as const, content: this.#getSystemPrompt() },
-					{ role: 'user' as const, content: await this.#assembleUserPrompt() },
+					{ role: 'user' as const, content: await this.#assembleUserMessageContent() },
 				]
 
 				const macroTool = { AgentOutput: this.#packMacroTool() }
@@ -587,6 +602,20 @@ export class PageAgentCore extends EventTarget {
 			this.#observations = []
 			this.#emitHistoryChange()
 		}
+	}
+
+	async #assembleUserMessageContent(): Promise<string | MessageContentPart[]> {
+		const text = await this.#assembleUserPrompt()
+		if (this.#attachments.length === 0) return text
+		return [
+			{ type: 'text', text },
+			...this.#attachments.map(
+				(att): MessageContentPart => ({
+					type: 'image_url',
+					image_url: { url: att.dataUrl },
+				})
+			),
+		]
 	}
 
 	async #assembleUserPrompt(): Promise<string> {
