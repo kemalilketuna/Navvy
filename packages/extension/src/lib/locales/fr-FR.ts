@@ -85,6 +85,11 @@ export const frFR: TranslationSchema = {
 			modelDisabledBaseUrl: 'Saisissez une URL de base pour sélectionner un modèle.',
 			modelNoMatch: 'Aucun modèle correspondant',
 			addAnotherProfile: 'Ajouter une autre configuration',
+			profileName: 'Nommer cette configuration',
+			profileNameHelp: 'Une étiquette pour distinguer vos configurations enregistrées.',
+			profileDeleteConfirmTitle: 'Supprimer cette configuration ?',
+			profileDeleteConfirmBody:
+				'"{{name}}" et toutes ses clés API enregistrées seront supprimés définitivement de cet appareil. Cette action est irréversible.',
 			responseLanguage: 'Langue de réponse',
 			languageSystem: 'Système',
 			advanced: 'Avancé',

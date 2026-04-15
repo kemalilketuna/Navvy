@@ -84,6 +84,11 @@ export const ptPT: TranslationSchema = {
 			modelDisabledBaseUrl: 'Introduza um URL base para selecionar um modelo.',
 			modelNoMatch: 'Sem modelos correspondentes',
 			addAnotherProfile: 'Adicionar outra configuração',
+			profileName: 'Atribuir um nome a esta configuração',
+			profileNameHelp: 'Uma etiqueta para distinguir as configurações guardadas.',
+			profileDeleteConfirmTitle: 'Eliminar esta configuração?',
+			profileDeleteConfirmBody:
+				'"{{name}}" e todas as suas chaves API guardadas serão removidos permanentemente deste dispositivo. Esta ação não pode ser anulada.',
 			responseLanguage: 'Idioma de resposta',
 			languageSystem: 'Sistema',
 			advanced: 'Avançado',
