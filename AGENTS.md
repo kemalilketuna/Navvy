@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This is a **monorepo** with npm workspaces:
+This is a **monorepo** with pnpm workspaces:
 
 - **Page Agent** (`packages/page-agent/`) - Main entry with built-in UI Panel, published as `page-agent` on npm
 - **Extension** (`packages/extension/`) - Browser extension (WXT + React)
@@ -17,13 +17,15 @@ Internal packages:
 
 ## Development Commands
 
+Use **pnpm** for dependency management and scripts in this repository. Do not use npm commands for normal development tasks.
+
 ```bash
-npm start                      # Start website dev server
-npm run build                  # Build all packages
-npm run build:libs             # Build all libraries
-npm run build:ext              # Build and zip the extension package
-npm run typecheck              # Typecheck all packages
-npm run lint                   # ESLint
+pnpm start                     # Start website dev server
+pnpm run build                 # Build all packages
+pnpm run build:libs            # Build all libraries
+pnpm run build:ext             # Build and zip the extension package
+pnpm run typecheck             # Typecheck all packages
+pnpm run lint                  # ESLint
 ```
 
 ## Architecture
