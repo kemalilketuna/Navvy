@@ -159,6 +159,9 @@ export const trTR: TranslationSchema = {
 			copied: 'Kopyalandı!',
 			copySystem: 'Sistemi kopyala',
 			copyUser: 'Kullanıcıyı kopyala',
+			hintQuotaExceeded: 'Sağlayıcı kotanız veya krediniz tükenmiş görünüyor.',
+			hintAuthFailed: 'API anahtarınız geçersiz veya süresi dolmuş olabilir.',
+			openProviderSettings: 'Sağlayıcı ayarlarını aç',
 		},
 		activity: {
 			thinking: 'Düşünüyor...',

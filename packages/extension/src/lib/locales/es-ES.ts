@@ -159,6 +159,9 @@ export const esES: TranslationSchema = {
 			copied: '¡Copiado!',
 			copySystem: 'Copiar sistema',
 			copyUser: 'Copiar usuario',
+			hintQuotaExceeded: 'La cuota o los créditos de tu proveedor parecen agotados.',
+			hintAuthFailed: 'Tu clave API podría ser inválida o haber expirado.',
+			openProviderSettings: 'Abrir ajustes del proveedor',
 		},
 		activity: {
 			thinking: 'Pensando...',
