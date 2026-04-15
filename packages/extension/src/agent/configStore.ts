@@ -2,7 +2,7 @@ import type { LLMConfig } from '@page-agent/llms'
 
 import { type ExtensionLanguage } from './MultiPageAgent'
 import { DEMO_CONFIG, migrateLegacyEndpoint } from './constants'
-import { type LLMProfile, buildProfilesState } from './profiles'
+import { type LLMProfile, buildProfilesState, resolveBaseURL } from './profiles'
 
 export type LanguagePreference = ExtensionLanguage | undefined
 
@@ -76,7 +76,7 @@ export async function loadConfig(): Promise<ExtConfig> {
 	const active = profiles.find((p) => p.id === activeProfileId) ?? profiles[0]
 
 	return {
-		baseURL: active.baseURL,
+		baseURL: resolveBaseURL(active),
 		model: active.model,
 		apiKey: active.apiKey,
 		...advancedConfig,
@@ -102,7 +102,7 @@ export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 
 	const active = profiles.find((p) => p.id === activeProfileId) ?? profiles[0]
 	const llmConfig: LLMConfig = {
-		baseURL: active.baseURL,
+		baseURL: resolveBaseURL(active),
 		model: active.model,
 		apiKey: active.apiKey,
 	}

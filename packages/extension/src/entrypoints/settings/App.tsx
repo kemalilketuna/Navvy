@@ -10,7 +10,7 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 
 import { type ExtConfig, loadConfig, saveConfig } from '@/agent/configStore'
-import type { LLMProfile } from '@/agent/profiles'
+import { type LLMProfile, isProfileComplete } from '@/agent/profiles'
 import { AboutSection } from '@/components/settings/AboutSection'
 import { AdvancedSection } from '@/components/settings/AdvancedSection'
 import { GeneralSection } from '@/components/settings/GeneralSection'
@@ -62,6 +62,12 @@ export default function App() {
 		if (!config || !draft) return false
 		return JSON.stringify(config) !== JSON.stringify(draft)
 	}, [config, draft])
+
+	const activeProfileComplete = useMemo(() => {
+		if (!draft) return true
+		const active = draft.profiles.find((p) => p.id === draft.activeProfileId) ?? draft.profiles[0]
+		return active ? isProfileComplete(active) : false
+	}, [draft])
 
 	if (!draft) {
 		return (
@@ -225,7 +231,7 @@ export default function App() {
 							<Button variant="outline" onClick={handleReset} disabled={saving}>
 								{t('ext.config.cancel')}
 							</Button>
-							<Button onClick={handleSave} disabled={saving}>
+							<Button onClick={handleSave} disabled={saving || !activeProfileComplete}>
 								{saving ? <Loader2 className="size-4 animate-spin" /> : t('ext.config.save')}
 							</Button>
 						</div>
