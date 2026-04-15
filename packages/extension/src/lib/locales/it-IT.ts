@@ -85,6 +85,11 @@ export const itIT: TranslationSchema = {
 			modelDisabledBaseUrl: 'Inserisci un URL base per selezionare un modello.',
 			modelNoMatch: 'Nessun modello corrispondente',
 			addAnotherProfile: "Aggiungi un'altra configurazione",
+			profileName: 'Dai un nome a questa configurazione',
+			profileNameHelp: "Un'etichetta per distinguere le configurazioni salvate.",
+			profileDeleteConfirmTitle: 'Eliminare questa configurazione?',
+			profileDeleteConfirmBody:
+				'"{{name}}" e tutte le sue chiavi API salvate saranno rimossi definitivamente da questo dispositivo. Operazione irreversibile.',
 			responseLanguage: 'Lingua di risposta',
 			languageSystem: 'Sistema',
 			advanced: 'Avanzate',

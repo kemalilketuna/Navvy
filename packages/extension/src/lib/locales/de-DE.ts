@@ -84,6 +84,11 @@ export const deDE: TranslationSchema = {
 			modelDisabledBaseUrl: 'Basis-URL eingeben, um ein Modell auszuwählen.',
 			modelNoMatch: 'Keine passenden Modelle',
 			addAnotherProfile: 'Weitere Konfiguration hinzufügen',
+			profileName: 'Diese Konfiguration benennen',
+			profileNameHelp: 'Eine Bezeichnung, um gespeicherte Konfigurationen zu unterscheiden.',
+			profileDeleteConfirmTitle: 'Diese Konfiguration löschen?',
+			profileDeleteConfirmBody:
+				'"{{name}}" und alle gespeicherten API-Schlüssel werden dauerhaft von diesem Gerät entfernt. Dies kann nicht rückgängig gemacht werden.',
 			responseLanguage: 'Antwortsprache',
 			languageSystem: 'System',
 			advanced: 'Erweitert',

@@ -4,6 +4,16 @@ import { useState } from 'react'
 import { DEMO_BASE_URL, DEMO_MODEL, isTestingEndpoint } from '@/agent/constants'
 import { type LLMProfile, type ProviderCredentials, newProfileId } from '@/agent/profiles'
 import { PROVIDERS, PROVIDERS_BY_KEY, type ProviderKey } from '@/agent/providers'
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Combobox, type ComboboxOption } from '@/components/ui/combobox'
 import { Input } from '@/components/ui/input'
@@ -25,6 +35,7 @@ export function ProvidersSection({
 }: ProvidersSectionProps) {
 	const t = useT()
 	const [showApiKey, setShowApiKey] = useState(false)
+	const [deleteOpen, setDeleteOpen] = useState(false)
 
 	const activeProfile = profiles.find((p) => p.id === activeProfileId) ?? profiles[0]
 	const preset = activeProfile ? PROVIDERS_BY_KEY[activeProfile.providerKey] : undefined
@@ -83,6 +94,7 @@ export function ProvidersSection({
 		onProfilesChange(next)
 		const fallback = next[Math.max(0, idx - 1)]
 		onActiveProfileChange(fallback.id)
+		setDeleteOpen(false)
 	}
 
 	const showProfileSelector = profiles.length > 1
@@ -98,47 +110,76 @@ export function ProvidersSection({
 	return (
 		<div className="flex flex-col gap-6 max-w-xl">
 			{showProfileSelector && (
-				<div className="flex flex-col gap-1.5">
-					<label className="text-sm font-medium">{t('ext.config.profile')}</label>
-					<div className="flex gap-2 items-center">
-						<Select
-							className="flex-1 min-w-0"
-							value={activeProfile.id}
-							onChange={onActiveProfileChange}
-							options={profiles.map((p) => ({
-								value: p.id,
-								label: p.name || t('ext.config.profileUnnamed'),
-							}))}
-						/>
-						<Button
-							variant="outline"
-							size="icon"
-							className="h-9 w-9 shrink-0 cursor-pointer"
-							onClick={handleAdd}
-							aria-label={t('ext.config.profileAdd')}
-							title={t('ext.config.profileAdd')}
-						>
-							<Plus className="size-4" />
-						</Button>
-						<Button
-							variant="outline"
-							size="icon"
-							className="h-9 w-9 shrink-0 cursor-pointer"
-							onClick={handleDelete}
-							disabled={profiles.length <= 1}
-							aria-label={t('ext.config.profileDelete')}
-							title={t('ext.config.profileDelete')}
-						>
-							<Trash2 className="size-4" />
-						</Button>
+				<>
+					<div className="flex flex-col gap-1.5">
+						<label className="text-sm font-medium">{t('ext.config.profile')}</label>
+						<div className="flex gap-2 items-center">
+							<Select
+								className="flex-1 min-w-0"
+								value={activeProfile.id}
+								onChange={onActiveProfileChange}
+								options={profiles.map((p) => ({
+									value: p.id,
+									label: p.name || t('ext.config.profileUnnamed'),
+								}))}
+							/>
+							<Button
+								variant="outline"
+								size="icon"
+								className="h-9 w-9 shrink-0 cursor-pointer"
+								onClick={handleAdd}
+								aria-label={t('ext.config.profileAdd')}
+								title={t('ext.config.profileAdd')}
+							>
+								<Plus className="size-4" />
+							</Button>
+							<Button
+								variant="outline"
+								size="icon"
+								className="h-9 w-9 shrink-0 cursor-pointer text-red-500 hover:text-red-400 hover:bg-red-500/10"
+								onClick={() => setDeleteOpen(true)}
+								disabled={profiles.length <= 1}
+								aria-label={t('ext.config.profileDelete')}
+								title={t('ext.config.profileDelete')}
+							>
+								<Trash2 className="size-4" />
+							</Button>
+						</div>
 					</div>
-					<Input
-						placeholder={t('ext.config.profileNamePlaceholder')}
-						value={activeProfile.name}
-						onChange={(e) => updateActive({ name: e.target.value })}
-						className="text-sm h-9 mt-1"
-					/>
-				</div>
+
+					<div className="flex flex-col gap-1.5">
+						<label htmlFor="profile-name" className="text-sm font-medium">
+							{t('ext.config.profileName')}
+						</label>
+						<p className="text-xs text-muted-foreground">{t('ext.config.profileNameHelp')}</p>
+						<Input
+							id="profile-name"
+							placeholder={t('ext.config.profileNamePlaceholder')}
+							value={activeProfile.name}
+							onChange={(e) => updateActive({ name: e.target.value })}
+							className="text-sm h-9 mt-1"
+						/>
+					</div>
+
+					<AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+						<AlertDialogContent>
+							<AlertDialogHeader>
+								<AlertDialogTitle>{t('ext.config.profileDeleteConfirmTitle')}</AlertDialogTitle>
+								<AlertDialogDescription>
+									{t('ext.config.profileDeleteConfirmBody', {
+										name: activeProfile.name || t('ext.config.profileUnnamed'),
+									})}
+								</AlertDialogDescription>
+							</AlertDialogHeader>
+							<AlertDialogFooter>
+								<AlertDialogCancel>{t('ext.config.cancel')}</AlertDialogCancel>
+								<AlertDialogAction onClick={handleDelete}>
+									{t('ext.config.profileDelete')}
+								</AlertDialogAction>
+							</AlertDialogFooter>
+						</AlertDialogContent>
+					</AlertDialog>
+				</>
 			)}
 
 			<div className="flex flex-col gap-1.5">

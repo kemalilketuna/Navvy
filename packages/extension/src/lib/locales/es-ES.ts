@@ -84,6 +84,11 @@ export const esES: TranslationSchema = {
 			modelDisabledBaseUrl: 'Introduce una URL base para seleccionar un modelo.',
 			modelNoMatch: 'No hay modelos coincidentes',
 			addAnotherProfile: 'Añadir otra configuración',
+			profileName: 'Nombrar esta configuración',
+			profileNameHelp: 'Una etiqueta para distinguir tus configuraciones guardadas.',
+			profileDeleteConfirmTitle: '¿Eliminar esta configuración?',
+			profileDeleteConfirmBody:
+				'"{{name}}" y todas sus claves API guardadas se eliminarán permanentemente de este dispositivo. Esta acción no se puede deshacer.',
 			responseLanguage: 'Idioma de respuesta',
 			languageSystem: 'Sistema',
 			advanced: 'Avanzado',
