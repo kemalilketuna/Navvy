@@ -72,7 +72,7 @@ export default function HeroSection() {
 		if (!win.pageAgent || win.pageAgent.disposed) {
 			win.pageAgent = new (PageAgent as typeof PageAgentType)({
 				interactiveBlacklist: [document.getElementById('root')!],
-				language: language,
+				language: language === 'zh-CN' ? 'en-US' : language,
 
 				instructions: {
 					system: 'You are a helpful assistant on PageAgent website.',

@@ -32,7 +32,7 @@ if (autoInit) {
 			const model = url.searchParams.get('model') || DEMO_MODEL
 			const baseURL = url.searchParams.get('baseURL') || DEMO_BASE_URL
 			const apiKey = url.searchParams.get('apiKey') || DEMO_API_KEY
-			const language = (url.searchParams.get('lang') as 'zh-CN' | 'en-US') || 'zh-CN'
+			const language = (url.searchParams.get('lang') as PageAgentConfig['language']) || 'en-US'
 			showPanel = ((url.searchParams.get('showPanel') as 'true' | 'false') || 'true') === 'true'
 			config = { model, baseURL, apiKey, language }
 		} else {
