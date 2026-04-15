@@ -1,4 +1,5 @@
 import type { LanguagePreference, ResponseLanguage } from '@/agent/configStore'
+import { Select } from '@/components/ui/select'
 import { useT } from '@/lib/i18n'
 
 interface GeneralSectionProps {
@@ -47,33 +48,29 @@ export function GeneralSection({
 			<div className="flex flex-col gap-1.5">
 				<label className="text-sm font-medium">{t('ext.settings.uiLanguage')}</label>
 				<p className="text-xs text-muted-foreground">{t('ext.settings.uiLanguageHelp')}</p>
-				<select
+				<Select
+					className="mt-1 max-w-xs"
 					value={language ?? ''}
-					onChange={(e) => onLanguageChange((e.target.value || undefined) as LanguagePreference)}
-					className="native-select-chevron mt-1 h-9 max-w-xs cursor-pointer rounded-md border border-input bg-background px-2 pr-10 text-sm"
-				>
-					{UI_OPTIONS.map((opt) => (
-						<option key={opt.value || 'system'} value={opt.value}>
-							{opt.labelKey ? t(opt.labelKey as never) : opt.label}
-						</option>
-					))}
-				</select>
+					onChange={(v) => onLanguageChange((v || undefined) as LanguagePreference)}
+					options={UI_OPTIONS.map((opt) => ({
+						value: opt.value,
+						label: opt.labelKey ? t(opt.labelKey as never) : (opt.label ?? ''),
+					}))}
+				/>
 			</div>
 
 			<div className="flex flex-col gap-1.5">
 				<label className="text-sm font-medium">{t('ext.settings.responseLanguage')}</label>
 				<p className="text-xs text-muted-foreground">{t('ext.settings.responseLanguageHelp')}</p>
-				<select
+				<Select
+					className="mt-1 max-w-xs"
 					value={responseLanguage}
-					onChange={(e) => onResponseLanguageChange(e.target.value as ResponseLanguage)}
-					className="native-select-chevron mt-1 h-9 max-w-xs cursor-pointer rounded-md border border-input bg-background px-2 pr-10 text-sm"
-				>
-					{RESPONSE_OPTIONS.map((opt) => (
-						<option key={opt.value} value={opt.value}>
-							{opt.labelKey ? t(opt.labelKey as never) : opt.label}
-						</option>
-					))}
-				</select>
+					onChange={(v) => onResponseLanguageChange(v as ResponseLanguage)}
+					options={RESPONSE_OPTIONS.map((opt) => ({
+						value: opt.value,
+						label: opt.labelKey ? t(opt.labelKey as never) : (opt.label ?? ''),
+					}))}
+				/>
 			</div>
 		</div>
 	)

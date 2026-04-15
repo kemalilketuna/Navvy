@@ -2,10 +2,12 @@ import { ExternalLink, Eye, EyeOff, Plus, Scale, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
 import { DEMO_BASE_URL, DEMO_MODEL, isTestingEndpoint } from '@/agent/constants'
-import { type LLMProfile, newProfileId } from '@/agent/profiles'
+import { type LLMProfile, type ProviderCredentials, newProfileId } from '@/agent/profiles'
 import { PROVIDERS, PROVIDERS_BY_KEY, type ProviderKey } from '@/agent/providers'
 import { Button } from '@/components/ui/button'
+import { Combobox, type ComboboxOption } from '@/components/ui/combobox'
 import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
 import { useT } from '@/lib/i18n'
 
 interface ProvidersSectionProps {
@@ -25,31 +27,49 @@ export function ProvidersSection({
 	const [showApiKey, setShowApiKey] = useState(false)
 
 	const activeProfile = profiles.find((p) => p.id === activeProfileId) ?? profiles[0]
-	const currentPreset = activeProfile ? PROVIDERS_BY_KEY[activeProfile.providerKey] : undefined
+	const preset = activeProfile ? PROVIDERS_BY_KEY[activeProfile.providerKey] : undefined
+
+	if (!activeProfile || !preset) return null
 
 	const updateActive = (patch: Partial<LLMProfile>) => {
 		onProfilesChange(profiles.map((p) => (p.id === activeProfile.id ? { ...p, ...patch } : p)))
 	}
 
 	const handleProviderChange = (key: ProviderKey) => {
-		if (!activeProfile) return
-		if (key === 'custom') {
-			updateActive({ providerKey: 'custom' })
-			return
+		if (key === activeProfile.providerKey) return
+		const nextPreset = PROVIDERS_BY_KEY[key]
+		const prevKey = activeProfile.providerKey
+
+		const stashedCurrent: ProviderCredentials = {
+			apiKey: activeProfile.apiKey,
+			accountId: activeProfile.accountId,
+			baseURL: activeProfile.baseURL,
+			model: activeProfile.model,
 		}
-		const preset = PROVIDERS_BY_KEY[key]
-		updateActive({ providerKey: key, baseURL: preset.baseURL, model: preset.defaultModel })
+		const savedCredentials = {
+			...(activeProfile.savedCredentials ?? {}),
+			[prevKey]: stashedCurrent,
+		}
+		const restored = savedCredentials[key]
+
+		updateActive({
+			providerKey: key,
+			baseURL: restored?.baseURL ?? nextPreset.baseURL,
+			model: restored?.model ?? nextPreset.defaultModel,
+			apiKey: restored?.apiKey,
+			accountId: nextPreset.requiresAccountId ? restored?.accountId : undefined,
+			savedCredentials,
+		})
 	}
 
 	const handleAdd = () => {
 		const id = newProfileId()
-		const preset = PROVIDERS_BY_KEY.openai
 		const next: LLMProfile = {
 			id,
 			name: t('ext.config.profileNewName'),
 			providerKey: 'openai',
-			baseURL: preset.baseURL,
-			model: preset.defaultModel,
+			baseURL: PROVIDERS_BY_KEY.openai.baseURL,
+			model: PROVIDERS_BY_KEY.openai.defaultModel,
 			apiKey: '',
 		}
 		onProfilesChange([...profiles, next])
@@ -65,70 +85,72 @@ export function ProvidersSection({
 		onActiveProfileChange(fallback.id)
 	}
 
-	if (!activeProfile) return null
+	const showProfileSelector = profiles.length > 1
+	const showBaseURL = preset.baseURLEditable !== false && !preset.buildBaseURL
+	const modelOptions: ComboboxOption[] = preset.models.map((m) => ({
+		value: m.id,
+		label: m.label ?? m.id,
+		icon: m.supportsImages ? 'image' : null,
+	}))
+	const allowCustomModel =
+		preset.key === 'custom' || preset.key === 'ollama' || preset.models.length === 0
 
 	return (
 		<div className="flex flex-col gap-6 max-w-xl">
-			<div className="flex flex-col gap-1.5">
-				<label className="text-sm font-medium">{t('ext.config.profile')}</label>
-				<div className="flex gap-2 items-center">
-					<select
-						value={activeProfile.id}
-						onChange={(e) => onActiveProfileChange(e.target.value)}
-						className="native-select-chevron h-9 min-w-0 flex-1 cursor-pointer rounded-md border border-input bg-background px-2 pr-10 text-sm"
-					>
-						{profiles.map((p) => (
-							<option key={p.id} value={p.id}>
-								{p.name || t('ext.config.profileUnnamed')}
-							</option>
-						))}
-					</select>
-					<Button
-						variant="outline"
-						size="icon"
-						className="h-9 w-9 shrink-0 cursor-pointer"
-						onClick={handleAdd}
-						aria-label={t('ext.config.profileAdd')}
-						title={t('ext.config.profileAdd')}
-					>
-						<Plus className="size-4" />
-					</Button>
-					<Button
-						variant="outline"
-						size="icon"
-						className="h-9 w-9 shrink-0 cursor-pointer"
-						onClick={handleDelete}
-						disabled={profiles.length <= 1}
-						aria-label={t('ext.config.profileDelete')}
-						title={t('ext.config.profileDelete')}
-					>
-						<Trash2 className="size-4" />
-					</Button>
+			{showProfileSelector && (
+				<div className="flex flex-col gap-1.5">
+					<label className="text-sm font-medium">{t('ext.config.profile')}</label>
+					<div className="flex gap-2 items-center">
+						<Select
+							className="flex-1 min-w-0"
+							value={activeProfile.id}
+							onChange={onActiveProfileChange}
+							options={profiles.map((p) => ({
+								value: p.id,
+								label: p.name || t('ext.config.profileUnnamed'),
+							}))}
+						/>
+						<Button
+							variant="outline"
+							size="icon"
+							className="h-9 w-9 shrink-0 cursor-pointer"
+							onClick={handleAdd}
+							aria-label={t('ext.config.profileAdd')}
+							title={t('ext.config.profileAdd')}
+						>
+							<Plus className="size-4" />
+						</Button>
+						<Button
+							variant="outline"
+							size="icon"
+							className="h-9 w-9 shrink-0 cursor-pointer"
+							onClick={handleDelete}
+							disabled={profiles.length <= 1}
+							aria-label={t('ext.config.profileDelete')}
+							title={t('ext.config.profileDelete')}
+						>
+							<Trash2 className="size-4" />
+						</Button>
+					</div>
+					<Input
+						placeholder={t('ext.config.profileNamePlaceholder')}
+						value={activeProfile.name}
+						onChange={(e) => updateActive({ name: e.target.value })}
+						className="text-sm h-9 mt-1"
+					/>
 				</div>
-				<Input
-					placeholder={t('ext.config.profileNamePlaceholder')}
-					value={activeProfile.name}
-					onChange={(e) => updateActive({ name: e.target.value })}
-					className="text-sm h-9 mt-1"
-				/>
-			</div>
+			)}
 
 			<div className="flex flex-col gap-1.5">
 				<label className="text-sm font-medium">{t('ext.config.provider')}</label>
-				<select
+				<Select
 					value={activeProfile.providerKey}
-					onChange={(e) => handleProviderChange(e.target.value as ProviderKey)}
-					className="native-select-chevron h-9 cursor-pointer rounded-md border border-input bg-background px-2 pr-10 text-sm"
-				>
-					{PROVIDERS.map((p) => (
-						<option key={p.key} value={p.key}>
-							{p.label}
-						</option>
-					))}
-				</select>
-				{currentPreset?.apiKeyURL && (
+					onChange={(v) => handleProviderChange(v as ProviderKey)}
+					options={PROVIDERS.map((p) => ({ value: p.key, label: p.label }))}
+				/>
+				{preset.apiKeyURL && (
 					<a
-						href={currentPreset.apiKeyURL}
+						href={preset.apiKeyURL}
 						target="_blank"
 						rel="noopener noreferrer"
 						className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 mt-0.5"
@@ -139,18 +161,20 @@ export function ProvidersSection({
 				)}
 			</div>
 
-			<div className="flex flex-col gap-1.5">
-				<label htmlFor="base-url" className="text-sm font-medium">
-					{t('ext.config.baseUrl')}
-				</label>
-				<Input
-					id="base-url"
-					placeholder="https://api.openai.com/v1"
-					value={activeProfile.baseURL ?? DEMO_BASE_URL}
-					onChange={(e) => updateActive({ baseURL: e.target.value, providerKey: 'custom' })}
-					className="text-sm h-9"
-				/>
-			</div>
+			{showBaseURL && (
+				<div className="flex flex-col gap-1.5">
+					<label htmlFor="base-url" className="text-sm font-medium">
+						{t('ext.config.baseUrl')}
+					</label>
+					<Input
+						id="base-url"
+						placeholder="https://api.openai.com/v1"
+						value={activeProfile.baseURL ?? DEMO_BASE_URL}
+						onChange={(e) => updateActive({ baseURL: e.target.value, providerKey: 'custom' })}
+						className="text-sm h-9"
+					/>
+				</div>
+			)}
 
 			{isTestingEndpoint(activeProfile.baseURL) && (
 				<div className="p-3 rounded-md border border-amber-500/30 bg-amber-500/5 text-xs text-muted-foreground leading-relaxed">
@@ -167,42 +191,85 @@ export function ProvidersSection({
 				</div>
 			)}
 
+			{preset.requiresAccountId && (
+				<div className="flex flex-col gap-1.5">
+					<label htmlFor="account-id" className="text-sm font-medium">
+						{t('ext.config.accountId')}
+					</label>
+					<Input
+						id="account-id"
+						placeholder={t('ext.config.accountIdPlaceholder')}
+						value={activeProfile.accountId ?? ''}
+						onChange={(e) => updateActive({ accountId: e.target.value })}
+						className="text-sm h-9 font-mono"
+					/>
+					{preset.accountIdHelpURL && (
+						<a
+							href={preset.accountIdHelpURL}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 mt-0.5"
+						>
+							{t('ext.config.accountIdHelp')}
+							<ExternalLink className="size-3" />
+						</a>
+					)}
+				</div>
+			)}
+
+			{preset.requiresApiKey && (
+				<div className="flex flex-col gap-1.5">
+					<label htmlFor="api-key" className="text-sm font-medium">
+						{t('ext.config.apiKey')}
+					</label>
+					<div className="flex gap-2 items-center">
+						<Input
+							id="api-key"
+							type={showApiKey ? 'text' : 'password'}
+							value={activeProfile.apiKey ?? ''}
+							onChange={(e) => updateActive({ apiKey: e.target.value })}
+							className="text-sm h-9"
+						/>
+						<Button
+							variant="outline"
+							size="icon"
+							className="h-9 w-9 shrink-0 cursor-pointer"
+							onClick={() => setShowApiKey(!showApiKey)}
+							aria-label={showApiKey ? t('ext.config.hideApiKey') : t('ext.config.showApiKey')}
+						>
+							{showApiKey ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+						</Button>
+					</div>
+				</div>
+			)}
+
 			<div className="flex flex-col gap-1.5">
 				<label htmlFor="model" className="text-sm font-medium">
 					{t('ext.config.model')}
 				</label>
-				<Input
+				<Combobox
 					id="model"
-					placeholder={currentPreset?.defaultModel || DEMO_MODEL}
 					value={activeProfile.model ?? ''}
-					onChange={(e) => updateActive({ model: e.target.value })}
-					className="text-sm h-9"
+					onChange={(model) => updateActive({ model })}
+					options={modelOptions}
+					placeholder={preset.defaultModel || DEMO_MODEL}
+					allowCustom={allowCustomModel}
+					emptyText={t('ext.config.modelNoMatch')}
 				/>
 			</div>
 
-			<div className="flex flex-col gap-1.5">
-				<label htmlFor="api-key" className="text-sm font-medium">
-					{t('ext.config.apiKey')}
-				</label>
-				<div className="flex gap-2 items-center">
-					<Input
-						id="api-key"
-						type={showApiKey ? 'text' : 'password'}
-						value={activeProfile.apiKey ?? ''}
-						onChange={(e) => updateActive({ apiKey: e.target.value })}
-						className="text-sm h-9"
-					/>
-					<Button
-						variant="outline"
-						size="icon"
-						className="h-9 w-9 shrink-0 cursor-pointer"
-						onClick={() => setShowApiKey(!showApiKey)}
-						aria-label={showApiKey ? t('ext.config.hideApiKey') : t('ext.config.showApiKey')}
+			{!showProfileSelector && (
+				<div className="pt-2">
+					<button
+						type="button"
+						onClick={handleAdd}
+						className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer"
 					>
-						{showApiKey ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-					</Button>
+						<Plus className="size-3" />
+						{t('ext.config.addAnotherProfile')}
+					</button>
 				</div>
-			</div>
+			)}
 		</div>
 	)
 }
