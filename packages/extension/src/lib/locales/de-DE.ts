@@ -36,6 +36,16 @@ export const deDE: TranslationSchema = {
 			placeholder: 'Beschreiben Sie Ihre Aufgabe... (Enter zum Senden)',
 			send: 'Senden',
 			stop: 'Aufgabe stoppen',
+			attach: {
+				label: 'Anhängen',
+				unsupported: 'Das ausgewählte Modell unterstützt keine Bilder',
+				captureTab: 'Aktiven Tab erfassen',
+				uploadImage: 'Bild hochladen',
+				remove: 'Bild entfernen',
+				thumbAlt: 'Angehängtes Bild',
+				captureFailed: 'Tab-Screenshot fehlgeschlagen',
+				uploadFailed: 'Bilddatei konnte nicht gelesen werden',
+			},
 		},
 		history: {
 			title: 'Verlauf',

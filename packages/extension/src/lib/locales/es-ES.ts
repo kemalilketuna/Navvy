@@ -36,6 +36,16 @@ export const esES: TranslationSchema = {
 			placeholder: 'Describe tu tarea... (Intro para enviar)',
 			send: 'Enviar',
 			stop: 'Detener tarea',
+			attach: {
+				label: 'Adjuntar',
+				unsupported: 'El modelo seleccionado no admite imágenes',
+				captureTab: 'Capturar pestaña activa',
+				uploadImage: 'Subir imagen',
+				remove: 'Quitar imagen',
+				thumbAlt: 'Imagen adjunta',
+				captureFailed: 'No se pudo capturar la pestaña',
+				uploadFailed: 'No se pudo leer el archivo de imagen',
+			},
 		},
 		history: {
 			title: 'Historial',

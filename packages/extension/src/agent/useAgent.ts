@@ -1,7 +1,13 @@
 /**
  * React hook for using AgentController
  */
-import type { AgentActivity, AgentStatus, ExecutionResult, HistoricalEvent } from '@page-agent/core'
+import type {
+	AgentActivity,
+	AgentStatus,
+	ExecutionResult,
+	HistoricalEvent,
+	TaskAttachment,
+} from '@page-agent/core'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { MultiPageAgent } from './MultiPageAgent'
@@ -25,7 +31,7 @@ export interface UseAgentResult {
 	activity: AgentActivity | null
 	currentTask: string
 	config: ExtConfig | null
-	execute: (task: string) => Promise<ExecutionResult>
+	execute: (task: string, attachments?: TaskAttachment[]) => Promise<ExecutionResult>
 	stop: () => void
 	newChat: () => void
 	configure: (config: ExtConfig) => Promise<void>
@@ -121,13 +127,13 @@ export function useAgent(): UseAgentResult {
 		}
 	}, [config, resetCounter])
 
-	const execute = useCallback(async (task: string) => {
+	const execute = useCallback(async (task: string, attachments?: TaskAttachment[]) => {
 		const agent = agentRef.current
 		if (!agent) throw new Error('Agent not initialized')
 
 		setCurrentTask(task)
 		setHistory([])
-		return agent.execute(task)
+		return agent.execute(task, attachments && attachments.length > 0 ? { attachments } : undefined)
 	}, [])
 
 	const stop = useCallback(() => {

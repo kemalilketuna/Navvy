@@ -43,6 +43,16 @@ export const enUS = {
 			placeholder: 'Describe your task... (Enter to send)',
 			send: 'Send',
 			stop: 'Stop task',
+			attach: {
+				label: 'Attach',
+				unsupported: 'Selected model does not support images',
+				captureTab: 'Capture active tab',
+				uploadImage: 'Upload image',
+				remove: 'Remove image',
+				thumbAlt: 'Attached image',
+				captureFailed: 'Failed to capture tab screenshot',
+				uploadFailed: 'Failed to read image file',
+			},
 		},
 		history: {
 			title: 'History',

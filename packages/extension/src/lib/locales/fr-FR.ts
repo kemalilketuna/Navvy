@@ -36,6 +36,16 @@ export const frFR: TranslationSchema = {
 			placeholder: 'Décrivez votre tâche... (Entrée pour envoyer)',
 			send: 'Envoyer',
 			stop: 'Arrêter la tâche',
+			attach: {
+				label: 'Joindre',
+				unsupported: 'Le modèle sélectionné ne prend pas en charge les images',
+				captureTab: "Capturer l'onglet actif",
+				uploadImage: 'Téléverser une image',
+				remove: "Supprimer l'image",
+				thumbAlt: 'Image jointe',
+				captureFailed: "Échec de la capture de l'onglet",
+				uploadFailed: 'Impossible de lire le fichier image',
+			},
 		},
 		history: {
 			title: 'Historique',

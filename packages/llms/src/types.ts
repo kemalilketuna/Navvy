@@ -4,11 +4,19 @@
 import type * as z from 'zod/v4'
 
 /**
+ * OpenAI-compatible multimodal content part. Used when sending images alongside text
+ * to vision-capable models. Providers accept either a plain string or an array of parts.
+ */
+export type MessageContentPart =
+	| { type: 'text'; text: string }
+	| { type: 'image_url'; image_url: { url: string; detail?: 'auto' | 'low' | 'high' } }
+
+/**
  * Message format - OpenAI standard (industry standard)
  */
 export interface Message {
 	role: 'system' | 'user' | 'assistant' | 'tool'
-	content?: string | null
+	content?: string | MessageContentPart[] | null
 	tool_calls?: {
 		id: string
 		type: 'function'
