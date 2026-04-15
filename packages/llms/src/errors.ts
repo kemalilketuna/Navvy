@@ -27,6 +27,8 @@ export class InvokeError extends Error {
 	type: InvokeErrorType
 	retryable: boolean
 	statusCode?: number
+	/* hint from the provider on when it is safe to retry (e.g. Retry-After header) */
+	retryAfterMs?: number
 	/* raw error (provided if this error is caused by another error) */
 	rawError?: unknown
 	/* raw response from the API (provided if this error is caused by an API calling) */

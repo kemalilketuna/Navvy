@@ -98,10 +98,11 @@ async function withRetry<T>(
 ): Promise<T> {
 	let attempt = 0
 	let lastError: Error | null = null
+	let nextDelayMs = 100
 	while (attempt <= settings.maxRetries) {
 		if (attempt > 0) {
 			settings.onRetry(attempt)
-			await new Promise((resolve) => setTimeout(resolve, 100))
+			await new Promise((resolve) => setTimeout(resolve, nextDelayMs))
 		}
 
 		try {
@@ -119,7 +120,14 @@ async function withRetry<T>(
 			lastError = error as Error
 			attempt++
 
-			await new Promise((resolve) => setTimeout(resolve, 100))
+			// Honor the provider's retry hint (e.g. Groq's "try again in 8.42s") so we don't
+			// immediately re-hit the same rate limit. Add a small jitter to avoid syncing
+			// retries from multiple tabs. Falls back to a short fixed delay otherwise.
+			const hint =
+				error instanceof InvokeError && typeof error.retryAfterMs === 'number'
+					? error.retryAfterMs
+					: 100
+			nextDelayMs = hint + Math.floor(Math.random() * 250)
 		}
 	}
 
