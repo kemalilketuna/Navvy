@@ -351,17 +351,52 @@ function RetryCard({ event }: { event: RetryEvent }) {
 }
 
 function ErrorCard({ event }: { event: AgentErrorEvent }) {
+	const t = useT()
+	const hint = getErrorHint(event)
+	const openProviderSettings = () => {
+		const url = chrome.runtime.getURL('settings.html#providers')
+		chrome.tabs
+			.create({ url })
+			.catch((err) => console.error('[ErrorCard] Failed to open settings:', err))
+	}
 	return (
 		<div className="pl-3.5">
 			<div className="flex items-start gap-2 text-[12px] text-destructive">
 				<XCircle className="mt-0.5 size-3 shrink-0" />
 				<span className="break-all">{event.message}</span>
 			</div>
+			{hint && (
+				<div className="ml-5 mt-1 text-[12px] text-muted-foreground">
+					<span>{t(hint)}</span>{' '}
+					<button
+						type="button"
+						onClick={openProviderSettings}
+						className="underline hover:text-foreground cursor-pointer"
+					>
+						{t('ext.cards.openProviderSettings')}
+					</button>
+				</div>
+			)}
 			<div className="ml-5">
 				<RawDetails rawResponse={event.rawResponse} />
 			</div>
 		</div>
 	)
+}
+
+type ErrorHintKey = 'ext.cards.hintQuotaExceeded' | 'ext.cards.hintAuthFailed'
+
+function getErrorHint(event: AgentErrorEvent): ErrorHintKey | null {
+	const message = event.message ?? ''
+	if (/^InvokeError:\s*Quota exceeded:|Quota exceeded:/i.test(message))
+		return 'ext.cards.hintQuotaExceeded'
+	if (/^InvokeError:\s*Authentication failed:|Authentication failed:/i.test(message))
+		return 'ext.cards.hintAuthFailed'
+	const rawCode = (event.rawResponse as { error?: { code?: string; type?: string } } | undefined)
+		?.error
+	const code = rawCode?.code?.toLowerCase() ?? rawCode?.type?.toLowerCase()
+	if (code && /quota|credit|billing/.test(code)) return 'ext.cards.hintQuotaExceeded'
+	return null
 }
 
 function ResultRow({ success, text }: { success: boolean; text: string }) {

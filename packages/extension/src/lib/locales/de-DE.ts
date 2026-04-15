@@ -159,6 +159,10 @@ export const deDE: TranslationSchema = {
 			copied: 'Kopiert!',
 			copySystem: 'System kopieren',
 			copyUser: 'Benutzer kopieren',
+			hintQuotaExceeded:
+				'Das Kontingent oder Guthaben Ihres Anbieters scheint aufgebraucht zu sein.',
+			hintAuthFailed: 'Ihr API-Schlüssel ist möglicherweise ungültig oder abgelaufen.',
+			openProviderSettings: 'Anbieter-Einstellungen öffnen',
 		},
 		activity: {
 			thinking: 'Denke nach...',

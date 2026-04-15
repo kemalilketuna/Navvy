@@ -160,6 +160,9 @@ export const itIT: TranslationSchema = {
 			copied: 'Copiato!',
 			copySystem: 'Copia sistema',
 			copyUser: 'Copia utente',
+			hintQuotaExceeded: 'La quota o i crediti del provider sembrano esauriti.',
+			hintAuthFailed: 'La tua chiave API potrebbe non essere valida o essere scaduta.',
+			openProviderSettings: 'Apri le impostazioni del provider',
 		},
 		activity: {
 			thinking: 'Sto pensando...',

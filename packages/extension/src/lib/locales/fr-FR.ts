@@ -160,6 +160,9 @@ export const frFR: TranslationSchema = {
 			copied: 'Copié !',
 			copySystem: 'Copier système',
 			copyUser: 'Copier utilisateur',
+			hintQuotaExceeded: 'Le quota ou les crédits de votre fournisseur semblent épuisés.',
+			hintAuthFailed: 'Votre clé API est peut-être invalide ou expirée.',
+			openProviderSettings: 'Ouvrir les paramètres du fournisseur',
 		},
 		activity: {
 			thinking: 'Réflexion...',
