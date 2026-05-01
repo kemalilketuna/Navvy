@@ -7,8 +7,5 @@
     },
     "extActionTitle": {
         "message": "Open Navvy"
-    },
-    "openSidePanelCommand": {
-        "message": "Open Navvy side panel"
     }
 }
