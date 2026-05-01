@@ -59,12 +59,11 @@ export default defineConfig({
 			default_title: '__MSG_extActionTitle__',
 		},
 		commands: {
-			'open-side-panel': {
+			_execute_action: {
 				suggested_key: {
 					default: 'Ctrl+E',
 					mac: 'Command+E',
 				},
-				description: '__MSG_openSidePanelCommand__',
 			},
 		},
 		web_accessible_resources: [
