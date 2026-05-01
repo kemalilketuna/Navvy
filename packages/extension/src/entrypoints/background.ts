@@ -42,18 +42,9 @@ export default defineBackground(() => {
 		}
 	})
 
-	// keyboard shortcut to open the side panel
-
-	chrome.commands.onCommand.addListener((command, tab) => {
-		if (command !== 'open-side-panel') return
-		if (tab?.windowId === undefined) return
-
-		chrome.sidePanel.open({ windowId: tab.windowId }).catch((err) => {
-			console.error('[Background] sidePanel.open failed:', err)
-		})
-	})
-
 	// setup
+	// The Ctrl/Cmd+E shortcut is bound to the built-in `_execute_action` command,
+	// which fires the toolbar action; openPanelOnActionClick routes it to the side panel.
 
 	chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => {})
 })
