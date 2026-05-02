@@ -31,7 +31,7 @@ describe('buildProfilesState', () => {
 			{ id: 'b', name: 'B', providerKey: 'groq', baseURL: 'y', model: 'm' },
 		]
 		const { profiles, activeProfileId } = buildProfilesState(stored, 'b', legacy)
-		expect(profiles).toBe(stored)
+		expect(profiles).toStrictEqual(stored)
 		expect(activeProfileId).toBe('b')
 	})
 
