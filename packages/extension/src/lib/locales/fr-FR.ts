@@ -102,6 +102,10 @@ export const frFR: TranslationSchema = {
 			addEntry: 'Ajouter une entrée',
 			addAddressGroup: 'Ajouter un groupe d’adresse',
 			addressGroupName: 'Adresse personnelle',
+			tokenRequired: 'Le jeton est requis',
+			valueRequired: 'La valeur est requise',
+			incompleteNotice:
+				'Renseignez le jeton et la valeur de chaque entrée enregistrée, ou supprimez-la.',
 		},
 		voice: {
 			title: 'Voix',

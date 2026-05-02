@@ -47,6 +47,35 @@ function isActive(e: MaskingEntry): boolean {
 	return e.enabled && e.token.trim().length > 0 && e.value.length > 0
 }
 
+/** A row with no meaningful content — a leftover "Add entry" click, dropped on save. */
+export function isEntryBlank(e: MaskingEntry): boolean {
+	return !e.token.trim() && !e.value.trim() && !e.label.trim()
+}
+
+/** Required-field errors for a non-blank entry. Blank entries report no errors. */
+export interface MaskingEntryErrors {
+	token: boolean
+	value: boolean
+}
+
+export function validateEntry(e: MaskingEntry): MaskingEntryErrors {
+	if (isEntryBlank(e)) return { token: false, value: false }
+	return { token: e.token.trim().length === 0, value: e.value.length === 0 }
+}
+
+/** Drop blank rows and report whether any remaining entry is missing a required field. */
+export function normalizeEntries(entries: MaskingEntry[]): {
+	entries: MaskingEntry[]
+	valid: boolean
+} {
+	const kept = entries.filter((e) => !isEntryBlank(e))
+	const valid = kept.every((e) => {
+		const err = validateEntry(e)
+		return !err.token && !err.value
+	})
+	return { entries: kept, valid }
+}
+
 export function activeEntries(entries: MaskingEntry[]): MaskingEntry[] {
 	return entries.filter(isActive)
 }

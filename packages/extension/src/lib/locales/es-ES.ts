@@ -101,6 +101,9 @@ export const esES: TranslationSchema = {
 			addEntry: 'Añadir entrada',
 			addAddressGroup: 'Añadir grupo de dirección',
 			addressGroupName: 'Dirección de casa',
+			tokenRequired: 'El token es obligatorio',
+			valueRequired: 'El valor es obligatorio',
+			incompleteNotice: 'Completa el token y el valor de cada entrada guardada, o elimínala.',
 		},
 		voice: {
 			title: 'Voz',

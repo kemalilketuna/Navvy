@@ -99,6 +99,9 @@ export const trTR: TranslationSchema = {
 			addEntry: 'Kayıt ekle',
 			addAddressGroup: 'Adres grubu ekle',
 			addressGroupName: 'Ev adresi',
+			tokenRequired: 'Token gerekli',
+			valueRequired: 'Değer gerekli',
+			incompleteNotice: 'Her kayıt için token ve değer alanlarını doldurun ya da kaydı silin.',
 		},
 		voice: {
 			title: 'Ses',

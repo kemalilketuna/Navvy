@@ -13,6 +13,7 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 
 import { type ExtConfig, loadConfig, saveConfig } from '@/agent/configStore'
+import { normalizeEntries } from '@/agent/masking'
 import { isProviderConfigComplete, resolveBaseURL } from '@/agent/providers'
 import { isVoiceConfigComplete } from '@/agent/voiceProviders'
 import { AboutSection } from '@/components/settings/AboutSection'
@@ -50,6 +51,7 @@ export default function App() {
 	const [tab, setTab] = useState<TabKey>(readHashTab)
 	const [saving, setSaving] = useState(false)
 	const [savedAt, setSavedAt] = useState<number | null>(null)
+	const [showMaskingErrors, setShowMaskingErrors] = useState(false)
 
 	useEffect(() => {
 		loadConfig().then((c) => {
@@ -90,6 +92,15 @@ export default function App() {
 		})
 	}, [draft])
 
+	const maskingComplete = useMemo(() => {
+		if (!draft) return true
+		return normalizeEntries(draft.maskingEntries).valid
+	}, [draft])
+
+	useEffect(() => {
+		if (maskingComplete) setShowMaskingErrors(false)
+	}, [maskingComplete])
+
 	if (!draft) {
 		return (
 			<div className="flex h-screen items-center justify-center text-muted-foreground">
@@ -102,9 +113,16 @@ export default function App() {
 
 	const handleSave = async () => {
 		if (!draft || saving) return
+		const { entries: maskingEntries, valid } = normalizeEntries(draft.maskingEntries)
+		if (!valid) {
+			setShowMaskingErrors(true)
+			handleTabChange('masking')
+			return
+		}
+		const next = { ...draft, maskingEntries }
 		setSaving(true)
 		try {
-			const saved = await saveConfig(draft)
+			const saved = await saveConfig(next)
 			setConfig(saved)
 			setDraft(saved)
 			setSavedAt(Date.now())
@@ -233,6 +251,7 @@ export default function App() {
 						<MaskingSection
 							entries={draft.maskingEntries}
 							onChange={(maskingEntries) => patch({ maskingEntries })}
+							showErrors={showMaskingErrors}
 						/>
 					</TabsContent>
 					<TabsContent value="voice">
@@ -278,9 +297,11 @@ export default function App() {
 						<span className="text-sm text-muted-foreground">
 							{savedAt
 								? t('ext.settings.savedNotice')
-								: !voiceConfigComplete
-									? t('ext.voice.missingKey')
-									: t('ext.settings.unsavedNotice')}
+								: showMaskingErrors && !maskingComplete
+									? t('ext.masking.incompleteNotice')
+									: !voiceConfigComplete
+										? t('ext.voice.missingKey')
+										: t('ext.settings.unsavedNotice')}
 						</span>
 						<div className="flex gap-2">
 							<Button variant="outline" onClick={handleReset} disabled={saving}>

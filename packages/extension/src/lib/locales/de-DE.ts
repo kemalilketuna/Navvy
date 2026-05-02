@@ -102,6 +102,10 @@ export const deDE: TranslationSchema = {
 			addEntry: 'Eintrag hinzufügen',
 			addAddressGroup: 'Adressgruppe hinzufügen',
 			addressGroupName: 'Heimatadresse',
+			tokenRequired: 'Token ist erforderlich',
+			valueRequired: 'Wert ist erforderlich',
+			incompleteNotice:
+				'Füllen Sie Token und Wert für jeden gespeicherten Eintrag aus oder entfernen Sie ihn.',
 		},
 		voice: {
 			title: 'Stimme',

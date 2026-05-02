@@ -101,6 +101,9 @@ export const itIT: TranslationSchema = {
 			addEntry: 'Aggiungi voce',
 			addAddressGroup: 'Aggiungi gruppo indirizzo',
 			addressGroupName: 'Indirizzo di casa',
+			tokenRequired: 'Il token è obbligatorio',
+			valueRequired: 'Il valore è obbligatorio',
+			incompleteNotice: 'Compila token e valore per ogni voce salvata, oppure rimuovila.',
 		},
 		voice: {
 			title: 'Voce',
