@@ -35,6 +35,7 @@ export function Combobox({
 	const [open, setOpen] = React.useState(false)
 	const [query, setQuery] = React.useState('')
 	const [activeIdx, setActiveIdx] = React.useState(0)
+	const [dropUp, setDropUp] = React.useState(false)
 	const rootRef = React.useRef<HTMLDivElement>(null)
 	const inputRef = React.useRef<HTMLInputElement>(null)
 	const listRef = React.useRef<HTMLDivElement>(null)
@@ -61,6 +62,16 @@ export function Combobox({
 			return hay.includes(q)
 		})
 	}, [options, query, open])
+
+	// Flip the list above the input when there isn't room for it below.
+	React.useLayoutEffect(() => {
+		if (!open || !inputRef.current) return
+		const rect = inputRef.current.getBoundingClientRect()
+		const menuHeight = listRef.current?.offsetHeight ?? 0
+		const spaceBelow = window.innerHeight - rect.bottom
+		const spaceAbove = rect.top
+		setDropUp(spaceBelow < menuHeight + 8 && spaceAbove > spaceBelow)
+	}, [open, filtered.length])
 
 	const commit = (next: string) => {
 		onChange(next)
@@ -135,7 +146,10 @@ export function Combobox({
 			{open && (
 				<div
 					ref={listRef}
-					className="absolute z-50 mt-1 w-full max-h-64 overflow-auto rounded-md border border-input bg-popover text-popover-foreground shadow-md"
+					className={cn(
+						'absolute z-50 w-full max-h-64 overflow-auto rounded-md border border-input bg-popover text-popover-foreground shadow-md',
+						dropUp ? 'bottom-full mb-1' : 'top-full mt-1'
+					)}
 					role="listbox"
 				>
 					{filtered.length === 0 ? (

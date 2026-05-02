@@ -31,8 +31,10 @@ export function Select({
 }: SelectProps) {
 	const [open, setOpen] = React.useState(false)
 	const [activeIdx, setActiveIdx] = React.useState(0)
+	const [dropUp, setDropUp] = React.useState(false)
 	const rootRef = React.useRef<HTMLDivElement>(null)
 	const triggerRef = React.useRef<HTMLButtonElement>(null)
+	const menuRef = React.useRef<HTMLDivElement>(null)
 
 	const selected = options.find((o) => o.value === value)
 	const selectedIdx = Math.max(
@@ -49,6 +51,16 @@ export function Select({
 		document.addEventListener('mousedown', onDocClick)
 		return () => document.removeEventListener('mousedown', onDocClick)
 	}, [open, selectedIdx])
+
+	// Flip the menu above the trigger when there isn't room for it below.
+	React.useLayoutEffect(() => {
+		if (!open || !triggerRef.current) return
+		const rect = triggerRef.current.getBoundingClientRect()
+		const menuHeight = menuRef.current?.offsetHeight ?? 0
+		const spaceBelow = window.innerHeight - rect.bottom
+		const spaceAbove = rect.top
+		setDropUp(spaceBelow < menuHeight + 8 && spaceAbove > spaceBelow)
+	}, [open])
 
 	const commit = (next: string) => {
 		onChange(next)
@@ -108,7 +120,11 @@ export function Select({
 
 			{open && (
 				<div
-					className="absolute z-50 mt-1 w-full max-h-64 overflow-auto rounded-md border border-input bg-popover text-popover-foreground shadow-md"
+					ref={menuRef}
+					className={cn(
+						'absolute z-50 w-full max-h-64 overflow-auto rounded-md border border-input bg-popover text-popover-foreground shadow-md',
+						dropUp ? 'bottom-full mb-1' : 'top-full mt-1'
+					)}
 					role="listbox"
 				>
 					{options.map((opt, i) => {
