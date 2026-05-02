@@ -133,6 +133,8 @@ export const trTR: TranslationSchema = {
 			language: 'Dil',
 			languagePlaceholder: 'Otomatik (örn. en, tr)',
 			test: 'Sesi test et',
+			testStt: 'Mikrofonu test et',
+			testHeard: 'Duyulan: “{{text}}”',
 			testSuccess: 'Bir test ifadesi çalındı.',
 			testPhrase: 'Merhaba, bu bir Navvy ses testidir.',
 			testNoController: 'Önce bir sağlayıcı yapılandırın.',

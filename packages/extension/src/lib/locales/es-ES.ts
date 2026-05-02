@@ -136,6 +136,8 @@ export const esES: TranslationSchema = {
 			language: 'Idioma',
 			languagePlaceholder: 'Auto (p. ej. en, tr)',
 			test: 'Probar voz',
+			testStt: 'Probar micrófono',
+			testHeard: 'Se escuchó: «{{text}}»',
 			testSuccess: 'Se reprodujo una frase de prueba.',
 			testPhrase: 'Hola, esto es una prueba de voz de Navvy.',
 			testNoController: 'Configura primero un proveedor.',
