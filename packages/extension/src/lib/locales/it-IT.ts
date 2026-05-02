@@ -131,9 +131,6 @@ export const itIT: TranslationSchema = {
 			apiKey: 'Chiave API',
 			reusingChatKey: 'Riutilizzo della chiave API del tuo provider di chat.',
 			autoSpeak: 'Leggi le risposte ad alta voce',
-			shortcut: 'Scorciatoia vocale',
-			shortcutHelp:
-				"Tieni premuto il tasto ` (sopra Tab) per parlare; rilascia per inviare. Premi Esc per annullare un'attività in corso.",
 			language: 'Lingua',
 			languagePlaceholder: 'Auto (es. en, tr)',
 			test: 'Prova voce',
@@ -142,6 +139,18 @@ export const itIT: TranslationSchema = {
 			testSuccess: 'Riprodotta una frase di prova.',
 			testPhrase: 'Ciao, questo è un test vocale di Navvy.',
 			testNoController: 'Configura prima un provider.',
+		},
+		shortcuts: {
+			title: 'Scorciatoie da tastiera',
+			description:
+				'Imposta i tasti per queste azioni. Funzionano sulle pagine web e nel pannello laterale; sulle pagine con restrizioni (impostazioni del browser, il web store) potrebbero non attivarsi.',
+			cancel: 'Annulla attività in corso',
+			cancelHelp: 'Ferma l’agente mentre un’attività è in esecuzione.',
+			pushToTalk: 'Premi per parlare',
+			pushToTalkHelp:
+				'Tieni premuto per registrare, rilascia per inviare. Richiede la voce attivata.',
+			pressKey: 'Premi un tasto…',
+			reset: 'Ripristina predefinito',
 		},
 		empty: {
 			tip1: 'Lascia che l’IA faccia i clic noiosi',
@@ -249,6 +258,7 @@ export const itIT: TranslationSchema = {
 			tabProviders: 'Provider',
 			tabMasking: 'Dati salvati',
 			tabVoice: 'Voce',
+			tabShortcuts: 'Scorciatoie',
 			tabSkills: 'Competenze',
 			tabAdvanced: 'Avanzate',
 			tabAbout: 'Informazioni',

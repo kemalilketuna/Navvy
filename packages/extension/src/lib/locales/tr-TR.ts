@@ -129,9 +129,6 @@ export const trTR: TranslationSchema = {
 			apiKey: 'API anahtarı',
 			reusingChatKey: 'Sohbet sağlayıcınızın API anahtarı yeniden kullanılıyor.',
 			autoSpeak: 'Yanıtları sesli oku',
-			shortcut: 'Ses kısayolu',
-			shortcutHelp:
-				'Konuşmak için ` tuşunu (Tab üstü) basılı tutun; göndermek için bırakın. Çalışan bir görevi iptal etmek için Esc.',
 			language: 'Dil',
 			languagePlaceholder: 'Otomatik (örn. en, tr)',
 			test: 'Sesi test et',
@@ -140,6 +137,18 @@ export const trTR: TranslationSchema = {
 			testSuccess: 'Bir test ifadesi çalındı.',
 			testPhrase: 'Merhaba, bu bir Navvy ses testidir.',
 			testNoController: 'Önce bir sağlayıcı yapılandırın.',
+		},
+		shortcuts: {
+			title: 'Klavye kısayolları',
+			description:
+				'Bu işlemler için tuşları belirleyin. Web sayfalarında ve yan panelde çalışır; kısıtlı sayfalarda (tarayıcı ayarları, web mağazası) tetiklenmeyebilir.',
+			cancel: 'Çalışan görevi iptal et',
+			cancelHelp: 'Bir görev çalışırken ajanı durdurur.',
+			pushToTalk: 'Konuşmak için bas',
+			pushToTalkHelp:
+				'Kaydetmek için basılı tutun, göndermek için bırakın. Sesin etkin olması gerekir.',
+			pressKey: 'Bir tuşa basın…',
+			reset: 'Varsayılana sıfırla',
 		},
 		empty: {
 			tip1: 'Sıkıcı tıklamaları yapay zekâya bırak',
@@ -246,6 +255,7 @@ export const trTR: TranslationSchema = {
 			tabProviders: 'Sağlayıcılar',
 			tabMasking: 'Kaydedilen Veriler',
 			tabVoice: 'Ses',
+			tabShortcuts: 'Kısayollar',
 			tabSkills: 'Beceriler',
 			tabAdvanced: 'Gelişmiş',
 			tabAbout: 'Hakkında',

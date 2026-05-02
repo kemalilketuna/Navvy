@@ -389,15 +389,6 @@ export function VoiceSection({ value, onChange, llm }: VoiceSectionProps) {
 								onCheckedChange={(autoSpeakResponses) => update({ autoSpeakResponses })}
 							/>
 						</label>
-						<div className="flex items-center justify-between gap-4">
-							<div className="flex flex-col gap-0.5">
-								<span className="text-sm">{t('ext.voice.shortcut')}</span>
-								<span className="text-xs text-muted-foreground">{t('ext.voice.shortcutHelp')}</span>
-							</div>
-							<kbd className="shrink-0 rounded border border-border bg-muted px-2 py-1 font-mono text-sm">
-								`
-							</kbd>
-						</div>
 						<div className="flex flex-col gap-1.5">
 							<label className="text-xs font-medium text-muted-foreground">
 								{t('ext.voice.language')}

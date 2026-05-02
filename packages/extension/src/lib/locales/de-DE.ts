@@ -134,9 +134,6 @@ export const deDE: TranslationSchema = {
 			apiKey: 'API-Schlüssel',
 			reusingChatKey: 'Dein Chat-Anbieter-API-Schlüssel wird wiederverwendet.',
 			autoSpeak: 'Antworten laut vorlesen',
-			shortcut: 'Sprach-Kurzbefehl',
-			shortcutHelp:
-				'Die `-Taste (über Tab) zum Sprechen halten; zum Senden loslassen. Esc bricht eine laufende Aufgabe ab.',
 			language: 'Sprache',
 			languagePlaceholder: 'Auto (z. B. en, tr)',
 			test: 'Stimme testen',
@@ -145,6 +142,17 @@ export const deDE: TranslationSchema = {
 			testSuccess: 'Eine Testphrase abgespielt.',
 			testPhrase: 'Hallo, dies ist ein Navvy-Sprachtest.',
 			testNoController: 'Konfiguriere zuerst einen Anbieter.',
+		},
+		shortcuts: {
+			title: 'Tastenkürzel',
+			description:
+				'Lege die Tasten für diese Aktionen fest. Sie funktionieren auf Webseiten und im Seitenpanel; auf eingeschränkten Seiten (Browser-Einstellungen, Web Store) werden sie möglicherweise nicht ausgelöst.',
+			cancel: 'Laufende Aufgabe abbrechen',
+			cancelHelp: 'Stoppt den Agenten, während eine Aufgabe läuft.',
+			pushToTalk: 'Zum Sprechen halten',
+			pushToTalkHelp: 'Zum Aufnehmen halten, zum Senden loslassen. Sprache muss aktiviert sein.',
+			pressKey: 'Taste drücken …',
+			reset: 'Auf Standard zurücksetzen',
 		},
 		empty: {
 			tip1: 'Überlasse die langweiligen Klicks der KI',
@@ -251,6 +259,7 @@ export const deDE: TranslationSchema = {
 			tabProviders: 'Anbieter',
 			tabMasking: 'Gespeicherte Daten',
 			tabVoice: 'Stimme',
+			tabShortcuts: 'Tastenkürzel',
 			tabSkills: 'Fähigkeiten',
 			tabAdvanced: 'Erweitert',
 			tabAbout: 'Über',
