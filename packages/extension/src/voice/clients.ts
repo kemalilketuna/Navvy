@@ -96,6 +96,6 @@ export function createVoiceController(
 		sttModel: voiceConfig.sttModel,
 		ttsModel: voiceConfig.ttsModel,
 		voice: voiceConfig.voice,
-		language: voiceConfig.language,
+		language: voiceConfig.language || undefined,
 	})
 }
