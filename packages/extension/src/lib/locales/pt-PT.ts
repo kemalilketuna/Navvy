@@ -57,6 +57,14 @@ export const ptPT: TranslationSchema = {
 				'Fale com o agente e ouça as suas respostas. Escolha fornecedores de voz para texto e texto para voz; a Web Speech API funciona sem chave API.',
 			enabled: 'Ativar modo de voz',
 			enabledHelp: 'Mostrar o botão do microfone e ativar premir para falar.',
+			micAccess: 'Acesso ao microfone',
+			micAccessHelp:
+				'A entrada de voz precisa do microfone. Conceda-o aqui: o painel lateral não o pode pedir diretamente.',
+			micGrant: 'Conceder acesso',
+			micGranted: 'Acesso ao microfone concedido.',
+			micDenied:
+				'O acesso ao microfone está bloqueado. Ative-o nas definições do site do navegador para esta extensão e recarregue.',
+			micCheck: 'Verificar novamente',
 			sttHeading: 'Voz para texto',
 			ttsHeading: 'Texto para voz',
 			interactionHeading: 'Interação',
@@ -99,6 +107,8 @@ export const ptPT: TranslationSchema = {
 				stop: 'Parar e transcrever',
 				transcribing: 'A transcrever…',
 				disabled: 'Ative a voz nas definições',
+				noSpeech: 'Nenhuma fala detetada — tente novamente.',
+				failed: 'Falha na entrada de voz',
 			},
 			attach: {
 				label: 'Anexar',

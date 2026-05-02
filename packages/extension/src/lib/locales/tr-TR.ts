@@ -55,6 +55,14 @@ export const trTR: TranslationSchema = {
 				'Ajanla konuşun ve yanıtlarını dinleyin. Konuşmadan metne ve metinden konuşmaya sağlayıcılarını seçin; Web Speech API herhangi bir API anahtarı olmadan çalışır.',
 			enabled: 'Ses modunu etkinleştir',
 			enabledHelp: 'Mikrofon düğmesini göster ve bas-konuş özelliğini etkinleştir.',
+			micAccess: 'Mikrofon erişimi',
+			micAccessHelp:
+				'Sesli giriş mikrofon gerektirir. Buradan izin ver — yan panel doğrudan isteyemez.',
+			micGrant: 'Erişim ver',
+			micGranted: 'Mikrofon erişimi verildi.',
+			micDenied:
+				'Mikrofon erişimi engellenmiş. Tarayıcının bu uzantı için site ayarlarından etkinleştir, ardından yeniden yükle.',
+			micCheck: 'Tekrar kontrol et',
 			sttHeading: 'Konuşmadan metne',
 			ttsHeading: 'Metinden konuşmaya',
 			interactionHeading: 'Etkileşim',
@@ -96,6 +104,8 @@ export const trTR: TranslationSchema = {
 				stop: 'Durdur ve deşifre et',
 				transcribing: 'Deşifre ediliyor…',
 				disabled: 'Sesi ayarlardan etkinleştir',
+				noSpeech: 'Konuşma algılanmadı — tekrar deneyin.',
+				failed: 'Sesli giriş başarısız',
 			},
 			attach: {
 				label: 'Ekle',

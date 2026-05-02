@@ -42,7 +42,7 @@ export interface UseAgentResult {
 	/** Voice: true when voice mode is enabled and a controller is active. */
 	voiceEnabled: boolean
 	voiceState: VoiceState
-	startListening: () => void
+	startListening: () => Promise<void>
 	/** Stop capture and return the transcript (empty when routed to a pending ask_user). */
 	stopListening: () => Promise<string>
 	cancelListening: () => void
@@ -237,10 +237,8 @@ export function useAgent(): UseAgentResult {
 		setConfig(saved)
 	}, [])
 
-	const startListening = useCallback(() => {
-		voiceRef.current?.startListening().catch((err) => {
-			console.error('[useAgent] startListening failed:', err)
-		})
+	const startListening = useCallback(async (): Promise<void> => {
+		await voiceRef.current?.startListening()
 	}, [])
 
 	const stopListening = useCallback(async (): Promise<string> => {
