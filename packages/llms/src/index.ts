@@ -13,6 +13,19 @@ import type {
 
 export { InvokeError, InvokeErrorTypes }
 
+export {
+	type AudioClientConfig,
+	type SttClient,
+	type TtsClient,
+	type TranscribeOptions,
+	type TranscribeResult,
+	type SynthesizeOptions,
+	AudioError,
+	OpenAIAudioClient,
+	ElevenLabsClient,
+	DeepgramClient,
+} from './audio'
+
 export function isAbortError(error: unknown): boolean {
 	const e = error as { name?: string; rawError?: { name?: string } } | null
 	return e?.name === 'AbortError' || e?.rawError?.name === 'AbortError'

@@ -1,6 +1,7 @@
 import {
 	Info,
 	Loader2,
+	Mic,
 	Settings as SettingsIcon,
 	Shield,
 	SlidersHorizontal,
@@ -11,20 +12,29 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 
 import { type ExtConfig, loadConfig, saveConfig } from '@/agent/configStore'
-import { type LLMProfile, isProfileComplete } from '@/agent/profiles'
+import { type LLMProfile, isProfileComplete, resolveBaseURL } from '@/agent/profiles'
 import { AboutSection } from '@/components/settings/AboutSection'
 import { AdvancedSection } from '@/components/settings/AdvancedSection'
 import { GeneralSection } from '@/components/settings/GeneralSection'
 import { MaskingSection } from '@/components/settings/MaskingSection'
 import { ProvidersSection } from '@/components/settings/ProvidersSection'
 import { SkillsSection } from '@/components/settings/SkillsSection'
+import { VoiceSection } from '@/components/settings/VoiceSection'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useT } from '@/lib/i18n'
 
-type TabKey = 'general' | 'providers' | 'masking' | 'skills' | 'advanced' | 'about'
+type TabKey = 'general' | 'providers' | 'masking' | 'voice' | 'skills' | 'advanced' | 'about'
 
-const VALID_TABS: TabKey[] = ['general', 'providers', 'masking', 'skills', 'advanced', 'about']
+const VALID_TABS: TabKey[] = [
+	'general',
+	'providers',
+	'masking',
+	'voice',
+	'skills',
+	'advanced',
+	'about',
+]
 
 function readHashTab(): TabKey {
 	const raw = window.location.hash.replace(/^#/, '')
@@ -174,6 +184,10 @@ export default function App() {
 							<Shield />
 							<span>{t('ext.settings.tabMasking')}</span>
 						</TabsTrigger>
+						<TabsTrigger value="voice">
+							<Mic />
+							<span>{t('ext.settings.tabVoice')}</span>
+						</TabsTrigger>
 						<TabsTrigger value="skills">
 							<Sparkles />
 							<span>{t('ext.settings.tabSkills')}</span>
@@ -209,6 +223,20 @@ export default function App() {
 							<MaskingSection
 								entries={draft.maskingEntries}
 								onChange={(maskingEntries) => patch({ maskingEntries })}
+							/>
+						</TabsContent>
+						<TabsContent value="voice">
+							<VoiceSection
+								value={draft.voiceConfig}
+								onChange={(voiceConfig) => patch({ voiceConfig })}
+								llm={{
+									baseURL: resolveBaseURL(
+										draft.profiles.find((p) => p.id === draft.activeProfileId) ?? draft.profiles[0]
+									),
+									apiKey: (
+										draft.profiles.find((p) => p.id === draft.activeProfileId) ?? draft.profiles[0]
+									)?.apiKey,
+								}}
 							/>
 						</TabsContent>
 						<TabsContent value="skills">
