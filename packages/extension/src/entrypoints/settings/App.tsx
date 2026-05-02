@@ -256,7 +256,21 @@ export default function App() {
 						/>
 					</TabsContent>
 					<TabsContent value="skills">
-						<SkillsSection />
+						<SkillsSection
+							skills={draft.skills}
+							onChange={(skills) => patch({ skills })}
+							llm={{
+								baseURL: resolveBaseURL(
+									draft.profiles.find((p) => p.id === draft.activeProfileId) ?? draft.profiles[0]
+								),
+								model: (
+									draft.profiles.find((p) => p.id === draft.activeProfileId) ?? draft.profiles[0]
+								)?.model,
+								apiKey: (
+									draft.profiles.find((p) => p.id === draft.activeProfileId) ?? draft.profiles[0]
+								)?.apiKey,
+							}}
+						/>
 					</TabsContent>
 					<TabsContent value="advanced">
 						<AdvancedSection

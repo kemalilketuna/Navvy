@@ -81,7 +81,8 @@ export function useAgent(): UseAgentResult {
 				'llmProfiles' in changes ||
 				'activeProfileId' in changes ||
 				'maskingEntries' in changes ||
-				'voiceConfig' in changes
+				'voiceConfig' in changes ||
+				'skills' in changes
 			) {
 				loadConfig().then(setConfig)
 			}

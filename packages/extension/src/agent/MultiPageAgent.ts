@@ -10,6 +10,7 @@ import {
 	redactSensitive,
 } from './masking'
 import { PROVIDERS_BY_KEY, detectProvider } from './providers'
+import { type Skill, buildSkillInstructions, createSkillTools } from './skills'
 import SYSTEM_PROMPT from './system_prompt.md?raw'
 import { createTabTools } from './tabTools'
 
@@ -46,6 +47,8 @@ interface MultiPageAgentConfig extends Omit<AgentConfig, 'language'> {
 	experimentalIncludeAllTabs?: boolean
 	/** Locally-stored saved data / masking entries. Extension-only; not core. */
 	maskingEntries?: MaskingEntry[]
+	/** Reusable Teach → Skills definitions. Extension-only; not core. */
+	skills?: Skill[]
 }
 
 /**
@@ -68,18 +71,28 @@ export class MultiPageAgent extends PageAgentCore {
 				: (LANGUAGE_NAMES[responseLanguage] ?? 'English')
 
 		// Strip extension-only fields so they don't reach the core.
-		const { responseLanguage: _ignored, maskingEntries, ...restConfig } = config
+		const { responseLanguage: _ignored, maskingEntries, skills, ...restConfig } = config
+
+		// Restricted providers (e.g. the Navvy Demo proxy) reject any tool not in
+		// the canonical set, so skills (which add new tool names) are gated on this.
+		const provider = PROVIDERS_BY_KEY[detectProvider(config.baseURL)]
+		const restrictedToolset = provider?.restrictsSystemPrompt === true
 
 		// Compose engine seams (do this once here; later phases extend it):
-		// - customTools: tab tools + masking tool overrides
+		// - customTools: tab tools + masking tool overrides + skill tools
 		// - transformPageContent: redact sensitive values outbound
-		// - instructions.getPageInstructions: advertise masking tokens
+		// - instructions.getPageInstructions: advertise masking tokens + matching skills
 		const masking = activeEntries(maskingEntries ?? [])
 		const maskingActive = masking.length > 0
+
+		// Skills add brand-new tool names; skip entirely on restricted providers.
+		const skillsList = restrictedToolset ? [] : (skills ?? [])
+		const skillTools = createSkillTools(skillsList)
 
 		const customTools = {
 			...createTabTools(tabsController),
 			...(maskingActive ? createMaskingTools(masking) : {}),
+			...skillTools,
 		}
 
 		const incomingTransform = restConfig.transformPageContent
@@ -92,12 +105,14 @@ export class MultiPageAgent extends PageAgentCore {
 
 		const maskingBlock = maskingActive ? buildMaskingInstructions(masking) : undefined
 		const incomingInstructions = restConfig.instructions
-		const instructions = maskingBlock
+		const composeInstructions = maskingBlock || skillsList.length > 0
+		const instructions = composeInstructions
 			? {
 					system: incomingInstructions?.system,
 					getPageInstructions: (url: string) => {
 						const prev = incomingInstructions?.getPageInstructions?.(url)
-						return [prev, maskingBlock].filter(Boolean).join('\n\n')
+						const skillBlock = buildSkillInstructions(skillsList, url)
+						return [prev, maskingBlock, skillBlock].filter(Boolean).join('\n\n')
 					},
 				}
 			: incomingInstructions
@@ -117,9 +132,6 @@ export class MultiPageAgent extends PageAgentCore {
 		 * This heartbeat mechanism acts as a backup.
 		 */
 		let heartBeatInterval: null | number = null
-
-		const provider = PROVIDERS_BY_KEY[detectProvider(config.baseURL)]
-		const restrictedToolset = provider?.restrictsSystemPrompt === true
 
 		super({
 			...restConfig,
