@@ -22,6 +22,35 @@ export const ptPT: TranslationSchema = {
 			comingSoon: 'Em breve',
 			description: 'As competências reutilizáveis do agente viverão aqui.',
 		},
+		masking: {
+			title: 'Dados guardados e máscara',
+			description:
+				'Guarde valores que o agente pode preencher em formulários. Marque um valor como sensível para que nunca chegue ao fornecedor de IA: o agente vê apenas um {{token}} opaco.',
+			unencryptedNote:
+				'Os valores são armazenados sem cifragem neste navegador, tal como as suas chaves de API.',
+			jsDisabledNote:
+				'Enquanto houver uma entrada ativa, a ferramenta experimental de JavaScript é desativada para proteger os valores mascarados.',
+			empty:
+				'Ainda não há dados guardados. Adicione uma entrada ou um grupo de morada para começar.',
+			label: 'Rótulo',
+			labelPlaceholder: 'ex. Cartão de crédito principal',
+			token: 'Token',
+			tokenPlaceholder: 'ex. credit_card',
+			value: 'Valor',
+			valuePlaceholder: 'O valor real',
+			group: 'Grupo',
+			groupPlaceholder: 'ex. Morada de casa',
+			sensitive: 'Sensível',
+			sensitiveHelp:
+				'Os valores sensíveis são removidos do conteúdo da página e nunca são enviados para a IA. Os valores não sensíveis (nome, morada) são preenchidos automaticamente e podem ser vistos pela IA.',
+			enabled: 'Ativado',
+			delete: 'Eliminar entrada',
+			showValue: 'Mostrar valor',
+			hideValue: 'Ocultar valor',
+			addEntry: 'Adicionar entrada',
+			addAddressGroup: 'Adicionar grupo de morada',
+			addressGroupName: 'Morada de casa',
+		},
 		empty: {
 			tip1: 'Deixe a IA tratar dos cliques aborrecidos',
 			tip2: 'Navegue por intenção, não pelo rato',
@@ -128,6 +157,7 @@ export const ptPT: TranslationSchema = {
 		settings: {
 			tabGeneral: 'Geral',
 			tabProviders: 'Provedores',
+			tabMasking: 'Dados guardados',
 			tabSkills: 'Capacidades',
 			tabAdvanced: 'Avançado',
 			tabAbout: 'Sobre',

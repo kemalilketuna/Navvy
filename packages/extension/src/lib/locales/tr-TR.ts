@@ -22,6 +22,33 @@ export const trTR: TranslationSchema = {
 			comingSoon: 'Yakında',
 			description: 'Yeniden kullanılabilir ajan becerileri burada olacak.',
 		},
+		masking: {
+			title: 'Kaydedilen Veriler ve Maskeleme',
+			description:
+				'Ajanın formlara doldurabileceği değerleri kaydedin. Bir değeri hassas olarak işaretleyin; böylece asla yapay zeka sağlayıcısına ulaşmaz — ajan yalnızca opak bir {{token}} görür.',
+			unencryptedNote: 'Değerler, API anahtarlarınız gibi bu tarayıcıda şifrelenmeden saklanır.',
+			jsDisabledNote:
+				'Herhangi bir kayıt etkinken, maskelenmiş değerleri korumak için deneysel JavaScript aracı devre dışı bırakılır.',
+			empty: 'Henüz kaydedilmiş veri yok. Başlamak için bir kayıt veya adres grubu ekleyin.',
+			label: 'Etiket',
+			labelPlaceholder: 'ör. Ana kredi kartı',
+			token: 'Token',
+			tokenPlaceholder: 'ör. credit_card',
+			value: 'Değer',
+			valuePlaceholder: 'Gerçek değer',
+			group: 'Grup',
+			groupPlaceholder: 'ör. Ev adresi',
+			sensitive: 'Hassas',
+			sensitiveHelp:
+				'Hassas değerler sayfa içeriğinden çıkarılır ve asla yapay zekaya gönderilmez. Hassas olmayan değerler (ad, adres) otomatik doldurulur ve yapay zeka tarafından görülebilir.',
+			enabled: 'Etkin',
+			delete: 'Kaydı sil',
+			showValue: 'Değeri göster',
+			hideValue: 'Değeri gizle',
+			addEntry: 'Kayıt ekle',
+			addAddressGroup: 'Adres grubu ekle',
+			addressGroupName: 'Ev adresi',
+		},
 		empty: {
 			tip1: 'Sıkıcı tıklamaları yapay zekâya bırak',
 			tip2: 'Fareyle değil, niyetle gez',
@@ -128,6 +155,7 @@ export const trTR: TranslationSchema = {
 		settings: {
 			tabGeneral: 'Genel',
 			tabProviders: 'Sağlayıcılar',
+			tabMasking: 'Kaydedilen Veriler',
 			tabSkills: 'Beceriler',
 			tabAdvanced: 'Gelişmiş',
 			tabAbout: 'Hakkında',
