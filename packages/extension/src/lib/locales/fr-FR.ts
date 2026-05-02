@@ -64,6 +64,8 @@ export const frFR: TranslationSchema = {
 			micDenied:
 				"L'accès au microphone est bloqué. Activez-le dans les paramètres du site du navigateur pour cette extension, puis rechargez.",
 			micCheck: 'Vérifier à nouveau',
+			missingKey:
+				'Ajoutez une clé API pour les fournisseurs vocaux sélectionnés afin d’enregistrer.',
 			sttHeading: 'Parole en texte',
 			ttsHeading: 'Texte en parole',
 			interactionHeading: 'Interaction',

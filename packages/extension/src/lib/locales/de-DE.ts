@@ -64,6 +64,8 @@ export const deDE: TranslationSchema = {
 			micDenied:
 				'Mikrofonzugriff ist blockiert. Aktiviere ihn in den Browser-Website-Einstellungen für diese Erweiterung und lade dann neu.',
 			micCheck: 'Erneut prüfen',
+			missingKey:
+				'Füge einen API-Schlüssel für die gewählten Sprachanbieter hinzu, um zu speichern.',
 			sttHeading: 'Sprache zu Text',
 			ttsHeading: 'Text zu Sprache',
 			interactionHeading: 'Interaktion',

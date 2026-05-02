@@ -124,9 +124,10 @@ export function useAgent(): UseAgentResult {
 		const handleVoiceState = (e: Event) => setVoiceState((e as CustomEvent).detail as VoiceState)
 		voiceController?.addEventListener('statechange', handleVoiceState)
 
-		// Wire ask_user to voice: speak the question, auto-arm capture, and resolve
-		// with the next transcript. Must be set before execute() (which drops the
-		// ask_user tool when onAskUser is unset).
+		// Wire ask_user to voice: speak the question, then resolve with the next
+		// transcript. Capture is NOT auto-armed — the user starts the mic when
+		// ready, and stopListening() routes that transcript to this pending ask.
+		// Must be set before execute() (which drops the ask_user tool when unset).
 		if (voiceController) {
 			agent.onAskUser = async (question: string): Promise<string> => {
 				try {
@@ -136,10 +137,6 @@ export function useAgent(): UseAgentResult {
 				}
 				return new Promise<string>((resolve) => {
 					pendingAskRef.current = resolve
-					voiceController.startListening().catch(() => {
-						pendingAskRef.current = null
-						resolve('')
-					})
 				})
 			}
 		}

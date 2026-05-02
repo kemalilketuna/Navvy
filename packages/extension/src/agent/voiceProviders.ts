@@ -157,3 +157,59 @@ export const VOICE_PROVIDERS_BY_KEY: Record<VoiceProviderKey, VoiceProvider> =
 
 export const STT_PROVIDERS = VOICE_PROVIDERS.filter((p) => p.supportsStt)
 export const TTS_PROVIDERS = VOICE_PROVIDERS.filter((p) => p.supportsTts)
+
+/** Active chat credentials an OpenAI-compatible audio provider can reuse. */
+export interface VoiceLlmCredentials {
+	baseURL: string
+	apiKey?: string
+}
+
+function sameHost(a?: string, b?: string): boolean {
+	if (!a || !b) return false
+	try {
+		return new URL(a).host === new URL(b).host
+	} catch {
+		return false
+	}
+}
+
+/** Whether a provider can borrow the active chat API key instead of its own. */
+export function reusesChatKey(provider: VoiceProvider, llm: VoiceLlmCredentials): boolean {
+	return Boolean(
+		provider.reusesLlmCredentials && sameHost(provider.baseURL, llm.baseURL) && llm.apiKey
+	)
+}
+
+/** Whether a provider has the API key it requires (its own or a reused chat key). */
+function providerHasKey(
+	provider: VoiceProvider | undefined,
+	apiKey: string | undefined,
+	llm: VoiceLlmCredentials
+): boolean {
+	if (!provider) return false
+	if (!provider.requiresApiKey) return true
+	if (reusesChatKey(provider, llm)) return true
+	return Boolean(apiKey?.trim())
+}
+
+/**
+ * Whether voice settings are safe to save: a disabled config is always complete,
+ * an enabled one needs an API key for any STT/TTS provider that requires one.
+ */
+export function isVoiceConfigComplete(
+	config: {
+		enabled: boolean
+		sttProviderKey: VoiceProviderKey
+		ttsProviderKey: VoiceProviderKey
+		apiKeys: Partial<Record<VoiceProviderKey, string>>
+	},
+	llm: VoiceLlmCredentials
+): boolean {
+	if (!config.enabled) return true
+	const stt = VOICE_PROVIDERS_BY_KEY[config.sttProviderKey]
+	const tts = VOICE_PROVIDERS_BY_KEY[config.ttsProviderKey]
+	return (
+		providerHasKey(stt, config.apiKeys[config.sttProviderKey], llm) &&
+		providerHasKey(tts, config.apiKeys[config.ttsProviderKey], llm)
+	)
+}

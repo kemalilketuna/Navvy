@@ -63,6 +63,7 @@ export const trTR: TranslationSchema = {
 			micDenied:
 				'Mikrofon erişimi engellenmiş. Tarayıcının bu uzantı için site ayarlarından etkinleştir, ardından yeniden yükle.',
 			micCheck: 'Tekrar kontrol et',
+			missingKey: 'Kaydetmek için seçili ses sağlayıcıları için bir API anahtarı ekleyin.',
 			sttHeading: 'Konuşmadan metne',
 			ttsHeading: 'Metinden konuşmaya',
 			interactionHeading: 'Etkileşim',

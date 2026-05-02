@@ -13,6 +13,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { type ExtConfig, loadConfig, saveConfig } from '@/agent/configStore'
 import { type LLMProfile, isProfileComplete, resolveBaseURL } from '@/agent/profiles'
+import { isVoiceConfigComplete } from '@/agent/voiceProviders'
 import { AboutSection } from '@/components/settings/AboutSection'
 import { AdvancedSection } from '@/components/settings/AdvancedSection'
 import { GeneralSection } from '@/components/settings/GeneralSection'
@@ -79,6 +80,15 @@ export default function App() {
 		if (!draft) return true
 		const active = draft.profiles.find((p) => p.id === draft.activeProfileId) ?? draft.profiles[0]
 		return active ? isProfileComplete(active) : false
+	}, [draft])
+
+	const voiceConfigComplete = useMemo(() => {
+		if (!draft) return true
+		const active = draft.profiles.find((p) => p.id === draft.activeProfileId) ?? draft.profiles[0]
+		return isVoiceConfigComplete(draft.voiceConfig, {
+			baseURL: active ? resolveBaseURL(active) : '',
+			apiKey: active?.apiKey,
+		})
 	}, [draft])
 
 	if (!draft) {
@@ -270,13 +280,20 @@ export default function App() {
 				<div className="shrink-0 border-t border-border bg-background/95 backdrop-blur">
 					<div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-6 py-3">
 						<span className="text-sm text-muted-foreground">
-							{savedAt ? t('ext.settings.savedNotice') : t('ext.settings.unsavedNotice')}
+							{savedAt
+								? t('ext.settings.savedNotice')
+								: !voiceConfigComplete
+									? t('ext.voice.missingKey')
+									: t('ext.settings.unsavedNotice')}
 						</span>
 						<div className="flex gap-2">
 							<Button variant="outline" onClick={handleReset} disabled={saving}>
 								{t('ext.config.cancel')}
 							</Button>
-							<Button onClick={handleSave} disabled={saving || !activeProfileComplete}>
+							<Button
+								onClick={handleSave}
+								disabled={saving || !activeProfileComplete || !voiceConfigComplete}
+							>
 								{saving ? <Loader2 className="size-4 animate-spin" /> : t('ext.config.save')}
 							</Button>
 						</div>

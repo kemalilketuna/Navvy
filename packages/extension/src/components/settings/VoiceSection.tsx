@@ -6,8 +6,8 @@ import {
 	STT_PROVIDERS,
 	TTS_PROVIDERS,
 	VOICE_PROVIDERS_BY_KEY,
-	type VoiceProvider,
 	type VoiceProviderKey,
+	reusesChatKey,
 } from '@/agent/voiceProviders'
 import { Button } from '@/components/ui/button'
 import { Combobox, type ComboboxOption } from '@/components/ui/combobox'
@@ -28,24 +28,6 @@ interface VoiceSectionProps {
 	onChange: (next: VoiceConfig) => void
 	/** Active chat credentials, reused for OpenAI-compatible audio providers. */
 	llm: { baseURL: string; apiKey?: string }
-}
-
-function sameHost(a?: string, b?: string): boolean {
-	if (!a || !b) return false
-	try {
-		return new URL(a).host === new URL(b).host
-	} catch {
-		return false
-	}
-}
-
-function reusesChatKey(
-	provider: VoiceProvider,
-	llm: { baseURL: string; apiKey?: string }
-): boolean {
-	return Boolean(
-		provider.reusesLlmCredentials && sameHost(provider.baseURL, llm.baseURL) && llm.apiKey
-	)
 }
 
 /** Web Speech voices, discovered at runtime (may populate asynchronously). */
