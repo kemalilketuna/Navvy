@@ -60,6 +60,14 @@ export const enUS = {
 				'Speak to the agent and hear its replies. Pick speech-to-text and text-to-speech providers; the Web Speech API works with no API key.',
 			enabled: 'Enable voice mode',
 			enabledHelp: 'Show the mic button and enable push-to-talk.',
+			micAccess: 'Microphone access',
+			micAccessHelp:
+				'Voice input needs the microphone. Grant it here — the side panel cannot ask for it directly.',
+			micGrant: 'Grant access',
+			micGranted: 'Microphone access granted.',
+			micDenied:
+				'Microphone access is blocked. Enable it in the browser site settings for this extension, then reload.',
+			micCheck: 'Check again',
 			sttHeading: 'Speech to text',
 			ttsHeading: 'Text to speech',
 			interactionHeading: 'Interaction',
@@ -103,6 +111,8 @@ export const enUS = {
 				stop: 'Stop and transcribe',
 				transcribing: 'Transcribing…',
 				disabled: 'Enable voice in settings',
+				noSpeech: 'No speech detected — try again.',
+				failed: 'Voice input failed',
 			},
 			attach: {
 				label: 'Attach',

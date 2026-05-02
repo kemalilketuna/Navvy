@@ -56,6 +56,14 @@ export const deDE: TranslationSchema = {
 				'Sprich mit dem Agenten und höre seine Antworten. Wähle Anbieter für Sprache-zu-Text und Text-zu-Sprache; die Web Speech API funktioniert ohne API-Schlüssel.',
 			enabled: 'Sprachmodus aktivieren',
 			enabledHelp: 'Die Mikrofon-Schaltfläche anzeigen und Push-to-Talk aktivieren.',
+			micAccess: 'Mikrofonzugriff',
+			micAccessHelp:
+				'Spracheingabe benötigt das Mikrofon. Hier erteilen – das Seitenpanel kann nicht direkt danach fragen.',
+			micGrant: 'Zugriff erteilen',
+			micGranted: 'Mikrofonzugriff erteilt.',
+			micDenied:
+				'Mikrofonzugriff ist blockiert. Aktiviere ihn in den Browser-Website-Einstellungen für diese Erweiterung und lade dann neu.',
+			micCheck: 'Erneut prüfen',
 			sttHeading: 'Sprache zu Text',
 			ttsHeading: 'Text zu Sprache',
 			interactionHeading: 'Interaktion',
@@ -98,6 +106,8 @@ export const deDE: TranslationSchema = {
 				stop: 'Stoppen und transkribieren',
 				transcribing: 'Wird transkribiert…',
 				disabled: 'Stimme in den Einstellungen aktivieren',
+				noSpeech: 'Keine Sprache erkannt – bitte erneut versuchen.',
+				failed: 'Spracheingabe fehlgeschlagen',
 			},
 			attach: {
 				label: 'Anhängen',

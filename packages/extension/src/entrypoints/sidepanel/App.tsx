@@ -1,6 +1,7 @@
 import type { TaskAttachment } from '@page-agent/core'
 import { History, MoreVertical, Settings, Sparkles, SquarePen } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 import { Composer } from '@/components/Composer'
 import { HistoryDetail } from '@/components/HistoryDetail'
@@ -33,7 +34,7 @@ async function stashReturnTab() {
 	}
 }
 
-function openSettings(section: 'general' | 'skills') {
+function openSettings(section: 'general' | 'skills' | 'voice') {
 	const url = chrome.runtime.getURL(`settings.html#${section}`)
 	stashReturnTab()
 		.then(() => chrome.tabs.create({ url }))
@@ -128,40 +129,56 @@ export default function App() {
 
 	const pttActiveRef = useRef(false)
 
+	// Empty result means no speech was captured — tell the user instead of
+	// silently doing nothing, so a failed capture is always visible.
 	const submitTranscript = useCallback(
 		(text: string) => {
 			const normalized = text.trim()
 			if (normalized) runTask(normalized)
+			else toast.warning(t('ext.input.voice.noSpeech'))
 		},
-		[runTask]
+		[runTask, t]
+	)
+
+	const reportVoiceError = useCallback(
+		(err: unknown) => {
+			console.error('[SidePanel] Transcription failed:', err)
+			const message = err instanceof Error ? err.message : String(err)
+			// Blocked-mic errors are fixable from settings (which opens in a tab and
+			// can show the permission prompt), so offer a shortcut.
+			const micBlocked = /microphone/i.test(message)
+			toast.error(
+				`${t('ext.input.voice.failed')}: ${message}`,
+				micBlocked
+					? { action: { label: t('ext.voice.micGrant'), onClick: () => openSettings('voice') } }
+					: undefined
+			)
+		},
+		[t]
 	)
 
 	// Composer mic button: toggle capture; auto-submit the transcript on stop.
 	const handleMicToggle = useCallback(() => {
 		if (voiceState === 'recording') {
-			stopListening()
-				.then(submitTranscript)
-				.catch((err) => console.error('[SidePanel] Transcription failed:', err))
+			stopListening().then(submitTranscript).catch(reportVoiceError)
 		} else {
-			startListening()
+			startListening().catch(reportVoiceError)
 		}
-	}, [voiceState, stopListening, startListening, submitTranscript])
+	}, [voiceState, stopListening, startListening, submitTranscript, reportVoiceError])
 
 	// Push-to-talk: start on key/message down, stop + submit on up. Guarded against
 	// auto-repeat via pttActiveRef so a held key starts capture exactly once.
 	const startPtt = useCallback(() => {
 		if (pttActiveRef.current) return
 		pttActiveRef.current = true
-		startListening()
-	}, [startListening])
+		startListening().catch(reportVoiceError)
+	}, [startListening, reportVoiceError])
 
 	const stopPtt = useCallback(() => {
 		if (!pttActiveRef.current) return
 		pttActiveRef.current = false
-		stopListening()
-			.then(submitTranscript)
-			.catch((err) => console.error('[SidePanel] Transcription failed:', err))
-	}, [stopListening, submitTranscript])
+		stopListening().then(submitTranscript).catch(reportVoiceError)
+	}, [stopListening, submitTranscript, reportVoiceError])
 
 	// Hold-to-talk while the side panel itself has focus.
 	const holdKey = config?.voiceConfig?.holdKey

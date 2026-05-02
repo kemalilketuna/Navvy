@@ -16,6 +16,11 @@ import { Select } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { useT } from '@/lib/i18n'
 import { createVoiceController } from '@/voice/clients'
+import {
+	type MicPermissionState,
+	queryMicPermission,
+	requestMicPermission,
+} from '@/voice/micPermission'
 import type { VoiceConfig } from '@/voice/types'
 
 interface VoiceSectionProps {
@@ -147,6 +152,8 @@ export function VoiceSection({ value, onChange, llm }: VoiceSectionProps) {
 
 			{value.enabled && (
 				<>
+					<MicPermission />
+
 					{/* Speech-to-text */}
 					<div className="flex flex-col gap-3 rounded-md border border-border p-3">
 						<h3 className="text-sm font-semibold">{t('ext.voice.sttHeading')}</h3>
@@ -335,6 +342,77 @@ export function VoiceSection({ value, onChange, llm }: VoiceSectionProps) {
 						)}
 					</div>
 				</>
+			)}
+		</div>
+	)
+}
+
+/**
+ * Microphone access control. Lives in settings (which opens in a tab) because
+ * the side panel cannot show the permission prompt; the grant persists for the
+ * whole extension origin.
+ */
+function MicPermission() {
+	const t = useT()
+	const [state, setState] = useState<MicPermissionState>('unknown')
+	const [busy, setBusy] = useState(false)
+
+	useEffect(() => {
+		queryMicPermission().then(setState)
+	}, [])
+
+	const grant = async () => {
+		setBusy(true)
+		try {
+			await requestMicPermission()
+			setState('granted')
+		} catch {
+			setState('denied')
+		} finally {
+			setBusy(false)
+		}
+	}
+
+	return (
+		<div className="flex flex-col gap-2 rounded-md border border-border p-3">
+			<div className="flex items-center justify-between gap-4">
+				<div className="flex flex-col gap-0.5">
+					<span className="text-sm font-medium">{t('ext.voice.micAccess')}</span>
+					<span className="text-xs text-muted-foreground">{t('ext.voice.micAccessHelp')}</span>
+				</div>
+				{state === 'granted' ? (
+					<span className="flex shrink-0 items-center gap-1.5 text-xs text-emerald-600">
+						<CheckCircle2 className="size-3.5" />
+						{t('ext.voice.micGranted')}
+					</span>
+				) : (
+					<Button
+						type="button"
+						variant="outline"
+						size="sm"
+						className="shrink-0 cursor-pointer"
+						onClick={grant}
+						disabled={busy}
+					>
+						{busy ? <Loader2 className="size-4 animate-spin" /> : <Mic className="size-4" />}
+						{t('ext.voice.micGrant')}
+					</Button>
+				)}
+			</div>
+			{state === 'denied' && (
+				<div className="flex flex-col gap-1.5">
+					<div className="flex items-start gap-1.5 text-xs text-red-500">
+						<XCircle className="mt-0.5 size-3.5 shrink-0" />
+						<span>{t('ext.voice.micDenied')}</span>
+					</div>
+					<button
+						type="button"
+						onClick={() => queryMicPermission().then(setState)}
+						className="self-start text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+					>
+						{t('ext.voice.micCheck')}
+					</button>
+				</div>
 			)}
 		</div>
 	)
