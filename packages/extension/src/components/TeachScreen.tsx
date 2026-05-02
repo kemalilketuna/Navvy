@@ -162,6 +162,32 @@ export function TeachScreen({
 		}
 	}
 
+	// Re-run the refiner from the review screen, feeding back the (possibly edited)
+	// narration and the current draft so manual corrections are kept and improved.
+	const handleReRefine = async () => {
+		if (!hasTranscript) {
+			toast.warning(t('ext.teach.needTranscript'))
+			return
+		}
+		if (!llmReady) {
+			toast.warning(t('ext.skills.refineNeedsLlm'))
+			return
+		}
+		setRefining(true)
+		try {
+			const refined = await refineSkill(llm, {
+				transcript,
+				url: tab.url || undefined,
+				existing: draft ?? undefined,
+			})
+			setDraft(refined)
+		} catch (err) {
+			toast.error(`${t('ext.teach.refineFailed')}: ${err instanceof Error ? err.message : err}`)
+		} finally {
+			setRefining(false)
+		}
+	}
+
 	const handleSave = async () => {
 		if (!draft) return
 		try {
@@ -179,10 +205,6 @@ export function TeachScreen({
 		: isTranscribing
 			? t('ext.teach.transcribing')
 			: t('ext.teach.record')
-
-	// Footer footprint: a lone full-width mic pill (screenshot vibe) until there's
-	// something to refine, then mic shrinks to an icon beside the Refine action.
-	const micFull = voiceEnabled && !hasTranscript
 
 	return (
 		<div className="flex h-screen min-h-0 flex-col bg-background text-foreground">
@@ -209,8 +231,8 @@ export function TeachScreen({
 
 			{!draft ? (
 				<>
-					<div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-6">
-						<div className="flex flex-1 flex-col items-center justify-center gap-5 py-6 text-center">
+					<div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-6 pb-4">
+						<div className="flex flex-col items-center gap-5 pt-8 text-center">
 							<WorkflowIllustration active={isRecording} />
 							<div className="flex flex-col gap-2">
 								<h2 className="text-lg font-semibold">{t('ext.teach.title')}</h2>
@@ -220,28 +242,41 @@ export function TeachScreen({
 							</div>
 						</div>
 
-						{(hasTranscript || !voiceEnabled) && (
-							<div className="flex flex-col gap-1.5 pb-4">
-								<label className="text-xs font-medium text-muted-foreground">
-									{t('ext.teach.transcript')}
-								</label>
-								<Textarea
-									value={transcript}
-									onChange={(e) => setTranscript(e.target.value)}
-									placeholder={t('ext.teach.transcriptPlaceholder')}
-									className="min-h-24 text-sm"
-								/>
-								{!voiceEnabled && (
-									<p className="text-xs text-muted-foreground">{t('ext.teach.noVoiceHint')}</p>
-								)}
-							</div>
-						)}
+						{/* Narration is always editable so a skill can be refined by text alone —
+						    when voice is off, the mic is blocked, or recognition fails. */}
+						<div className="flex flex-col gap-1.5">
+							<label className="text-xs font-medium text-muted-foreground">
+								{t('ext.teach.transcript')}
+							</label>
+							<Textarea
+								value={transcript}
+								onChange={(e) => setTranscript(e.target.value)}
+								placeholder={t('ext.teach.transcriptPlaceholder')}
+								className="min-h-24 text-sm"
+							/>
+							{(!voiceEnabled || micUnavailable) && (
+								<p className="text-xs text-muted-foreground">{t('ext.teach.noVoiceHint')}</p>
+							)}
+						</div>
+
+						<Button
+							onClick={handleRefine}
+							disabled={refining || !hasTranscript}
+							className="h-10 gap-2 rounded-lg text-sm"
+						>
+							{refining ? (
+								<Loader2 className="size-4 animate-spin" />
+							) : (
+								<Wand2 className="size-4" />
+							)}
+							{refining ? t('ext.teach.refining') : t('ext.teach.refine')}
+						</Button>
 					</div>
 
-					<div className="shrink-0 px-3 pb-3">
-						<div className="flex items-center gap-2 rounded-xl border border-white/5 bg-neutral-900/60 p-2">
-							{voiceEnabled && (
-								<span className={cn('relative flex', micFull && 'flex-1')}>
+					{voiceEnabled && (
+						<div className="shrink-0 px-3 pb-3">
+							<div className="flex items-center gap-2 rounded-xl border border-white/5 bg-neutral-900/60 p-2">
+								<span className="relative flex flex-1">
 									{isRecording && (
 										<span className="pointer-events-none absolute inset-0 animate-ping rounded-lg bg-red-500/30" />
 									)}
@@ -250,8 +285,7 @@ export function TeachScreen({
 										onClick={handleMicToggle}
 										disabled={isTranscribing}
 										className={cn(
-											'relative h-10 gap-2 rounded-lg border border-white/10 text-sm font-medium',
-											micFull ? 'w-full' : 'w-10 px-0',
+											'relative h-10 w-full gap-2 rounded-lg border border-white/10 text-sm font-medium',
 											isRecording
 												? 'border-transparent bg-red-600 text-white hover:bg-red-500'
 												: 'bg-white/10 text-foreground hover:bg-white/15'
@@ -266,26 +300,12 @@ export function TeachScreen({
 										) : (
 											<Mic className="size-4" />
 										)}
-										{micFull && <span>{micLabel}</span>}
+										<span>{micLabel}</span>
 									</Button>
 								</span>
-							)}
-							{(hasTranscript || !voiceEnabled) && (
-								<Button
-									onClick={handleRefine}
-									disabled={refining || !hasTranscript}
-									className="h-10 flex-1 gap-2 rounded-lg text-sm"
-								>
-									{refining ? (
-										<Loader2 className="size-4 animate-spin" />
-									) : (
-										<Wand2 className="size-4" />
-									)}
-									{refining ? t('ext.teach.refining') : t('ext.teach.refine')}
-								</Button>
-							)}
+							</div>
 						</div>
-					</div>
+					)}
 				</>
 			) : (
 				<>
@@ -296,6 +316,33 @@ export function TeachScreen({
 								skill={draft}
 								onChange={(patch) => setDraft((prev) => (prev ? { ...prev, ...patch } : prev))}
 							/>
+						</div>
+
+						{/* Correct the narration and re-run the refiner if the result is off. */}
+						<div className="flex flex-col gap-1.5">
+							<label className="text-xs font-medium text-muted-foreground">
+								{t('ext.teach.transcript')}
+							</label>
+							<Textarea
+								value={transcript}
+								onChange={(e) => setTranscript(e.target.value)}
+								placeholder={t('ext.teach.transcriptPlaceholder')}
+								className="min-h-20 text-sm"
+							/>
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={handleReRefine}
+								disabled={refining || !hasTranscript}
+								className="self-start"
+							>
+								{refining ? (
+									<Loader2 className="size-4 animate-spin" />
+								) : (
+									<Wand2 className="size-4" />
+								)}
+								{refining ? t('ext.teach.refining') : t('ext.skills.reRefine')}
+							</Button>
 						</div>
 					</div>
 					<div className="flex shrink-0 justify-end gap-2 px-4 pb-4">
