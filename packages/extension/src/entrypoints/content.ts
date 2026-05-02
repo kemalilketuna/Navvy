@@ -1,5 +1,5 @@
 import { initPageController } from '@/agent/RemotePageController.content'
-import { initVoicePushToTalk } from '@/voice/contentPtt'
+import { initContentShortcuts } from '@/lib/contentShortcuts'
 
 // import { DEMO_CONFIG } from '@/agent/constants'
 
@@ -12,7 +12,7 @@ export default defineContentScript({
 	main() {
 		console.debug(`${DEBUG_PREFIX} Loaded on ${window.location.href}`)
 		initPageController()
-		initVoicePushToTalk()
+		initContentShortcuts()
 
 		// if auth token matches, expose agent to page
 		chrome.storage.local.get('PageAgentExtUserAuthToken').then((result) => {

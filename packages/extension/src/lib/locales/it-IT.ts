@@ -110,7 +110,7 @@ export const itIT: TranslationSchema = {
 			description:
 				'Parla con l’agente e ascolta le sue risposte. Scegli i provider di sintesi vocale e riconoscimento vocale; la Web Speech API funziona senza chiave API.',
 			enabled: 'Abilita modalità vocale',
-			enabledHelp: 'Mostra il pulsante del microfono e abilita il push-to-talk.',
+			enabledHelp: 'Mostra il pulsante del microfono e abilita la scorciatoia vocale.',
 			micAccess: 'Accesso al microfono',
 			micAccessHelp:
 				"L'input vocale richiede il microfono. Concedilo qui: il pannello laterale non può richiederlo direttamente.",
@@ -131,11 +131,9 @@ export const itIT: TranslationSchema = {
 			apiKey: 'Chiave API',
 			reusingChatKey: 'Riutilizzo della chiave API del tuo provider di chat.',
 			autoSpeak: 'Leggi le risposte ad alta voce',
-			pushToTalk: 'Tieni premuto per parlare',
-			pushToTalkHelp: 'Tieni premuto un tasto per registrare; rilascia per inviare.',
-			holdKey: 'Tasto da tenere premuto',
-			holdKeyHelp:
-				'Tasto da tenere premuto mentre parli (es. Alt). Funziona sulla pagina e nel pannello.',
+			shortcut: 'Scorciatoia vocale',
+			shortcutHelp:
+				"Tieni premuto il tasto ` (sopra Tab) per parlare; rilascia per inviare. Premi Esc per annullare un'attività in corso.",
 			language: 'Lingua',
 			languagePlaceholder: 'Auto (es. en, tr)',
 			test: 'Prova voce',

@@ -112,7 +112,7 @@ export const deDE: TranslationSchema = {
 			description:
 				'Sprich mit dem Agenten und höre seine Antworten. Wähle Anbieter für Sprache-zu-Text und Text-zu-Sprache; die Web Speech API funktioniert ohne API-Schlüssel.',
 			enabled: 'Sprachmodus aktivieren',
-			enabledHelp: 'Die Mikrofon-Schaltfläche anzeigen und Push-to-Talk aktivieren.',
+			enabledHelp: 'Die Mikrofon-Schaltfläche anzeigen und den Sprach-Kurzbefehl aktivieren.',
 			micAccess: 'Mikrofonzugriff',
 			micAccessHelp:
 				'Spracheingabe benötigt das Mikrofon. Hier erteilen – das Seitenpanel kann nicht direkt danach fragen.',
@@ -134,11 +134,9 @@ export const deDE: TranslationSchema = {
 			apiKey: 'API-Schlüssel',
 			reusingChatKey: 'Dein Chat-Anbieter-API-Schlüssel wird wiederverwendet.',
 			autoSpeak: 'Antworten laut vorlesen',
-			pushToTalk: 'Zum Sprechen halten',
-			pushToTalkHelp: 'Eine Taste zum Aufnehmen halten; zum Senden loslassen.',
-			holdKey: 'Halte-Taste',
-			holdKeyHelp:
-				'Taste, die beim Sprechen gehalten wird (z. B. Alt). Funktioniert auf der Seite und im Panel.',
+			shortcut: 'Sprach-Kurzbefehl',
+			shortcutHelp:
+				'Die `-Taste (über Tab) zum Sprechen halten; zum Senden loslassen. Esc bricht eine laufende Aufgabe ab.',
 			language: 'Sprache',
 			languagePlaceholder: 'Auto (z. B. en, tr)',
 			test: 'Stimme testen',

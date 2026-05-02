@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { saveSession } from '@/lib/db'
 import { useT } from '@/lib/i18n'
+import { PTT_KEY_CODE } from '@/lib/shortcuts'
 import { type MicPermissionState, queryMicPermission } from '@/voice/micPermission'
 
 import { modelSupportsImages } from '../../agent/providers'
@@ -230,7 +231,7 @@ export default function App() {
 		reportVoiceError,
 	])
 
-	// Push-to-talk: start on key/message down, stop + submit on up. Guarded against
+	// Push-to-talk: start on press, stop + submit on release. Guarded against
 	// auto-repeat via pttActiveRef so a held key starts capture exactly once.
 	const startPtt = useCallback(() => {
 		if (pttActiveRef.current) return
@@ -248,22 +249,19 @@ export default function App() {
 		stopListening().then(submitTranscript).catch(reportVoiceError)
 	}, [stopListening, submitTranscript, reportVoiceError])
 
-	// Hold-to-talk while the side panel itself has focus.
-	const holdKey = config?.voiceConfig?.holdKey
-	const pushToTalk = voiceEnabled && (config?.voiceConfig?.pushToTalk ?? false)
+	// Hold-to-talk on the configured key (` / Backquote) while the side panel
+	// itself has focus.
 	useEffect(() => {
-		if (!pushToTalk || !holdKey) return
+		if (!voiceEnabled) return
 		const onKeyDown = (e: KeyboardEvent) => {
-			if (e.key === holdKey && !e.repeat) {
-				e.preventDefault()
-				startPtt()
-			}
+			if (e.code !== PTT_KEY_CODE || e.repeat) return
+			e.preventDefault()
+			startPtt()
 		}
 		const onKeyUp = (e: KeyboardEvent) => {
-			if (e.key === holdKey) {
-				e.preventDefault()
-				stopPtt()
-			}
+			if (e.code !== PTT_KEY_CODE) return
+			e.preventDefault()
+			stopPtt()
 		}
 		window.addEventListener('keydown', onKeyDown)
 		window.addEventListener('keyup', onKeyUp)
@@ -271,11 +269,12 @@ export default function App() {
 			window.removeEventListener('keydown', onKeyDown)
 			window.removeEventListener('keyup', onKeyUp)
 		}
-	}, [pushToTalk, holdKey, startPtt, stopPtt])
+	}, [voiceEnabled, startPtt, stopPtt])
 
-	// Hold-to-talk bridged from the page via the content script.
+	// Hold-to-talk bridged from the page via the content script, so it works
+	// while the user is looking at the page rather than the panel.
 	useEffect(() => {
-		if (!pushToTalk) return
+		if (!voiceEnabled) return
 		const onMessage = (message: unknown) => {
 			const type = (message as { type?: unknown })?.type
 			if (type === 'VOICE_PTT_DOWN') startPtt()
@@ -283,23 +282,26 @@ export default function App() {
 		}
 		chrome.runtime.onMessage.addListener(onMessage)
 		return () => chrome.runtime.onMessage.removeListener(onMessage)
-	}, [pushToTalk, startPtt, stopPtt])
+	}, [voiceEnabled, startPtt, stopPtt])
 
-	// Cancel-action shortcut: the background relays the keyboard command as a
-	// runtime message so it works regardless of which document holds focus.
+	// Cancel-action shortcut (Esc). Only active while a task is running so it
+	// never hijacks the page's or panel's normal Escape handling otherwise.
+	// In-panel Esc is handled here; page Esc is relayed by the content script.
 	useEffect(() => {
-		const onMessage = (message: unknown) => {
-			if (
-				typeof message === 'object' &&
-				message !== null &&
-				(message as { type?: unknown }).type === 'CANCEL_ACTION'
-			) {
-				handleStop()
-			}
+		if (status !== 'running') return
+		const onKeyDown = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') handleStop()
 		}
+		const onMessage = (message: unknown) => {
+			if ((message as { type?: unknown })?.type === 'CANCEL_ACTION') handleStop()
+		}
+		window.addEventListener('keydown', onKeyDown)
 		chrome.runtime.onMessage.addListener(onMessage)
-		return () => chrome.runtime.onMessage.removeListener(onMessage)
-	}, [handleStop])
+		return () => {
+			window.removeEventListener('keydown', onKeyDown)
+			chrome.runtime.onMessage.removeListener(onMessage)
+		}
+	}, [status, handleStop])
 
 	const handleNewChat = useCallback(() => {
 		newChat()

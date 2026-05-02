@@ -111,7 +111,7 @@ export const ptPT: TranslationSchema = {
 			description:
 				'Fale com o agente e ouça as suas respostas. Escolha fornecedores de voz para texto e texto para voz; a Web Speech API funciona sem chave API.',
 			enabled: 'Ativar modo de voz',
-			enabledHelp: 'Mostrar o botão do microfone e ativar premir para falar.',
+			enabledHelp: 'Mostrar o botão do microfone e ativar o atalho de voz.',
 			micAccess: 'Acesso ao microfone',
 			micAccessHelp:
 				'A entrada de voz precisa do microfone. Conceda-o aqui: o painel lateral não o pode pedir diretamente.',
@@ -132,11 +132,9 @@ export const ptPT: TranslationSchema = {
 			apiKey: 'Chave API',
 			reusingChatKey: 'A reutilizar a chave API do seu fornecedor de chat.',
 			autoSpeak: 'Ler as respostas em voz alta',
-			pushToTalk: 'Manter premido para falar',
-			pushToTalkHelp: 'Mantenha uma tecla para gravar; solte para enviar.',
-			holdKey: 'Tecla a manter',
-			holdKeyHelp:
-				'Tecla a manter premida enquanto fala (ex. Alt). Funciona na página e no painel.',
+			shortcut: 'Atalho de voz',
+			shortcutHelp:
+				'Mantenha a tecla ` (acima do Tab) para falar; solte para enviar. Prima Esc para cancelar uma tarefa em curso.',
 			language: 'Idioma',
 			languagePlaceholder: 'Auto (ex. en, tr)',
 			test: 'Testar voz',

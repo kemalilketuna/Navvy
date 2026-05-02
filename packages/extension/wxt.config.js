@@ -65,13 +65,6 @@ export default defineConfig({
 					mac: 'Command+E',
 				},
 			},
-			cancel_action: {
-				suggested_key: {
-					default: 'Ctrl+Shift+X',
-					mac: 'Command+Shift+X',
-				},
-				description: '__MSG_cmdCancelAction__',
-			},
 		},
 		web_accessible_resources: [
 			{

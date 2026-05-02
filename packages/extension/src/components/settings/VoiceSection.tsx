@@ -389,32 +389,15 @@ export function VoiceSection({ value, onChange, llm }: VoiceSectionProps) {
 								onCheckedChange={(autoSpeakResponses) => update({ autoSpeakResponses })}
 							/>
 						</label>
-						<label className="flex items-center justify-between gap-4">
+						<div className="flex items-center justify-between gap-4">
 							<div className="flex flex-col gap-0.5">
-								<span className="text-sm">{t('ext.voice.pushToTalk')}</span>
-								<span className="text-xs text-muted-foreground">
-									{t('ext.voice.pushToTalkHelp')}
-								</span>
+								<span className="text-sm">{t('ext.voice.shortcut')}</span>
+								<span className="text-xs text-muted-foreground">{t('ext.voice.shortcutHelp')}</span>
 							</div>
-							<Switch
-								checked={value.pushToTalk}
-								onCheckedChange={(pushToTalk) => update({ pushToTalk })}
-							/>
-						</label>
-						{value.pushToTalk && (
-							<div className="flex flex-col gap-1.5">
-								<label className="text-xs font-medium text-muted-foreground">
-									{t('ext.voice.holdKey')}
-								</label>
-								<Input
-									value={value.holdKey}
-									onChange={(e) => update({ holdKey: e.target.value })}
-									placeholder="Alt"
-									className="h-9 text-sm font-mono max-w-40"
-								/>
-								<p className="text-xs text-muted-foreground">{t('ext.voice.holdKeyHelp')}</p>
-							</div>
-						)}
+							<kbd className="shrink-0 rounded border border-border bg-muted px-2 py-1 font-mono text-sm">
+								`
+							</kbd>
+						</div>
 						<div className="flex flex-col gap-1.5">
 							<label className="text-xs font-medium text-muted-foreground">
 								{t('ext.voice.language')}

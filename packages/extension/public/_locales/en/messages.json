@@ -7,8 +7,5 @@
     },
     "extActionTitle": {
         "message": "Open Navvy"
-    },
-    "cmdCancelAction": {
-        "message": "Cancel the running action"
     }
 }

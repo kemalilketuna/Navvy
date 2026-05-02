@@ -14,7 +14,7 @@ describe('normalizeVoiceConfig', () => {
 		expect(result.enabled).toBe(true)
 		expect(result.ttsProviderKey).toBe('elevenlabs')
 		expect(result.sttProviderKey).toBe(DEFAULT_VOICE_CONFIG.sttProviderKey)
-		expect(result.holdKey).toBe(DEFAULT_VOICE_CONFIG.holdKey)
+		expect(result.voice).toBe(DEFAULT_VOICE_CONFIG.voice)
 	})
 
 	it('clones apiKeys so callers cannot mutate the source object', () => {
