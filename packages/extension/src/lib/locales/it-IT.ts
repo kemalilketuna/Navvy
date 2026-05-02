@@ -64,6 +64,7 @@ export const itIT: TranslationSchema = {
 			micDenied:
 				"L'accesso al microfono è bloccato. Abilitalo nelle impostazioni del sito del browser per questa estensione, poi ricarica.",
 			micCheck: 'Controlla di nuovo',
+			missingKey: 'Aggiungi una chiave API per i provider vocali selezionati per salvare.',
 			sttHeading: 'Voce in testo',
 			ttsHeading: 'Testo in voce',
 			interactionHeading: 'Interazione',

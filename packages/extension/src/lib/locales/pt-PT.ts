@@ -65,6 +65,7 @@ export const ptPT: TranslationSchema = {
 			micDenied:
 				'O acesso ao microfone está bloqueado. Ative-o nas definições do site do navegador para esta extensão e recarregue.',
 			micCheck: 'Verificar novamente',
+			missingKey: 'Adicione uma chave API para os fornecedores de voz selecionados para guardar.',
 			sttHeading: 'Voz para texto',
 			ttsHeading: 'Texto para voz',
 			interactionHeading: 'Interação',

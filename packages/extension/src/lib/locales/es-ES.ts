@@ -64,6 +64,7 @@ export const esES: TranslationSchema = {
 			micDenied:
 				'El acceso al micrófono está bloqueado. Actívalo en los ajustes del sitio del navegador para esta extensión y recarga.',
 			micCheck: 'Comprobar de nuevo',
+			missingKey: 'Añade una clave API para los proveedores de voz seleccionados para guardar.',
 			sttHeading: 'Voz a texto',
 			ttsHeading: 'Texto a voz',
 			interactionHeading: 'Interacción',
