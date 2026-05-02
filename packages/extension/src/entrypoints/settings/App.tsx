@@ -13,7 +13,7 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 
 import { type ExtConfig, loadConfig, saveConfig } from '@/agent/configStore'
-import { type LLMProfile, isProfileComplete, resolveBaseURL } from '@/agent/profiles'
+import { isProviderConfigComplete, resolveBaseURL } from '@/agent/providers'
 import { isVoiceConfigComplete } from '@/agent/voiceProviders'
 import { AboutSection } from '@/components/settings/AboutSection'
 import { AdvancedSection } from '@/components/settings/AdvancedSection'
@@ -77,18 +77,16 @@ export default function App() {
 		return JSON.stringify(config) !== JSON.stringify(draft)
 	}, [config, draft])
 
-	const activeProfileComplete = useMemo(() => {
+	const providerConfigComplete = useMemo(() => {
 		if (!draft) return true
-		const active = draft.profiles.find((p) => p.id === draft.activeProfileId) ?? draft.profiles[0]
-		return active ? isProfileComplete(active) : false
+		return isProviderConfigComplete(draft)
 	}, [draft])
 
 	const voiceConfigComplete = useMemo(() => {
 		if (!draft) return true
-		const active = draft.profiles.find((p) => p.id === draft.activeProfileId) ?? draft.profiles[0]
 		return isVoiceConfigComplete(draft.voiceConfig, {
-			baseURL: active ? resolveBaseURL(active) : '',
-			apiKey: active?.apiKey,
+			baseURL: resolveBaseURL(draft),
+			apiKey: draft.apiKey,
 		})
 	}, [draft])
 
@@ -229,12 +227,7 @@ export default function App() {
 						/>
 					</TabsContent>
 					<TabsContent value="providers">
-						<ProvidersSection
-							profiles={draft.profiles}
-							activeProfileId={draft.activeProfileId}
-							onProfilesChange={(profiles: LLMProfile[]) => patch({ profiles })}
-							onActiveProfileChange={(activeProfileId) => patch({ activeProfileId })}
-						/>
+						<ProvidersSection config={draft} onChange={(c) => patch(c)} />
 					</TabsContent>
 					<TabsContent value="masking">
 						<MaskingSection
@@ -246,14 +239,7 @@ export default function App() {
 						<VoiceSection
 							value={draft.voiceConfig}
 							onChange={(voiceConfig) => patch({ voiceConfig })}
-							llm={{
-								baseURL: resolveBaseURL(
-									draft.profiles.find((p) => p.id === draft.activeProfileId) ?? draft.profiles[0]
-								),
-								apiKey: (
-									draft.profiles.find((p) => p.id === draft.activeProfileId) ?? draft.profiles[0]
-								)?.apiKey,
-							}}
+							llm={{ baseURL: resolveBaseURL(draft), apiKey: draft.apiKey }}
 						/>
 					</TabsContent>
 					<TabsContent value="skills">
@@ -261,15 +247,9 @@ export default function App() {
 							skills={draft.skills}
 							onChange={(skills) => patch({ skills })}
 							llm={{
-								baseURL: resolveBaseURL(
-									draft.profiles.find((p) => p.id === draft.activeProfileId) ?? draft.profiles[0]
-								),
-								model: (
-									draft.profiles.find((p) => p.id === draft.activeProfileId) ?? draft.profiles[0]
-								)?.model,
-								apiKey: (
-									draft.profiles.find((p) => p.id === draft.activeProfileId) ?? draft.profiles[0]
-								)?.apiKey,
+								baseURL: resolveBaseURL(draft),
+								model: draft.model,
+								apiKey: draft.apiKey,
 								disableNamedToolChoice: draft.disableNamedToolChoice,
 							}}
 						/>
@@ -308,7 +288,7 @@ export default function App() {
 							</Button>
 							<Button
 								onClick={handleSave}
-								disabled={saving || !activeProfileComplete || !voiceConfigComplete}
+								disabled={saving || !providerConfigComplete || !voiceConfigComplete}
 							>
 								{saving ? <Loader2 className="size-4 animate-spin" /> : t('ext.config.save')}
 							</Button>

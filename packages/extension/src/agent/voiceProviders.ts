@@ -25,7 +25,7 @@ export interface VoiceProvider {
 	baseURL?: string
 	requiresApiKey: boolean
 	/**
-	 * OpenAI-compatible: if the active chat profile points at the same provider,
+	 * OpenAI-compatible: if the chat provider points at the same endpoint,
 	 * its API key can be reused when no voice-specific key is set.
 	 */
 	reusesLlmCredentials?: boolean

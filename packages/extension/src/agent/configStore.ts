@@ -5,7 +5,12 @@ import { type VoiceConfig, normalizeVoiceConfig } from '@/voice/types'
 import { type ExtensionLanguage } from './MultiPageAgent'
 import { DEMO_CONFIG, migrateLegacyEndpoint } from './constants'
 import { type MaskingEntry } from './masking'
-import { type LLMProfile, buildProfilesState, resolveBaseURL } from './profiles'
+import {
+	type ProviderConfig,
+	detectProvider,
+	extractCloudflareAccountId,
+	resolveBaseURL,
+} from './providers'
 import { type Skill } from './skills'
 
 export type LanguagePreference = ExtensionLanguage | undefined
@@ -21,11 +26,9 @@ export interface AdvancedConfig {
 	disableNamedToolChoice?: boolean
 }
 
-export interface ExtConfig extends LLMConfig, AdvancedConfig {
+export interface ExtConfig extends ProviderConfig, AdvancedConfig {
 	language?: LanguagePreference
 	responseLanguage: ResponseLanguage
-	profiles: LLMProfile[]
-	activeProfileId: string
 	/** Locally-stored saved data / masking entries. @see masking.ts */
 	maskingEntries: MaskingEntry[]
 	/** Voice conversation settings (UI-only; not passed to core). @see voice/types.ts */
@@ -50,56 +53,54 @@ function normalizeResponseLanguage(raw: unknown): ResponseLanguage {
 	return 'auto'
 }
 
+/** Seed a provider config from a bare LLMConfig, inferring the provider preset. */
+function providerConfigFromLlm(llm: LLMConfig): ProviderConfig {
+	const providerKey = detectProvider(llm.baseURL)
+	const accountId =
+		providerKey === 'cloudflare' ? extractCloudflareAccountId(llm.baseURL) : undefined
+	return {
+		providerKey,
+		baseURL: llm.baseURL,
+		model: llm.model,
+		apiKey: llm.apiKey,
+		...(accountId !== undefined ? { accountId } : {}),
+	}
+}
+
+function normalizeProviderConfig(raw: unknown): ProviderConfig {
+	if (!raw || typeof raw !== 'object') return providerConfigFromLlm(DEMO_CONFIG)
+	const stored = raw as ProviderConfig
+	return { ...stored, baseURL: migrateLegacyEndpoint(stored).baseURL }
+}
+
 export async function loadConfig(): Promise<ExtConfig> {
 	const result = await chrome.storage.local.get([
-		'llmConfig',
+		'providerConfig',
 		'language',
 		'responseLanguage',
 		'advancedConfig',
-		'llmProfiles',
-		'activeProfileId',
 		'maskingEntries',
 		'voiceConfig',
 		'skills',
 	])
 
-	let legacyLlm = (result.llmConfig as LLMConfig) ?? DEMO_CONFIG
+	const providerConfig = normalizeProviderConfig(result.providerConfig)
+	if (!result.providerConfig) {
+		await chrome.storage.local.set({ providerConfig })
+	}
+
 	const language = (result.language as ExtensionLanguage) || undefined
 	const responseLanguage = normalizeResponseLanguage(result.responseLanguage)
 	const advancedConfig = (result.advancedConfig as AdvancedConfig) ?? {}
-
-	const migrated = migrateLegacyEndpoint(legacyLlm)
-	if (migrated !== legacyLlm) {
-		legacyLlm = migrated
-		await chrome.storage.local.set({ llmConfig: migrated })
-	} else if (!result.llmConfig) {
-		await chrome.storage.local.set({ llmConfig: DEMO_CONFIG })
-	}
-
-	const { profiles, activeProfileId } = buildProfilesState(
-		result.llmProfiles as LLMProfile[] | undefined,
-		result.activeProfileId as string | undefined,
-		legacyLlm
-	)
-
-	if (!result.llmProfiles || !result.activeProfileId) {
-		await chrome.storage.local.set({ llmProfiles: profiles, activeProfileId })
-	}
-
-	const active = profiles.find((p) => p.id === activeProfileId) ?? profiles[0]
 	const maskingEntries = (result.maskingEntries as MaskingEntry[]) ?? []
 	const voiceConfig = normalizeVoiceConfig(result.voiceConfig)
 	const skills = (result.skills as Skill[]) ?? []
 
 	return {
-		baseURL: resolveBaseURL(active),
-		model: active.model,
-		apiKey: active.apiKey,
+		...providerConfig,
 		...advancedConfig,
 		language,
 		responseLanguage,
-		profiles,
-		activeProfileId: active.id,
 		maskingEntries,
 		voiceConfig,
 		skills,
@@ -108,6 +109,12 @@ export async function loadConfig(): Promise<ExtConfig> {
 
 export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 	const {
+		providerKey,
+		baseURL,
+		model,
+		apiKey,
+		accountId,
+		savedCredentials,
 		language,
 		responseLanguage,
 		maxSteps,
@@ -115,25 +122,21 @@ export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 		experimentalLlmsTxt,
 		experimentalIncludeAllTabs,
 		disableNamedToolChoice,
-		profiles,
-		activeProfileId,
 		maskingEntries,
 		voiceConfig,
 		skills,
 	} = config
 
-	const active = profiles.find((p) => p.id === activeProfileId) ?? profiles[0]
-	const llmConfig: LLMConfig = {
-		baseURL: resolveBaseURL(active),
-		model: active.model,
-		apiKey: active.apiKey,
+	const providerConfig: ProviderConfig = {
+		providerKey,
+		baseURL,
+		model,
+		apiKey,
+		...(accountId !== undefined ? { accountId } : {}),
+		...(savedCredentials !== undefined ? { savedCredentials } : {}),
 	}
+	await chrome.storage.local.set({ providerConfig })
 
-	await chrome.storage.local.set({
-		llmConfig,
-		llmProfiles: profiles,
-		activeProfileId: active.id,
-	})
 	if (language) {
 		await chrome.storage.local.set({ language })
 	} else {
@@ -144,6 +147,7 @@ export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 	} else {
 		await chrome.storage.local.remove('responseLanguage')
 	}
+
 	const advancedConfig: AdvancedConfig = {
 		maxSteps,
 		systemInstruction,
@@ -158,14 +162,21 @@ export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 	await chrome.storage.local.set({ skills: skills ?? [] })
 
 	return {
-		...llmConfig,
+		...providerConfig,
 		...advancedConfig,
 		language,
 		responseLanguage,
-		profiles,
-		activeProfileId: active.id,
 		maskingEntries: maskingEntries ?? [],
 		voiceConfig: normalizedVoice,
 		skills: skills ?? [],
+	}
+}
+
+/** Runtime LLM credentials for the active provider, with Cloudflare baseURL synthesis applied. */
+export function toLlmConfig(config: ProviderConfig): LLMConfig {
+	return {
+		baseURL: resolveBaseURL(config),
+		model: config.model,
+		apiKey: config.apiKey,
 	}
 }
