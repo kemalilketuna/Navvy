@@ -345,6 +345,7 @@ export default function App() {
 					baseURL: config?.baseURL ?? '',
 					model: config?.model,
 					apiKey: config?.apiKey,
+					disableNamedToolChoice: config?.disableNamedToolChoice,
 				}}
 			/>
 		)
