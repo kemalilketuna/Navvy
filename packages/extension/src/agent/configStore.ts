@@ -1,5 +1,6 @@
 import type { LLMConfig } from '@page-agent/llms'
 
+import { decryptString, encryptString, isEncrypted } from '@/lib/crypto'
 import { type VoiceConfig, normalizeVoiceConfig } from '@/voice/types'
 
 import { type ExtensionLanguage } from './MultiPageAgent'
@@ -7,6 +8,7 @@ import { DEMO_CONFIG, migrateLegacyEndpoint } from './constants'
 import { type MaskingEntry } from './masking'
 import {
 	type ProviderConfig,
+	type ProviderKey,
 	detectProvider,
 	extractCloudflareAccountId,
 	resolveBaseURL,
@@ -73,6 +75,90 @@ function normalizeProviderConfig(raw: unknown): ProviderConfig {
 	return { ...stored, baseURL: migrateLegacyEndpoint(stored).baseURL }
 }
 
+// --- At-rest encryption of secrets (see lib/crypto.ts) -----------------------
+// Only secret fields are wrapped; provider/model/baseURL stay readable so stored
+// config remains debuggable. Runtime config is always plaintext: encryption
+// lives entirely at the chrome.storage.local boundary.
+
+/** Decrypt a stored secret, degrading to undefined (not crashing) if the key is gone. */
+async function safeDecrypt(value: string | undefined): Promise<string | undefined> {
+	if (value == null) return value
+	try {
+		return await decryptString(value)
+	} catch (e) {
+		console.warn('[configStore] could not decrypt a stored secret; treating it as unset', e)
+		return undefined
+	}
+}
+
+async function encryptProviderConfig(c: ProviderConfig): Promise<ProviderConfig> {
+	const out: ProviderConfig = { ...c }
+	if (c.apiKey) out.apiKey = await encryptString(c.apiKey)
+	if (c.savedCredentials) {
+		const sc: NonNullable<ProviderConfig['savedCredentials']> = {}
+		for (const [k, v] of Object.entries(c.savedCredentials)) {
+			sc[k as ProviderKey] = v?.apiKey ? { ...v, apiKey: await encryptString(v.apiKey) } : v
+		}
+		out.savedCredentials = sc
+	}
+	return out
+}
+
+async function decryptProviderConfig(c: ProviderConfig): Promise<ProviderConfig> {
+	const out: ProviderConfig = { ...c, apiKey: await safeDecrypt(c.apiKey) }
+	if (c.savedCredentials) {
+		const sc: NonNullable<ProviderConfig['savedCredentials']> = {}
+		for (const [k, v] of Object.entries(c.savedCredentials)) {
+			sc[k as ProviderKey] = v?.apiKey ? { ...v, apiKey: await safeDecrypt(v.apiKey) } : v
+		}
+		out.savedCredentials = sc
+	}
+	return out
+}
+
+async function encryptVoiceConfig(v: VoiceConfig): Promise<VoiceConfig> {
+	const apiKeys: VoiceConfig['apiKeys'] = {}
+	for (const [k, val] of Object.entries(v.apiKeys)) {
+		if (val) apiKeys[k as keyof VoiceConfig['apiKeys']] = await encryptString(val)
+	}
+	return { ...v, apiKeys }
+}
+
+async function decryptVoiceConfig(v: VoiceConfig): Promise<VoiceConfig> {
+	const apiKeys: VoiceConfig['apiKeys'] = {}
+	for (const [k, val] of Object.entries(v.apiKeys)) {
+		const dec = await safeDecrypt(val)
+		if (dec) apiKeys[k as keyof VoiceConfig['apiKeys']] = dec
+	}
+	return { ...v, apiKeys }
+}
+
+function encryptMaskingEntries(entries: MaskingEntry[]): Promise<MaskingEntry[]> {
+	return Promise.all(
+		entries.map(async (e) => ({ ...e, value: e.value ? await encryptString(e.value) : e.value }))
+	)
+}
+
+function decryptMaskingEntries(entries: MaskingEntry[]): Promise<MaskingEntry[]> {
+	return Promise.all(
+		entries.map(async (e) => ({ ...e, value: (await safeDecrypt(e.value)) ?? '' }))
+	)
+}
+
+/** True if any stored secret is still legacy plaintext and should be re-saved encrypted. */
+function hasPlaintextSecret(rawProvider: unknown, rawVoice: unknown, rawMasking: unknown): boolean {
+	const plain = (s: unknown): boolean => typeof s === 'string' && s.length > 0 && !isEncrypted(s)
+	const p = rawProvider as ProviderConfig | undefined
+	if (p) {
+		if (plain(p.apiKey)) return true
+		for (const v of Object.values(p.savedCredentials ?? {})) if (plain(v?.apiKey)) return true
+	}
+	const vc = rawVoice as VoiceConfig | undefined
+	for (const v of Object.values(vc?.apiKeys ?? {})) if (plain(v)) return true
+	for (const e of (rawMasking as MaskingEntry[] | undefined) ?? []) if (plain(e.value)) return true
+	return false
+}
+
 export async function loadConfig(): Promise<ExtConfig> {
 	const result = await chrome.storage.local.get([
 		'providerConfig',
@@ -84,17 +170,28 @@ export async function loadConfig(): Promise<ExtConfig> {
 		'skills',
 	])
 
-	const providerConfig = normalizeProviderConfig(result.providerConfig)
+	const providerConfig = await decryptProviderConfig(normalizeProviderConfig(result.providerConfig))
 	if (!result.providerConfig) {
-		await chrome.storage.local.set({ providerConfig })
+		await chrome.storage.local.set({ providerConfig: await encryptProviderConfig(providerConfig) })
 	}
 
 	const language = (result.language as ExtensionLanguage) || undefined
 	const responseLanguage = normalizeResponseLanguage(result.responseLanguage)
 	const advancedConfig = (result.advancedConfig as AdvancedConfig) ?? {}
-	const maskingEntries = (result.maskingEntries as MaskingEntry[]) ?? []
-	const voiceConfig = normalizeVoiceConfig(result.voiceConfig)
+	const maskingEntries = await decryptMaskingEntries(
+		(result.maskingEntries as MaskingEntry[]) ?? []
+	)
+	const voiceConfig = await decryptVoiceConfig(normalizeVoiceConfig(result.voiceConfig))
 	const skills = (result.skills as Skill[]) ?? []
+
+	// One-time migration: re-store any legacy plaintext secrets as ciphertext.
+	if (hasPlaintextSecret(result.providerConfig, result.voiceConfig, result.maskingEntries)) {
+		await chrome.storage.local.set({
+			providerConfig: await encryptProviderConfig(providerConfig),
+			voiceConfig: await encryptVoiceConfig(voiceConfig),
+			maskingEntries: await encryptMaskingEntries(maskingEntries),
+		})
+	}
 
 	return {
 		...providerConfig,
@@ -135,7 +232,7 @@ export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 		...(accountId !== undefined ? { accountId } : {}),
 		...(savedCredentials !== undefined ? { savedCredentials } : {}),
 	}
-	await chrome.storage.local.set({ providerConfig })
+	await chrome.storage.local.set({ providerConfig: await encryptProviderConfig(providerConfig) })
 
 	if (language) {
 		await chrome.storage.local.set({ language })
@@ -156,9 +253,11 @@ export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 		disableNamedToolChoice,
 	}
 	await chrome.storage.local.set({ advancedConfig })
-	await chrome.storage.local.set({ maskingEntries: maskingEntries ?? [] })
+	await chrome.storage.local.set({
+		maskingEntries: await encryptMaskingEntries(maskingEntries ?? []),
+	})
 	const normalizedVoice = normalizeVoiceConfig(voiceConfig)
-	await chrome.storage.local.set({ voiceConfig: normalizedVoice })
+	await chrome.storage.local.set({ voiceConfig: await encryptVoiceConfig(normalizedVoice) })
 	await chrome.storage.local.set({ skills: skills ?? [] })
 
 	return {
