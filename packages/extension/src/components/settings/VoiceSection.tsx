@@ -1,6 +1,7 @@
 import { CheckCircle2, ExternalLink, Eye, EyeOff, Loader2, Mic, XCircle } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 
+import { LANGUAGE_NAMES } from '@/agent/MultiPageAgent'
 import {
 	STT_PROVIDERS,
 	TTS_PROVIDERS,
@@ -71,6 +72,20 @@ export function VoiceSection({ value, onChange, llm }: VoiceSectionProps) {
 		| { status: 'success' }
 		| { status: 'error'; message: string }
 	>({ status: 'idle' })
+
+	// Auto + the languages the extension supports, as base ISO-639-1 codes so the
+	// hint is accepted by network STT (OpenAI/ElevenLabs want ISO-639-1) and works
+	// for Web Speech too.
+	const languageOptions = useMemo(
+		() => [
+			{ value: '', label: t('ext.settings.languageAuto') },
+			...Object.entries(LANGUAGE_NAMES).map(([code, name]) => ({
+				value: code.split('-')[0],
+				label: name,
+			})),
+		],
+		[t]
+	)
 
 	const sttProvider = VOICE_PROVIDERS_BY_KEY[value.sttProviderKey]
 	const ttsProvider = VOICE_PROVIDERS_BY_KEY[value.ttsProviderKey]
@@ -279,11 +294,11 @@ export function VoiceSection({ value, onChange, llm }: VoiceSectionProps) {
 							<label className="text-xs font-medium text-muted-foreground">
 								{t('ext.voice.language')}
 							</label>
-							<Input
+							<Select
 								value={value.language ?? ''}
-								onChange={(e) => update({ language: e.target.value || undefined })}
-								placeholder={t('ext.voice.languagePlaceholder')}
-								className="h-9 text-sm max-w-40"
+								onChange={(next) => update({ language: next || undefined })}
+								options={languageOptions}
+								className="max-w-40"
 							/>
 						</div>
 					</div>
