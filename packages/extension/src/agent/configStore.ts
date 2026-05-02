@@ -1,5 +1,7 @@
 import type { LLMConfig } from '@page-agent/llms'
 
+import { type VoiceConfig, normalizeVoiceConfig } from '@/voice/types'
+
 import { type ExtensionLanguage } from './MultiPageAgent'
 import { DEMO_CONFIG, migrateLegacyEndpoint } from './constants'
 import { type MaskingEntry } from './masking'
@@ -25,6 +27,8 @@ export interface ExtConfig extends LLMConfig, AdvancedConfig {
 	activeProfileId: string
 	/** Locally-stored saved data / masking entries. @see masking.ts */
 	maskingEntries: MaskingEntry[]
+	/** Voice conversation settings (UI-only; not passed to core). @see voice/types.ts */
+	voiceConfig: VoiceConfig
 }
 
 function normalizeResponseLanguage(raw: unknown): ResponseLanguage {
@@ -52,6 +56,7 @@ export async function loadConfig(): Promise<ExtConfig> {
 		'llmProfiles',
 		'activeProfileId',
 		'maskingEntries',
+		'voiceConfig',
 	])
 
 	let legacyLlm = (result.llmConfig as LLMConfig) ?? DEMO_CONFIG
@@ -79,6 +84,7 @@ export async function loadConfig(): Promise<ExtConfig> {
 
 	const active = profiles.find((p) => p.id === activeProfileId) ?? profiles[0]
 	const maskingEntries = (result.maskingEntries as MaskingEntry[]) ?? []
+	const voiceConfig = normalizeVoiceConfig(result.voiceConfig)
 
 	return {
 		baseURL: resolveBaseURL(active),
@@ -90,6 +96,7 @@ export async function loadConfig(): Promise<ExtConfig> {
 		profiles,
 		activeProfileId: active.id,
 		maskingEntries,
+		voiceConfig,
 	}
 }
 
@@ -105,6 +112,7 @@ export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 		profiles,
 		activeProfileId,
 		maskingEntries,
+		voiceConfig,
 	} = config
 
 	const active = profiles.find((p) => p.id === activeProfileId) ?? profiles[0]
@@ -138,6 +146,8 @@ export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 	}
 	await chrome.storage.local.set({ advancedConfig })
 	await chrome.storage.local.set({ maskingEntries: maskingEntries ?? [] })
+	const normalizedVoice = normalizeVoiceConfig(voiceConfig)
+	await chrome.storage.local.set({ voiceConfig: normalizedVoice })
 
 	return {
 		...llmConfig,
@@ -147,5 +157,6 @@ export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 		profiles,
 		activeProfileId: active.id,
 		maskingEntries: maskingEntries ?? [],
+		voiceConfig: normalizedVoice,
 	}
 }

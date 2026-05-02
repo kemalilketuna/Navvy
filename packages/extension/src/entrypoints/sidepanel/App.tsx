@@ -48,7 +48,20 @@ export default function App() {
 	const historyRef = useRef<HTMLDivElement>(null)
 	const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-	const { status, history, activity, currentTask, config, execute, stop, newChat } = useAgent()
+	const {
+		status,
+		history,
+		activity,
+		currentTask,
+		config,
+		execute,
+		stop,
+		newChat,
+		voiceEnabled,
+		voiceState,
+		startListening,
+		stopListening,
+	} = useAgent()
 
 	const supportsImages = useMemo(() => {
 		if (!config) return false
@@ -110,6 +123,82 @@ export default function App() {
 		console.log('[SidePanel] Stopping task...')
 		stop()
 	}, [stop])
+
+	// --- Voice ---
+
+	const pttActiveRef = useRef(false)
+
+	const submitTranscript = useCallback(
+		(text: string) => {
+			const normalized = text.trim()
+			if (normalized) runTask(normalized)
+		},
+		[runTask]
+	)
+
+	// Composer mic button: toggle capture; auto-submit the transcript on stop.
+	const handleMicToggle = useCallback(() => {
+		if (voiceState === 'recording') {
+			stopListening()
+				.then(submitTranscript)
+				.catch((err) => console.error('[SidePanel] Transcription failed:', err))
+		} else {
+			startListening()
+		}
+	}, [voiceState, stopListening, startListening, submitTranscript])
+
+	// Push-to-talk: start on key/message down, stop + submit on up. Guarded against
+	// auto-repeat via pttActiveRef so a held key starts capture exactly once.
+	const startPtt = useCallback(() => {
+		if (pttActiveRef.current) return
+		pttActiveRef.current = true
+		startListening()
+	}, [startListening])
+
+	const stopPtt = useCallback(() => {
+		if (!pttActiveRef.current) return
+		pttActiveRef.current = false
+		stopListening()
+			.then(submitTranscript)
+			.catch((err) => console.error('[SidePanel] Transcription failed:', err))
+	}, [stopListening, submitTranscript])
+
+	// Hold-to-talk while the side panel itself has focus.
+	const holdKey = config?.voiceConfig?.holdKey
+	const pushToTalk = voiceEnabled && (config?.voiceConfig?.pushToTalk ?? false)
+	useEffect(() => {
+		if (!pushToTalk || !holdKey) return
+		const onKeyDown = (e: KeyboardEvent) => {
+			if (e.key === holdKey && !e.repeat) {
+				e.preventDefault()
+				startPtt()
+			}
+		}
+		const onKeyUp = (e: KeyboardEvent) => {
+			if (e.key === holdKey) {
+				e.preventDefault()
+				stopPtt()
+			}
+		}
+		window.addEventListener('keydown', onKeyDown)
+		window.addEventListener('keyup', onKeyUp)
+		return () => {
+			window.removeEventListener('keydown', onKeyDown)
+			window.removeEventListener('keyup', onKeyUp)
+		}
+	}, [pushToTalk, holdKey, startPtt, stopPtt])
+
+	// Hold-to-talk bridged from the page via the content script.
+	useEffect(() => {
+		if (!pushToTalk) return
+		const onMessage = (message: unknown) => {
+			const type = (message as { type?: unknown })?.type
+			if (type === 'VOICE_PTT_DOWN') startPtt()
+			else if (type === 'VOICE_PTT_UP') stopPtt()
+		}
+		chrome.runtime.onMessage.addListener(onMessage)
+		return () => chrome.runtime.onMessage.removeListener(onMessage)
+	}, [pushToTalk, startPtt, stopPtt])
 
 	// Cancel-action shortcut: the background relays the keyboard command as a
 	// runtime message so it works regardless of which document holds focus.
@@ -247,6 +336,9 @@ export default function App() {
 				attachments={attachments}
 				onAttachmentsChange={setAttachments}
 				modelSupportsImages={supportsImages}
+				voiceEnabled={voiceEnabled}
+				voiceState={voiceState}
+				onMicToggle={handleMicToggle}
 			/>
 		</div>
 	)
