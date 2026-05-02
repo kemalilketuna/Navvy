@@ -1,8 +1,9 @@
 import type { TaskAttachment } from '@page-agent/core'
-import { ArrowUp, Camera, ImagePlus, Mic, Plus, Square, X } from 'lucide-react'
+import { ArrowUp, Camera, ImagePlus, Loader2, Mic, Plus, Square, X } from 'lucide-react'
 import { type ChangeEvent, type KeyboardEvent, forwardRef, useRef } from 'react'
 import { toast } from 'sonner'
 
+import type { VoiceState } from '@/agent/useAgent'
 import { Button } from '@/components/ui/button'
 import {
 	DropdownMenu,
@@ -23,6 +24,9 @@ interface ComposerProps {
 	readonly attachments: TaskAttachment[]
 	readonly onAttachmentsChange: (next: TaskAttachment[]) => void
 	readonly modelSupportsImages: boolean
+	readonly voiceEnabled: boolean
+	readonly voiceState: VoiceState
+	readonly onMicToggle: () => void
 }
 
 async function captureActiveTab(): Promise<string> {
@@ -49,6 +53,9 @@ export const Composer = forwardRef<HTMLTextAreaElement, ComposerProps>(function 
 		attachments,
 		onAttachmentsChange,
 		modelSupportsImages,
+		voiceEnabled,
+		voiceState,
+		onMicToggle,
 	},
 	ref
 ) {
@@ -108,6 +115,16 @@ export const Composer = forwardRef<HTMLTextAreaElement, ComposerProps>(function 
 		? t('ext.input.attach.label')
 		: t('ext.input.attach.unsupported')
 
+	const isRecording = voiceState === 'recording'
+	const isTranscribing = voiceState === 'transcribing'
+	const micLabel = !voiceEnabled
+		? t('ext.input.voice.disabled')
+		: isRecording
+			? t('ext.input.voice.stop')
+			: isTranscribing
+				? t('ext.input.voice.transcribing')
+				: t('ext.input.voice.start')
+
 	return (
 		<div
 			data-testid="composer"
@@ -158,17 +175,44 @@ export const Composer = forwardRef<HTMLTextAreaElement, ComposerProps>(function 
 			/>
 			<div className="mt-1 flex items-center justify-end">
 				<div className="flex items-center gap-1">
-					<Button
-						type="button"
-						variant="ghost"
-						size="icon"
-						disabled
-						className="size-7 text-muted-foreground hover:bg-white/5"
-						aria-label="Voice (coming soon)"
-						title="Voice (coming soon)"
-					>
-						<Mic className="size-4" aria-hidden="true" />
-					</Button>
+					{voiceEnabled ? (
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon"
+							disabled={isTranscribing}
+							onClick={onMicToggle}
+							className={cn(
+								'size-7 hover:bg-white/5',
+								isRecording ? 'text-red-500 hover:text-red-400' : 'text-muted-foreground',
+								!isTranscribing && 'cursor-pointer'
+							)}
+							aria-label={micLabel}
+							title={micLabel}
+						>
+							{isTranscribing ? (
+								<Loader2 className="size-4 animate-spin" aria-hidden="true" />
+							) : (
+								<Mic className={cn('size-4', isRecording && 'animate-pulse')} aria-hidden="true" />
+							)}
+						</Button>
+					) : (
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon"
+							onClick={() =>
+								toast.warning(<span className="select-none">{t('ext.input.voice.disabled')}</span>)
+							}
+							disabled={isRunning}
+							aria-disabled="true"
+							className="size-7 cursor-not-allowed text-neutral-500 opacity-60 hover:bg-transparent hover:text-neutral-500"
+							aria-label={micLabel}
+							title={micLabel}
+						>
+							<Mic className="size-4" aria-hidden="true" />
+						</Button>
+					)}
 					{modelSupportsImages ? (
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
@@ -200,7 +244,11 @@ export const Composer = forwardRef<HTMLTextAreaElement, ComposerProps>(function 
 							type="button"
 							variant="ghost"
 							size="icon"
-							onClick={() => toast.warning(t('ext.input.attach.unsupported'))}
+							onClick={() =>
+								toast.warning(
+									<span className="select-none">{t('ext.input.attach.unsupported')}</span>
+								)
+							}
 							disabled={isRunning}
 							aria-disabled="true"
 							className="size-7 cursor-not-allowed text-neutral-500 opacity-60 hover:bg-transparent hover:text-neutral-500"
