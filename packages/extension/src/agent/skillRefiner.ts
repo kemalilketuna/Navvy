@@ -13,6 +13,8 @@ export interface RefineCredentials {
 	baseURL: string
 	model?: string
 	apiKey?: string
+	/** Mirror the active provider: some reject a named `tool_choice` object. */
+	disableNamedToolChoice?: boolean
 }
 
 export interface RefineInput {
@@ -117,6 +119,7 @@ export async function refineSkill(
 		baseURL: credentials.baseURL,
 		model: credentials.model,
 		apiKey: credentials.apiKey,
+		disableNamedToolChoice: credentials.disableNamedToolChoice,
 	})
 
 	const result = await llm.invoke(
