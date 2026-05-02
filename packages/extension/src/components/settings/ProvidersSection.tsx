@@ -30,6 +30,19 @@ import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { useT } from '@/lib/i18n'
 
+/**
+ * Newer OpenAI models (GPT-5 family, o-series reasoning models) reject the legacy
+ * `max_tokens` parameter with a 400 and require `max_completion_tokens` instead, while
+ * most other OpenAI-compatible providers only understand `max_tokens`. Pick the right
+ * key per model so the connectivity test works everywhere.
+ * https://developers.openai.com/api/docs/deprecations
+ */
+function tokenLimitBody(model: string): Record<string, number> {
+	const normalized = (model.toLowerCase().split('/').pop() ?? '').replace(/[._]/g, '')
+	const requiresCompletionTokens = /^gpt-?5/.test(normalized) || /^o[1-9]/.test(normalized)
+	return requiresCompletionTokens ? { max_completion_tokens: 16 } : { max_tokens: 1 }
+}
+
 interface ProvidersSectionProps {
 	profiles: LLMProfile[]
 	activeProfileId: string
@@ -147,7 +160,7 @@ export function ProvidersSection({
 				body: JSON.stringify({
 					model: activeProfile.model,
 					messages: [{ role: 'user', content: 'ping' }],
-					max_tokens: 1,
+					...tokenLimitBody(activeProfile.model),
 				}),
 				signal: controller.signal,
 			}).finally(() => clearTimeout(timeout))
