@@ -107,6 +107,7 @@ export const frFR: TranslationSchema = {
 				start: 'Démarrer la saisie vocale',
 				stop: 'Arrêter et transcrire',
 				transcribing: 'Transcription…',
+				listening: 'Écoute…',
 				disabled: 'Activez la voix dans les paramètres',
 				noSpeech: 'Aucune parole détectée — réessayez.',
 				failed: 'Échec de la saisie vocale',

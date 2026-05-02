@@ -106,6 +106,7 @@ export const itIT: TranslationSchema = {
 				start: 'Avvia input vocale',
 				stop: 'Ferma e trascrivi',
 				transcribing: 'Trascrizione…',
+				listening: 'In ascolto…',
 				disabled: 'Abilita la voce nelle impostazioni',
 				noSpeech: 'Nessun parlato rilevato — riprova.',
 				failed: 'Input vocale non riuscito',

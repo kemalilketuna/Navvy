@@ -107,6 +107,7 @@ export const deDE: TranslationSchema = {
 				start: 'Spracheingabe starten',
 				stop: 'Stoppen und transkribieren',
 				transcribing: 'Wird transkribiert…',
+				listening: 'Höre zu…',
 				disabled: 'Stimme in den Einstellungen aktivieren',
 				noSpeech: 'Keine Sprache erkannt – bitte erneut versuchen.',
 				failed: 'Spracheingabe fehlgeschlagen',
