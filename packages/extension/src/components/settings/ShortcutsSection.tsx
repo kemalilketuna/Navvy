@@ -34,7 +34,7 @@ function KeyCapture({ code, defaultCode, onCapture }: KeyCaptureProps) {
 	}, [listening, onCapture])
 
 	return (
-		<div className="flex items-center gap-1">
+		<div className="flex shrink-0 items-center gap-1">
 			<Button
 				type="button"
 				variant={listening ? 'default' : 'outline'}
@@ -45,19 +45,19 @@ function KeyCapture({ code, defaultCode, onCapture }: KeyCaptureProps) {
 				<Keyboard className="size-4" />
 				{listening ? t('ext.shortcuts.pressKey') : formatKeyCode(code)}
 			</Button>
-			{code !== defaultCode && (
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					className="shrink-0 cursor-pointer text-muted-foreground"
-					title={t('ext.shortcuts.reset')}
-					aria-label={t('ext.shortcuts.reset')}
-					onClick={() => onCapture(defaultCode)}
-				>
-					<RotateCcw className="size-4" />
-				</Button>
-			)}
+			{/* Always rendered (disabled at default) so the row layout never shifts. */}
+			<Button
+				type="button"
+				variant="ghost"
+				size="icon"
+				className="cursor-pointer text-muted-foreground"
+				disabled={code === defaultCode}
+				title={t('ext.shortcuts.reset')}
+				aria-label={t('ext.shortcuts.reset')}
+				onClick={() => onCapture(defaultCode)}
+			>
+				<RotateCcw className="size-4" />
+			</Button>
 		</div>
 	)
 }
