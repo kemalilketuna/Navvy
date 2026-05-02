@@ -103,6 +103,9 @@ export const enUS = {
 			addEntry: 'Add entry',
 			addAddressGroup: 'Add address group',
 			addressGroupName: 'Home address',
+			tokenRequired: 'Token is required',
+			valueRequired: 'Value is required',
+			incompleteNotice: 'Fill in the token and value for each saved entry, or remove it.',
 		},
 		voice: {
 			title: 'Voice',

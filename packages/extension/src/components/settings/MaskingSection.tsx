@@ -1,7 +1,7 @@
 import { Eye, EyeOff, Plus, Shield, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
-import { type MaskingEntry, newMaskingId } from '@/agent/masking'
+import { type MaskingEntry, newMaskingId, validateEntry } from '@/agent/masking'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
@@ -10,6 +10,7 @@ import { useT } from '@/lib/i18n'
 interface MaskingSectionProps {
 	entries: MaskingEntry[]
 	onChange: (entries: MaskingEntry[]) => void
+	showErrors?: boolean
 }
 
 const ADDRESS_TEMPLATE: Pick<MaskingEntry, 'token' | 'label'>[] = [
@@ -32,7 +33,7 @@ function makeEntry(partial: Partial<MaskingEntry>): MaskingEntry {
 	}
 }
 
-export function MaskingSection({ entries, onChange }: MaskingSectionProps) {
+export function MaskingSection({ entries, onChange, showErrors = false }: MaskingSectionProps) {
 	const t = useT()
 	const [revealed, setRevealed] = useState<Set<string>>(() => new Set())
 
@@ -79,6 +80,7 @@ export function MaskingSection({ entries, onChange }: MaskingSectionProps) {
 				<div className="flex flex-col gap-4">
 					{entries.map((entry) => {
 						const isRevealed = revealed.has(entry.id)
+						const errors = showErrors ? validateEntry(entry) : { token: false, value: false }
 						return (
 							<div
 								key={entry.id}
@@ -103,6 +105,7 @@ export function MaskingSection({ entries, onChange }: MaskingSectionProps) {
 										<Input
 											value={entry.token}
 											placeholder={t('ext.masking.tokenPlaceholder')}
+											aria-invalid={errors.token}
 											onChange={(e) =>
 												update(entry.id, {
 													token: e.target.value.replace(/[^\w.-]/g, '_'),
@@ -110,6 +113,11 @@ export function MaskingSection({ entries, onChange }: MaskingSectionProps) {
 											}
 											className="h-9 text-sm font-mono"
 										/>
+										{errors.token && (
+											<span className="text-xs text-destructive">
+												{t('ext.masking.tokenRequired')}
+											</span>
+										)}
 									</div>
 								</div>
 
@@ -123,6 +131,7 @@ export function MaskingSection({ entries, onChange }: MaskingSectionProps) {
 												type={entry.sensitive && !isRevealed ? 'password' : 'text'}
 												value={entry.value}
 												placeholder={t('ext.masking.valuePlaceholder')}
+												aria-invalid={errors.value}
 												onChange={(e) => update(entry.id, { value: e.target.value })}
 												className="h-9 text-sm pr-9"
 											/>
@@ -139,6 +148,11 @@ export function MaskingSection({ entries, onChange }: MaskingSectionProps) {
 												</button>
 											)}
 										</div>
+										{errors.value && (
+											<span className="text-xs text-destructive">
+												{t('ext.masking.valueRequired')}
+											</span>
+										)}
 									</div>
 									<div className="flex flex-col gap-1.5">
 										<label className="text-xs font-medium text-muted-foreground">

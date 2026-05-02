@@ -102,6 +102,9 @@ export const ptPT: TranslationSchema = {
 			addEntry: 'Adicionar entrada',
 			addAddressGroup: 'Adicionar grupo de morada',
 			addressGroupName: 'Morada de casa',
+			tokenRequired: 'O token é obrigatório',
+			valueRequired: 'O valor é obrigatório',
+			incompleteNotice: 'Preencha o token e o valor de cada entrada guardada, ou remova-a.',
 		},
 		voice: {
 			title: 'Voz',
