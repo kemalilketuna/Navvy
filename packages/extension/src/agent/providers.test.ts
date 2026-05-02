@@ -33,10 +33,13 @@ describe('providers registry', () => {
 		expect(new Set(keys).size).toBe(keys.length)
 	})
 
-	it('non-custom presets have a non-empty https (or http localhost) baseURL and default model', () => {
+	it('non-custom presets resolve a non-empty https (or http localhost) baseURL and default model', () => {
 		for (const p of PROVIDERS) {
 			if (p.key === 'custom') continue
-			expect(p.baseURL, `${p.key} baseURL`).toMatch(/^https?:\/\//)
+			// Some presets (e.g. Cloudflare) synthesize the runtime URL from credentials
+			// via buildBaseURL instead of carrying a static baseURL.
+			const resolved = p.buildBaseURL ? p.buildBaseURL({ accountId: 'acct' }) : p.baseURL
+			expect(resolved, `${p.key} baseURL`).toMatch(/^https?:\/\//)
 			expect(p.defaultModel, `${p.key} defaultModel`).not.toBe('')
 		}
 	})
@@ -47,8 +50,10 @@ describe('providers registry', () => {
 		}
 	})
 
-	it('cloudflare URL contains the {ACCOUNT_ID} placeholder', () => {
-		expect(PROVIDERS_BY_KEY.cloudflare.baseURL).toContain('{ACCOUNT_ID}')
+	it('cloudflare synthesizes its runtime URL from the account ID', () => {
+		const cloudflare = PROVIDERS_BY_KEY.cloudflare
+		expect(cloudflare.buildBaseURL).toBeTypeOf('function')
+		expect(cloudflare.buildBaseURL?.({ accountId: 'acct-123' })).toContain('acct-123')
 	})
 })
 
