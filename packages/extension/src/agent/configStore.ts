@@ -2,6 +2,7 @@ import type { LLMConfig } from '@page-agent/llms'
 
 import { type ExtensionLanguage } from './MultiPageAgent'
 import { DEMO_CONFIG, migrateLegacyEndpoint } from './constants'
+import { type MaskingEntry } from './masking'
 import { type LLMProfile, buildProfilesState, resolveBaseURL } from './profiles'
 
 export type LanguagePreference = ExtensionLanguage | undefined
@@ -22,6 +23,8 @@ export interface ExtConfig extends LLMConfig, AdvancedConfig {
 	responseLanguage: ResponseLanguage
 	profiles: LLMProfile[]
 	activeProfileId: string
+	/** Locally-stored saved data / masking entries. @see masking.ts */
+	maskingEntries: MaskingEntry[]
 }
 
 function normalizeResponseLanguage(raw: unknown): ResponseLanguage {
@@ -48,6 +51,7 @@ export async function loadConfig(): Promise<ExtConfig> {
 		'advancedConfig',
 		'llmProfiles',
 		'activeProfileId',
+		'maskingEntries',
 	])
 
 	let legacyLlm = (result.llmConfig as LLMConfig) ?? DEMO_CONFIG
@@ -74,6 +78,7 @@ export async function loadConfig(): Promise<ExtConfig> {
 	}
 
 	const active = profiles.find((p) => p.id === activeProfileId) ?? profiles[0]
+	const maskingEntries = (result.maskingEntries as MaskingEntry[]) ?? []
 
 	return {
 		baseURL: resolveBaseURL(active),
@@ -84,6 +89,7 @@ export async function loadConfig(): Promise<ExtConfig> {
 		responseLanguage,
 		profiles,
 		activeProfileId: active.id,
+		maskingEntries,
 	}
 }
 
@@ -98,6 +104,7 @@ export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 		disableNamedToolChoice,
 		profiles,
 		activeProfileId,
+		maskingEntries,
 	} = config
 
 	const active = profiles.find((p) => p.id === activeProfileId) ?? profiles[0]
@@ -130,6 +137,7 @@ export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 		disableNamedToolChoice,
 	}
 	await chrome.storage.local.set({ advancedConfig })
+	await chrome.storage.local.set({ maskingEntries: maskingEntries ?? [] })
 
 	return {
 		...llmConfig,
@@ -138,5 +146,6 @@ export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 		responseLanguage,
 		profiles,
 		activeProfileId: active.id,
+		maskingEntries: maskingEntries ?? [],
 	}
 }

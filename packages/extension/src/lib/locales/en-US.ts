@@ -27,6 +27,33 @@ export const enUS = {
 			comingSoon: 'Coming soon',
 			description: 'Reusable agent skills will live here.',
 		},
+		masking: {
+			title: 'Saved Data & Masking',
+			description:
+				'Store values the agent can fill into forms. Mark a value sensitive to keep it from ever reaching the AI provider — the agent sees only an opaque {{token}}.',
+			unencryptedNote: 'Values are stored unencrypted in this browser, like your API keys.',
+			jsDisabledNote:
+				'While any entry is enabled, the experimental JavaScript tool is disabled to protect masked values.',
+			empty: 'No saved data yet. Add an entry or an address group to get started.',
+			label: 'Label',
+			labelPlaceholder: 'e.g. Primary credit card',
+			token: 'Token',
+			tokenPlaceholder: 'e.g. credit_card',
+			value: 'Value',
+			valuePlaceholder: 'The real value',
+			group: 'Group',
+			groupPlaceholder: 'e.g. Home address',
+			sensitive: 'Sensitive',
+			sensitiveHelp:
+				'Sensitive values are redacted from page content and never sent to the AI. Non-sensitive values (name, address) are autofilled and may be seen by the AI.',
+			enabled: 'Enabled',
+			delete: 'Delete entry',
+			showValue: 'Show value',
+			hideValue: 'Hide value',
+			addEntry: 'Add entry',
+			addAddressGroup: 'Add address group',
+			addressGroupName: 'Home address',
+		},
 		empty: {
 			tip1: 'Hand off the boring clicks to AI',
 			tip2: 'Browse by intent, not by mouse',
@@ -135,6 +162,7 @@ export const enUS = {
 		settings: {
 			tabGeneral: 'General',
 			tabProviders: 'Providers',
+			tabMasking: 'Saved Data',
 			tabSkills: 'Skills',
 			tabAdvanced: 'Advanced',
 			tabAbout: 'About',

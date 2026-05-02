@@ -2,6 +2,13 @@ import { type AgentConfig, PageAgentCore } from '@page-agent/core'
 
 import { RemotePageController } from './RemotePageController'
 import { TabsController } from './TabsController'
+import {
+	type MaskingEntry,
+	activeEntries,
+	buildMaskingInstructions,
+	createMaskingTools,
+	redactSensitive,
+} from './masking'
 import { PROVIDERS_BY_KEY, detectProvider } from './providers'
 import SYSTEM_PROMPT from './system_prompt.md?raw'
 import { createTabTools } from './tabTools'
@@ -37,6 +44,8 @@ interface MultiPageAgentConfig extends Omit<AgentConfig, 'language'> {
 	responseLanguage?: 'auto' | ExtensionLanguage
 	includeInitialTab?: boolean
 	experimentalIncludeAllTabs?: boolean
+	/** Locally-stored saved data / masking entries. Extension-only; not core. */
+	maskingEntries?: MaskingEntry[]
 }
 
 /**
@@ -49,7 +58,6 @@ export class MultiPageAgent extends PageAgentCore {
 		// multi page controller
 		const tabsController = new TabsController()
 		const pageController = new RemotePageController(tabsController)
-		const customTools = createTabTools(tabsController)
 
 		// Resolve response-language directive. 'auto' (or unset) means the agent
 		// should mirror the language of the user's task.
@@ -59,8 +67,40 @@ export class MultiPageAgent extends PageAgentCore {
 				? 'Match the language of the user'
 				: (LANGUAGE_NAMES[responseLanguage] ?? 'English')
 
-		// Strip extension-only field so it doesn't reach the core.
-		const { responseLanguage: _ignored, ...restConfig } = config
+		// Strip extension-only fields so they don't reach the core.
+		const { responseLanguage: _ignored, maskingEntries, ...restConfig } = config
+
+		// Compose engine seams (do this once here; later phases extend it):
+		// - customTools: tab tools + masking tool overrides
+		// - transformPageContent: redact sensitive values outbound
+		// - instructions.getPageInstructions: advertise masking tokens
+		const masking = activeEntries(maskingEntries ?? [])
+		const maskingActive = masking.length > 0
+
+		const customTools = {
+			...createTabTools(tabsController),
+			...(maskingActive ? createMaskingTools(masking) : {}),
+		}
+
+		const incomingTransform = restConfig.transformPageContent
+		const transformPageContent = maskingActive
+			? async (content: string) => {
+					const base = incomingTransform ? await incomingTransform(content) : content
+					return redactSensitive(base, masking)
+				}
+			: incomingTransform
+
+		const maskingBlock = maskingActive ? buildMaskingInstructions(masking) : undefined
+		const incomingInstructions = restConfig.instructions
+		const instructions = maskingBlock
+			? {
+					system: incomingInstructions?.system,
+					getPageInstructions: (url: string) => {
+						const prev = incomingInstructions?.getPageInstructions?.(url)
+						return [prev, maskingBlock].filter(Boolean).join('\n\n')
+					},
+				}
+			: incomingInstructions
 		const systemPrompt = SYSTEM_PROMPT.replace(
 			/Default working language: \*\*.*?\*\*/,
 			`Default working language: **${directive}**`
@@ -87,6 +127,13 @@ export class MultiPageAgent extends PageAgentCore {
 			customTools: customTools,
 			customSystemPrompt: systemPrompt,
 			restrictedToolset,
+			transformPageContent,
+			instructions,
+			// When masking is active, drop execute_javascript — it can bypass the
+			// data-masking mechanism. Otherwise keep the incoming setting.
+			experimentalScriptExecutionTool: maskingActive
+				? false
+				: restConfig.experimentalScriptExecutionTool,
 
 			onBeforeTask: async (agent) => {
 				await tabsController.init(agent.task, {

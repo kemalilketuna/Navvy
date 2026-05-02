@@ -22,6 +22,34 @@ export const frFR: TranslationSchema = {
 			comingSoon: 'Bientôt disponible',
 			description: 'Les compétences réutilisables de l’agent seront ici.',
 		},
+		masking: {
+			title: 'Données enregistrées et masquage',
+			description:
+				'Enregistrez des valeurs que l’agent peut saisir dans les formulaires. Marquez une valeur comme sensible pour qu’elle n’atteigne jamais le fournisseur d’IA : l’agent ne voit qu’un {{token}} opaque.',
+			unencryptedNote:
+				'Les valeurs sont stockées sans chiffrement dans ce navigateur, comme vos clés d’API.',
+			jsDisabledNote:
+				'Tant qu’une entrée est activée, l’outil JavaScript expérimental est désactivé pour protéger les valeurs masquées.',
+			empty: 'Aucune donnée enregistrée. Ajoutez une entrée ou un groupe d’adresse pour commencer.',
+			label: 'Libellé',
+			labelPlaceholder: 'ex. Carte bancaire principale',
+			token: 'Jeton',
+			tokenPlaceholder: 'ex. credit_card',
+			value: 'Valeur',
+			valuePlaceholder: 'La valeur réelle',
+			group: 'Groupe',
+			groupPlaceholder: 'ex. Adresse personnelle',
+			sensitive: 'Sensible',
+			sensitiveHelp:
+				'Les valeurs sensibles sont retirées du contenu de la page et ne sont jamais envoyées à l’IA. Les valeurs non sensibles (nom, adresse) sont remplies automatiquement et peuvent être vues par l’IA.',
+			enabled: 'Activé',
+			delete: 'Supprimer l’entrée',
+			showValue: 'Afficher la valeur',
+			hideValue: 'Masquer la valeur',
+			addEntry: 'Ajouter une entrée',
+			addAddressGroup: 'Ajouter un groupe d’adresse',
+			addressGroupName: 'Adresse personnelle',
+		},
 		empty: {
 			tip1: 'Laissez l’IA gérer les clics ennuyeux',
 			tip2: 'Naviguez par intention, pas à la souris',
@@ -129,6 +157,7 @@ export const frFR: TranslationSchema = {
 		settings: {
 			tabGeneral: 'Général',
 			tabProviders: 'Fournisseurs',
+			tabMasking: 'Données enregistrées',
 			tabSkills: 'Compétences',
 			tabAdvanced: 'Avancé',
 			tabAbout: 'À propos',

@@ -22,6 +22,34 @@ export const esES: TranslationSchema = {
 			comingSoon: 'Próximamente',
 			description: 'Las habilidades reutilizables del agente vivirán aquí.',
 		},
+		masking: {
+			title: 'Datos guardados y enmascaramiento',
+			description:
+				'Guarda valores que el agente puede rellenar en formularios. Marca un valor como sensible para que nunca llegue al proveedor de IA: el agente solo ve un {{token}} opaco.',
+			unencryptedNote:
+				'Los valores se almacenan sin cifrar en este navegador, igual que tus claves de API.',
+			jsDisabledNote:
+				'Mientras haya alguna entrada activa, la herramienta experimental de JavaScript se desactiva para proteger los valores enmascarados.',
+			empty: 'Aún no hay datos guardados. Añade una entrada o un grupo de dirección para empezar.',
+			label: 'Etiqueta',
+			labelPlaceholder: 'p. ej. Tarjeta de crédito principal',
+			token: 'Token',
+			tokenPlaceholder: 'p. ej. credit_card',
+			value: 'Valor',
+			valuePlaceholder: 'El valor real',
+			group: 'Grupo',
+			groupPlaceholder: 'p. ej. Dirección de casa',
+			sensitive: 'Sensible',
+			sensitiveHelp:
+				'Los valores sensibles se ocultan del contenido de la página y nunca se envían a la IA. Los valores no sensibles (nombre, dirección) se autocompletan y la IA puede verlos.',
+			enabled: 'Activado',
+			delete: 'Eliminar entrada',
+			showValue: 'Mostrar valor',
+			hideValue: 'Ocultar valor',
+			addEntry: 'Añadir entrada',
+			addAddressGroup: 'Añadir grupo de dirección',
+			addressGroupName: 'Dirección de casa',
+		},
 		empty: {
 			tip1: 'Deja que la IA haga los clics aburridos',
 			tip2: 'Navega por intención, no con el ratón',
@@ -128,6 +156,7 @@ export const esES: TranslationSchema = {
 		settings: {
 			tabGeneral: 'General',
 			tabProviders: 'Proveedores',
+			tabMasking: 'Datos guardados',
 			tabSkills: 'Habilidades',
 			tabAdvanced: 'Avanzado',
 			tabAbout: 'Acerca de',
