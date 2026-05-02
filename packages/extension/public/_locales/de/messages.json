@@ -7,8 +7,5 @@
     },
     "extActionTitle": {
         "message": "Navvy öffnen"
-    },
-    "cmdCancelAction": {
-        "message": "Laufende Aktion abbrechen"
     }
 }

@@ -14,11 +14,7 @@ export interface VoiceConfig {
 	sttModel: string
 	ttsModel: string
 	voice: string
-	/** true = hold-to-talk; false = toggle (press to start, press to stop). */
-	pushToTalk: boolean
 	autoSpeakResponses: boolean
-	/** Hold-to-talk key (KeyboardEvent.key), e.g. "Alt". */
-	holdKey: string
 	/** STT language hint (BCP-47). Defaults to the response language when unset. */
 	language?: string
 	/** Per-provider API keys for voice-only providers (ElevenLabs, Deepgram, …). */
@@ -32,9 +28,7 @@ export const DEFAULT_VOICE_CONFIG: VoiceConfig = {
 	sttModel: '',
 	ttsModel: '',
 	voice: '',
-	pushToTalk: true,
 	autoSpeakResponses: true,
-	holdKey: 'Alt',
 	apiKeys: {},
 }
 

@@ -108,7 +108,7 @@ export const trTR: TranslationSchema = {
 			description:
 				'Ajanla konuşun ve yanıtlarını dinleyin. Konuşmadan metne ve metinden konuşmaya sağlayıcılarını seçin; Web Speech API herhangi bir API anahtarı olmadan çalışır.',
 			enabled: 'Ses modunu etkinleştir',
-			enabledHelp: 'Mikrofon düğmesini göster ve bas-konuş özelliğini etkinleştir.',
+			enabledHelp: 'Mikrofon düğmesini göster ve ses kısayolunu etkinleştir.',
 			micAccess: 'Mikrofon erişimi',
 			micAccessHelp:
 				'Sesli giriş mikrofon gerektirir. Buradan izin ver — yan panel doğrudan isteyemez.',
@@ -129,10 +129,9 @@ export const trTR: TranslationSchema = {
 			apiKey: 'API anahtarı',
 			reusingChatKey: 'Sohbet sağlayıcınızın API anahtarı yeniden kullanılıyor.',
 			autoSpeak: 'Yanıtları sesli oku',
-			pushToTalk: 'Konuşmak için basılı tut',
-			pushToTalkHelp: 'Kaydetmek için bir tuşu basılı tutun; göndermek için bırakın.',
-			holdKey: 'Basılı tutma tuşu',
-			holdKeyHelp: 'Konuşurken basılı tutulacak tuş (örn. Alt). Sayfada ve panelde çalışır.',
+			shortcut: 'Ses kısayolu',
+			shortcutHelp:
+				'Konuşmak için ` tuşunu (Tab üstü) basılı tutun; göndermek için bırakın. Çalışan bir görevi iptal etmek için Esc.',
 			language: 'Dil',
 			languagePlaceholder: 'Otomatik (örn. en, tr)',
 			test: 'Sesi test et',

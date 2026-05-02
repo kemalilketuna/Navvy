@@ -112,7 +112,7 @@ export const enUS = {
 			description:
 				'Speak to the agent and hear its replies. Pick speech-to-text and text-to-speech providers; the Web Speech API works with no API key.',
 			enabled: 'Enable voice mode',
-			enabledHelp: 'Show the mic button and enable push-to-talk.',
+			enabledHelp: 'Show the mic button and enable the voice shortcut.',
 			micAccess: 'Microphone access',
 			micAccessHelp:
 				'Voice input needs the microphone. Grant it here — the side panel cannot ask for it directly.',
@@ -133,10 +133,9 @@ export const enUS = {
 			apiKey: 'API Key',
 			reusingChatKey: 'Reusing your chat provider API key.',
 			autoSpeak: 'Speak responses aloud',
-			pushToTalk: 'Hold-to-talk',
-			pushToTalkHelp: 'Hold a key to record; release to send.',
-			holdKey: 'Hold key',
-			holdKeyHelp: 'Key to hold while speaking (e.g. Alt). Works on the page and in the panel.',
+			shortcut: 'Voice shortcut',
+			shortcutHelp:
+				'Hold the ` key (above Tab) to talk; release to send. Press Esc to cancel a running task.',
 			language: 'Language',
 			languagePlaceholder: 'Auto (e.g. en, tr)',
 			test: 'Test voice',
