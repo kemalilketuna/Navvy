@@ -107,6 +107,7 @@ export const ptPT: TranslationSchema = {
 				start: 'Iniciar entrada de voz',
 				stop: 'Parar e transcrever',
 				transcribing: 'A transcrever…',
+				listening: 'A ouvir…',
 				disabled: 'Ative a voz nas definições',
 				noSpeech: 'Nenhuma fala detetada — tente novamente.',
 				failed: 'Falha na entrada de voz',
