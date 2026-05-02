@@ -1,6 +1,7 @@
 import {
 	House,
 	Info,
+	Keyboard,
 	Loader2,
 	Mic,
 	Settings as SettingsIcon,
@@ -21,19 +22,29 @@ import { AdvancedSection } from '@/components/settings/AdvancedSection'
 import { GeneralSection } from '@/components/settings/GeneralSection'
 import { MaskingSection } from '@/components/settings/MaskingSection'
 import { ProvidersSection } from '@/components/settings/ProvidersSection'
+import { ShortcutsSection } from '@/components/settings/ShortcutsSection'
 import { SkillsSection } from '@/components/settings/SkillsSection'
 import { VoiceSection } from '@/components/settings/VoiceSection'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useT } from '@/lib/i18n'
 
-type TabKey = 'general' | 'providers' | 'masking' | 'voice' | 'skills' | 'advanced' | 'about'
+type TabKey =
+	| 'general'
+	| 'providers'
+	| 'masking'
+	| 'voice'
+	| 'shortcuts'
+	| 'skills'
+	| 'advanced'
+	| 'about'
 
 const VALID_TABS: TabKey[] = [
 	'general',
 	'providers',
 	'masking',
 	'voice',
+	'shortcuts',
 	'skills',
 	'advanced',
 	'about',
@@ -221,6 +232,10 @@ export default function App() {
 						<Mic />
 						<span>{t('ext.settings.tabVoice')}</span>
 					</TabsTrigger>
+					<TabsTrigger value="shortcuts">
+						<Keyboard />
+						<span>{t('ext.settings.tabShortcuts')}</span>
+					</TabsTrigger>
 					<TabsTrigger value="skills">
 						<Sparkles />
 						<span>{t('ext.settings.tabSkills')}</span>
@@ -259,6 +274,12 @@ export default function App() {
 							value={draft.voiceConfig}
 							onChange={(voiceConfig) => patch({ voiceConfig })}
 							llm={{ baseURL: resolveBaseURL(draft), apiKey: draft.apiKey }}
+						/>
+					</TabsContent>
+					<TabsContent value="shortcuts">
+						<ShortcutsSection
+							value={draft.shortcutsConfig}
+							onChange={(shortcutsConfig) => patch({ shortcutsConfig })}
 						/>
 					</TabsContent>
 					<TabsContent value="skills">

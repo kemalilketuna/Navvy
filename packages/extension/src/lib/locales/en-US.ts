@@ -133,9 +133,6 @@ export const enUS = {
 			apiKey: 'API Key',
 			reusingChatKey: 'Reusing your chat provider API key.',
 			autoSpeak: 'Speak responses aloud',
-			shortcut: 'Voice shortcut',
-			shortcutHelp:
-				'Hold the ` key (above Tab) to talk; release to send. Press Esc to cancel a running task.',
 			language: 'Language',
 			languagePlaceholder: 'Auto (e.g. en, tr)',
 			test: 'Test voice',
@@ -144,6 +141,17 @@ export const enUS = {
 			testSuccess: 'Played a test phrase.',
 			testPhrase: 'Hello, this is a Navvy voice test.',
 			testNoController: 'Configure a provider first.',
+		},
+		shortcuts: {
+			title: 'Keyboard shortcuts',
+			description:
+				'Set the keys for these actions. They work on web pages and in the side panel; on restricted pages (browser settings, the web store) they may not fire.',
+			cancel: 'Cancel running task',
+			cancelHelp: 'Stops the agent while a task is running.',
+			pushToTalk: 'Push to talk',
+			pushToTalkHelp: 'Hold to record, release to send. Requires voice to be enabled.',
+			pressKey: 'Press a key…',
+			reset: 'Reset to default',
 		},
 		empty: {
 			tip1: 'Hand off the boring clicks to AI',
@@ -252,6 +260,7 @@ export const enUS = {
 			tabProviders: 'Providers',
 			tabMasking: 'Saved Data',
 			tabVoice: 'Voice',
+			tabShortcuts: 'Shortcuts',
 			tabSkills: 'Skills',
 			tabAdvanced: 'Advanced',
 			tabAbout: 'About',

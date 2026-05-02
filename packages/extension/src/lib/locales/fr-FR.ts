@@ -134,9 +134,6 @@ export const frFR: TranslationSchema = {
 			apiKey: 'Clé API',
 			reusingChatKey: 'Réutilisation de la clé API de votre fournisseur de chat.',
 			autoSpeak: 'Lire les réponses à voix haute',
-			shortcut: 'Raccourci vocal',
-			shortcutHelp:
-				'Maintenez la touche ` (au-dessus de Tab) pour parler ; relâchez pour envoyer. Appuyez sur Échap pour annuler une tâche en cours.',
 			language: 'Langue',
 			languagePlaceholder: 'Auto (ex. en, tr)',
 			test: 'Tester la voix',
@@ -145,6 +142,18 @@ export const frFR: TranslationSchema = {
 			testSuccess: 'Une phrase de test a été lue.',
 			testPhrase: 'Bonjour, ceci est un test vocal de Navvy.',
 			testNoController: 'Configurez d’abord un fournisseur.',
+		},
+		shortcuts: {
+			title: 'Raccourcis clavier',
+			description:
+				'Définissez les touches de ces actions. Elles fonctionnent sur les pages web et dans le panneau latéral ; sur les pages restreintes (paramètres du navigateur, le web store), elles peuvent ne pas se déclencher.',
+			cancel: 'Annuler la tâche en cours',
+			cancelHelp: 'Arrête l’agent pendant l’exécution d’une tâche.',
+			pushToTalk: 'Appuyer pour parler',
+			pushToTalkHelp:
+				'Maintenez pour enregistrer, relâchez pour envoyer. La voix doit être activée.',
+			pressKey: 'Appuyez sur une touche…',
+			reset: 'Réinitialiser par défaut',
 		},
 		empty: {
 			tip1: 'Laissez l’IA gérer les clics ennuyeux',
@@ -252,6 +261,7 @@ export const frFR: TranslationSchema = {
 			tabProviders: 'Fournisseurs',
 			tabMasking: 'Données enregistrées',
 			tabVoice: 'Voix',
+			tabShortcuts: 'Raccourcis',
 			tabSkills: 'Compétences',
 			tabAdvanced: 'Avancé',
 			tabAbout: 'À propos',

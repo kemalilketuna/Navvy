@@ -1,6 +1,7 @@
 import type { LLMConfig } from '@page-agent/llms'
 
 import { decryptString, encryptString, isEncrypted } from '@/lib/crypto'
+import { type ShortcutsConfig, normalizeShortcutsConfig } from '@/lib/shortcuts'
 import { type VoiceConfig, normalizeVoiceConfig } from '@/voice/types'
 
 import { type ExtensionLanguage } from './MultiPageAgent'
@@ -35,6 +36,8 @@ export interface ExtConfig extends ProviderConfig, AdvancedConfig {
 	maskingEntries: MaskingEntry[]
 	/** Voice conversation settings (UI-only; not passed to core). @see voice/types.ts */
 	voiceConfig: VoiceConfig
+	/** User-configurable keyboard shortcuts. @see lib/shortcuts.ts */
+	shortcutsConfig: ShortcutsConfig
 	/** Reusable Teach → Skills definitions. @see skills.ts */
 	skills: Skill[]
 }
@@ -167,6 +170,7 @@ export async function loadConfig(): Promise<ExtConfig> {
 		'advancedConfig',
 		'maskingEntries',
 		'voiceConfig',
+		'shortcutsConfig',
 		'skills',
 	])
 
@@ -182,6 +186,7 @@ export async function loadConfig(): Promise<ExtConfig> {
 		(result.maskingEntries as MaskingEntry[]) ?? []
 	)
 	const voiceConfig = await decryptVoiceConfig(normalizeVoiceConfig(result.voiceConfig))
+	const shortcutsConfig = normalizeShortcutsConfig(result.shortcutsConfig)
 	const skills = (result.skills as Skill[]) ?? []
 
 	// One-time migration: re-store any legacy plaintext secrets as ciphertext.
@@ -200,6 +205,7 @@ export async function loadConfig(): Promise<ExtConfig> {
 		responseLanguage,
 		maskingEntries,
 		voiceConfig,
+		shortcutsConfig,
 		skills,
 	}
 }
@@ -221,6 +227,7 @@ export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 		disableNamedToolChoice,
 		maskingEntries,
 		voiceConfig,
+		shortcutsConfig,
 		skills,
 	} = config
 
@@ -258,6 +265,8 @@ export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 	})
 	const normalizedVoice = normalizeVoiceConfig(voiceConfig)
 	await chrome.storage.local.set({ voiceConfig: await encryptVoiceConfig(normalizedVoice) })
+	const normalizedShortcuts = normalizeShortcutsConfig(shortcutsConfig)
+	await chrome.storage.local.set({ shortcutsConfig: normalizedShortcuts })
 	await chrome.storage.local.set({ skills: skills ?? [] })
 
 	return {
@@ -267,6 +276,7 @@ export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 		responseLanguage,
 		maskingEntries: maskingEntries ?? [],
 		voiceConfig: normalizedVoice,
+		shortcutsConfig: normalizedShortcuts,
 		skills: skills ?? [],
 	}
 }

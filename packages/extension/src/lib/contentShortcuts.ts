@@ -13,7 +13,7 @@
  */
 import { normalizeVoiceConfig } from '@/voice/types'
 
-import { CANCEL_KEY, PTT_KEY_CODE } from './shortcuts'
+import { DEFAULT_SHORTCUTS, normalizeShortcutsConfig } from './shortcuts'
 
 function isEditableTarget(node: Element | null): boolean {
 	if (!node) return false
@@ -24,16 +24,27 @@ function isEditableTarget(node: Element | null): boolean {
 
 export function initContentShortcuts(): void {
 	let voiceEnabled = false
+	let pttCode = DEFAULT_SHORTCUTS.pttKeyCode
+	let cancelCode = DEFAULT_SHORTCUTS.cancelKeyCode
 	let pttPressed = false
 
-	const apply = (raw: unknown) => {
-		voiceEnabled = normalizeVoiceConfig(raw).enabled
-		if (!voiceEnabled) pttPressed = false
-	}
-
-	chrome.storage.local.get('voiceConfig').then((r) => apply(r.voiceConfig))
+	chrome.storage.local.get(['voiceConfig', 'shortcutsConfig']).then((r) => {
+		voiceEnabled = normalizeVoiceConfig(r.voiceConfig).enabled
+		const s = normalizeShortcutsConfig(r.shortcutsConfig)
+		pttCode = s.pttKeyCode
+		cancelCode = s.cancelKeyCode
+	})
 	chrome.storage.onChanged.addListener((changes, area) => {
-		if (area === 'local' && changes.voiceConfig) apply(changes.voiceConfig.newValue)
+		if (area !== 'local') return
+		if (changes.voiceConfig) {
+			voiceEnabled = normalizeVoiceConfig(changes.voiceConfig.newValue).enabled
+			if (!voiceEnabled) pttPressed = false
+		}
+		if (changes.shortcutsConfig) {
+			const s = normalizeShortcutsConfig(changes.shortcutsConfig.newValue)
+			pttCode = s.pttKeyCode
+			cancelCode = s.cancelKeyCode
+		}
 	})
 
 	window.addEventListener(
@@ -41,7 +52,7 @@ export function initContentShortcuts(): void {
 		(e) => {
 			if (
 				voiceEnabled &&
-				e.code === PTT_KEY_CODE &&
+				e.code === pttCode &&
 				!e.repeat &&
 				!pttPressed &&
 				!isEditableTarget(document.activeElement)
@@ -50,7 +61,7 @@ export function initContentShortcuts(): void {
 				chrome.runtime.sendMessage({ type: 'VOICE_PTT_DOWN' }).catch(() => {})
 				return
 			}
-			if (e.key === CANCEL_KEY) {
+			if (e.code === cancelCode) {
 				chrome.runtime.sendMessage({ type: 'CANCEL_ACTION' }).catch(() => {})
 			}
 		},
@@ -60,7 +71,7 @@ export function initContentShortcuts(): void {
 	window.addEventListener(
 		'keyup',
 		(e) => {
-			if (e.code === PTT_KEY_CODE && pttPressed) {
+			if (e.code === pttCode && pttPressed) {
 				pttPressed = false
 				chrome.runtime.sendMessage({ type: 'VOICE_PTT_UP' }).catch(() => {})
 			}

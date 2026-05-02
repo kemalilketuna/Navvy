@@ -80,6 +80,7 @@ export function useAgent(): UseAgentResult {
 				'advancedConfig' in changes ||
 				'maskingEntries' in changes ||
 				'voiceConfig' in changes ||
+				'shortcutsConfig' in changes ||
 				'skills' in changes
 			) {
 				loadConfig().then(setConfig)

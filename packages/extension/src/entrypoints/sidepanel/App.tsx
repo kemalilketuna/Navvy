@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { saveSession } from '@/lib/db'
 import { useT } from '@/lib/i18n'
-import { PTT_KEY_CODE } from '@/lib/shortcuts'
+import { DEFAULT_SHORTCUTS } from '@/lib/shortcuts'
 import { type MicPermissionState, queryMicPermission } from '@/voice/micPermission'
 
 import { modelSupportsImages } from '../../agent/providers'
@@ -249,17 +249,19 @@ export default function App() {
 		stopListening().then(submitTranscript).catch(reportVoiceError)
 	}, [stopListening, submitTranscript, reportVoiceError])
 
-	// Hold-to-talk on the configured key (` / Backquote) while the side panel
-	// itself has focus.
+	const pttKeyCode = config?.shortcutsConfig?.pttKeyCode ?? DEFAULT_SHORTCUTS.pttKeyCode
+	const cancelKeyCode = config?.shortcutsConfig?.cancelKeyCode ?? DEFAULT_SHORTCUTS.cancelKeyCode
+
+	// Hold-to-talk on the configured key while the side panel itself has focus.
 	useEffect(() => {
 		if (!voiceEnabled) return
 		const onKeyDown = (e: KeyboardEvent) => {
-			if (e.code !== PTT_KEY_CODE || e.repeat) return
+			if (e.code !== pttKeyCode || e.repeat) return
 			e.preventDefault()
 			startPtt()
 		}
 		const onKeyUp = (e: KeyboardEvent) => {
-			if (e.code !== PTT_KEY_CODE) return
+			if (e.code !== pttKeyCode) return
 			e.preventDefault()
 			stopPtt()
 		}
@@ -269,7 +271,7 @@ export default function App() {
 			window.removeEventListener('keydown', onKeyDown)
 			window.removeEventListener('keyup', onKeyUp)
 		}
-	}, [voiceEnabled, startPtt, stopPtt])
+	}, [voiceEnabled, pttKeyCode, startPtt, stopPtt])
 
 	// Hold-to-talk bridged from the page via the content script, so it works
 	// while the user is looking at the page rather than the panel.
@@ -284,13 +286,13 @@ export default function App() {
 		return () => chrome.runtime.onMessage.removeListener(onMessage)
 	}, [voiceEnabled, startPtt, stopPtt])
 
-	// Cancel-action shortcut (Esc). Only active while a task is running so it
-	// never hijacks the page's or panel's normal Escape handling otherwise.
-	// In-panel Esc is handled here; page Esc is relayed by the content script.
+	// Cancel-action shortcut. Only active while a task is running so it never
+	// hijacks the page's or panel's normal key handling otherwise. In-panel key
+	// presses are handled here; page presses are relayed by the content script.
 	useEffect(() => {
 		if (status !== 'running') return
 		const onKeyDown = (e: KeyboardEvent) => {
-			if (e.key === 'Escape') handleStop()
+			if (e.code === cancelKeyCode) handleStop()
 		}
 		const onMessage = (message: unknown) => {
 			if ((message as { type?: unknown })?.type === 'CANCEL_ACTION') handleStop()
@@ -301,7 +303,7 @@ export default function App() {
 			window.removeEventListener('keydown', onKeyDown)
 			chrome.runtime.onMessage.removeListener(onMessage)
 		}
-	}, [status, handleStop])
+	}, [status, cancelKeyCode, handleStop])
 
 	const handleNewChat = useCallback(() => {
 		newChat()

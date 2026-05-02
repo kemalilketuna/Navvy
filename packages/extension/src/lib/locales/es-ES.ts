@@ -131,9 +131,6 @@ export const esES: TranslationSchema = {
 			apiKey: 'Clave API',
 			reusingChatKey: 'Reutilizando la clave API de tu proveedor de chat.',
 			autoSpeak: 'Leer las respuestas en voz alta',
-			shortcut: 'Atajo de voz',
-			shortcutHelp:
-				'Mantén la tecla ` (encima de Tab) para hablar; suéltala para enviar. Pulsa Esc para cancelar una tarea en curso.',
 			language: 'Idioma',
 			languagePlaceholder: 'Auto (p. ej. en, tr)',
 			test: 'Probar voz',
@@ -142,6 +139,18 @@ export const esES: TranslationSchema = {
 			testSuccess: 'Se reprodujo una frase de prueba.',
 			testPhrase: 'Hola, esto es una prueba de voz de Navvy.',
 			testNoController: 'Configura primero un proveedor.',
+		},
+		shortcuts: {
+			title: 'Atajos de teclado',
+			description:
+				'Define las teclas para estas acciones. Funcionan en las páginas web y en el panel lateral; en páginas restringidas (ajustes del navegador, la tienda web) puede que no se activen.',
+			cancel: 'Cancelar tarea en curso',
+			cancelHelp: 'Detiene al agente mientras una tarea está en ejecución.',
+			pushToTalk: 'Pulsar para hablar',
+			pushToTalkHelp:
+				'Mantén pulsado para grabar, suelta para enviar. Requiere tener la voz activada.',
+			pressKey: 'Pulsa una tecla…',
+			reset: 'Restablecer valor por defecto',
 		},
 		empty: {
 			tip1: 'Deja que la IA haga los clics aburridos',
@@ -248,6 +257,7 @@ export const esES: TranslationSchema = {
 			tabProviders: 'Proveedores',
 			tabMasking: 'Datos guardados',
 			tabVoice: 'Voz',
+			tabShortcuts: 'Atajos',
 			tabSkills: 'Habilidades',
 			tabAdvanced: 'Avanzado',
 			tabAbout: 'Acerca de',
