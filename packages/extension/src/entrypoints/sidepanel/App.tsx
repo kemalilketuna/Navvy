@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { saveSession } from '@/lib/db'
 import { useT } from '@/lib/i18n'
+import { type MicPermissionState, queryMicPermission } from '@/voice/micPermission'
 
 import { modelSupportsImages } from '../../agent/providers'
 import { useAgent } from '../../agent/useAgent'
@@ -129,6 +130,55 @@ export default function App() {
 
 	const pttActiveRef = useRef(false)
 
+	// Track mic permission so we can warn up front instead of after a failed
+	// recording. The side panel can't prompt; settings (a tab) can.
+	const [micPermission, setMicPermission] = useState<MicPermissionState>('unknown')
+	useEffect(() => {
+		if (!voiceEnabled) return
+		if (!navigator.permissions) {
+			queryMicPermission().then(setMicPermission)
+			return
+		}
+		let active = true
+		let status: PermissionStatus | null = null
+		navigator.permissions
+			.query({ name: 'microphone' as PermissionName })
+			.then((s) => {
+				if (!active) return
+				status = s
+				setMicPermission(s.state as MicPermissionState)
+				s.onchange = () => setMicPermission(s.state as MicPermissionState)
+			})
+			.catch(() => queryMicPermission().then(setMicPermission))
+		return () => {
+			active = false
+			if (status) status.onchange = null
+		}
+	}, [voiceEnabled])
+
+	const warnMicBlocked = useCallback(() => {
+		toast.warning(t('ext.voice.micDenied'), {
+			action: { label: t('ext.voice.micGrant'), onClick: () => openSettings('voice') },
+		})
+	}, [t])
+
+	// Heads-up the moment the panel opens with voice on but the mic not granted.
+	const micWarnedRef = useRef(false)
+	useEffect(() => {
+		if (!voiceEnabled || micPermission === 'unknown') return
+		if (micPermission === 'granted') {
+			micWarnedRef.current = false
+			return
+		}
+		if (!micWarnedRef.current) {
+			micWarnedRef.current = true
+			warnMicBlocked()
+		}
+	}, [voiceEnabled, micPermission, warnMicBlocked])
+
+	// True when capture would fail for lack of permission (skip the doomed attempt).
+	const micUnavailable = micPermission === 'denied' || micPermission === 'prompt'
+
 	// Empty result means no speech was captured — tell the user instead of
 	// silently doing nothing, so a failed capture is always visible.
 	const submitTranscript = useCallback(
@@ -161,18 +211,32 @@ export default function App() {
 	const handleMicToggle = useCallback(() => {
 		if (voiceState === 'recording') {
 			stopListening().then(submitTranscript).catch(reportVoiceError)
+		} else if (micUnavailable) {
+			warnMicBlocked()
 		} else {
 			startListening().catch(reportVoiceError)
 		}
-	}, [voiceState, stopListening, startListening, submitTranscript, reportVoiceError])
+	}, [
+		voiceState,
+		micUnavailable,
+		warnMicBlocked,
+		stopListening,
+		startListening,
+		submitTranscript,
+		reportVoiceError,
+	])
 
 	// Push-to-talk: start on key/message down, stop + submit on up. Guarded against
 	// auto-repeat via pttActiveRef so a held key starts capture exactly once.
 	const startPtt = useCallback(() => {
 		if (pttActiveRef.current) return
+		if (micUnavailable) {
+			warnMicBlocked()
+			return
+		}
 		pttActiveRef.current = true
 		startListening().catch(reportVoiceError)
-	}, [startListening, reportVoiceError])
+	}, [micUnavailable, warnMicBlocked, startListening, reportVoiceError])
 
 	const stopPtt = useCallback(() => {
 		if (!pttActiveRef.current) return
