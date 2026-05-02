@@ -137,6 +137,8 @@ export const ptPT: TranslationSchema = {
 			language: 'Idioma',
 			languagePlaceholder: 'Auto (ex. en, tr)',
 			test: 'Testar voz',
+			testStt: 'Testar microfone',
+			testHeard: 'Ouvido: «{{text}}»',
 			testSuccess: 'Reproduziu-se uma frase de teste.',
 			testPhrase: 'Olá, isto é um teste de voz do Navvy.',
 			testNoController: 'Configure primeiro um fornecedor.',

@@ -138,6 +138,8 @@ export const frFR: TranslationSchema = {
 			language: 'Langue',
 			languagePlaceholder: 'Auto (ex. en, tr)',
 			test: 'Tester la voix',
+			testStt: 'Tester le micro',
+			testHeard: 'Entendu : « {{text}} »',
 			testSuccess: 'Une phrase de test a été lue.',
 			testPhrase: 'Bonjour, ceci est un test vocal de Navvy.',
 			testNoController: 'Configurez d’abord un fournisseur.',
