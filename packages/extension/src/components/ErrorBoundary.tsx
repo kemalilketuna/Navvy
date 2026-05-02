@@ -39,7 +39,7 @@ export class ErrorBoundary extends Component<Props, State> {
 	}
 
 	handleResetConfig = async () => {
-		await chrome.storage.local.remove(['llmConfig', 'language', 'advancedConfig'])
+		await chrome.storage.local.remove(['providerConfig', 'language', 'advancedConfig'])
 		window.location.reload()
 	}
 

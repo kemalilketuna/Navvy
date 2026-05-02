@@ -20,9 +20,9 @@ import {
 	type LanguagePreference,
 	loadConfig,
 	saveConfig,
+	toLlmConfig,
 } from './configStore'
 
-export type { LLMProfile } from './profiles'
 export type { AdvancedConfig, ExtConfig, LanguagePreference }
 export type { VoiceState }
 
@@ -75,11 +75,9 @@ export function useAgent(): UseAgentResult {
 		const onChange = (changes: Record<string, chrome.storage.StorageChange>, areaName: string) => {
 			if (areaName !== 'local') return
 			if (
-				'llmConfig' in changes ||
+				'providerConfig' in changes ||
 				'language' in changes ||
 				'advancedConfig' in changes ||
-				'llmProfiles' in changes ||
-				'activeProfileId' in changes ||
 				'maskingEntries' in changes ||
 				'voiceConfig' in changes ||
 				'skills' in changes
@@ -94,20 +92,27 @@ export function useAgent(): UseAgentResult {
 	useEffect(() => {
 		if (!config) return
 
+		const llmConfig = toLlmConfig(config)
 		const {
 			systemInstruction,
-			profiles,
-			activeProfileId,
+			// Provider-form metadata; the runtime LLM credentials come from llmConfig.
+			providerKey: _providerKey,
+			accountId: _accountId,
+			savedCredentials: _savedCredentials,
+			baseURL: _baseURL,
 			language: _uiLanguage,
 			// voiceConfig is UI-only — keep it out of the core constructor.
 			voiceConfig,
 			...agentConfig
 		} = config
-		void profiles
-		void activeProfileId
+		void _providerKey
+		void _accountId
+		void _savedCredentials
+		void _baseURL
 		void _uiLanguage
 		const agent = new MultiPageAgent({
 			...agentConfig,
+			...llmConfig,
 			instructions: systemInstruction ? { system: systemInstruction } : undefined,
 		})
 		agentRef.current = agent
@@ -115,8 +120,8 @@ export function useAgent(): UseAgentResult {
 		// Voice: build a controller from the (UI-only) voiceConfig, reusing the
 		// active chat credentials for OpenAI-compatible audio providers.
 		const voiceController = createVoiceController(voiceConfig, {
-			baseURL: config.baseURL,
-			apiKey: config.apiKey,
+			baseURL: llmConfig.baseURL,
+			apiKey: llmConfig.apiKey,
 		})
 		voiceRef.current = voiceController
 		autoSpeakRef.current = Boolean(voiceController && voiceConfig.autoSpeakResponses)

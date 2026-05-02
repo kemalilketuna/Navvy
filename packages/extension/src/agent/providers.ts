@@ -395,22 +395,73 @@ export function extractCloudflareAccountId(baseURL: string): string {
 	return raw
 }
 
-interface ProfileLike {
+interface ProviderModelRef {
 	providerKey: ProviderKey
 	model: string
 }
 
-export function getModelInfo(profile: ProfileLike): ModelInfo | undefined {
-	const preset = PROVIDERS_BY_KEY[profile.providerKey]
+export function getModelInfo(ref: ProviderModelRef): ModelInfo | undefined {
+	const preset = PROVIDERS_BY_KEY[ref.providerKey]
 	if (!preset) return undefined
-	return preset.models.find((m) => m.id === profile.model)
+	return preset.models.find((m) => m.id === ref.model)
 }
 
 /**
- * Whether the model selected on this profile is known to accept image input.
- * Returns false for unknown / free-typed model strings — image features
- * should fail closed rather than appear and then 400 at request time.
+ * Whether the selected model is known to accept image input. Returns false for
+ * unknown / free-typed model strings — image features should fail closed rather
+ * than appear and then 400 at request time.
  */
-export function modelSupportsImages(profile: ProfileLike): boolean {
-	return getModelInfo(profile)?.supportsImages ?? false
+export function modelSupportsImages(ref: ProviderModelRef): boolean {
+	return getModelInfo(ref)?.supportsImages ?? false
+}
+
+export interface ProviderCredentials {
+	apiKey?: string
+	accountId?: string
+	baseURL?: string
+	model?: string
+}
+
+/** The provider half of the extension config — everything the Providers form edits. */
+export interface ProviderConfig {
+	providerKey: ProviderKey
+	baseURL: string
+	model: string
+	apiKey?: string
+	/** Cloudflare-only: account ID used to template the runtime baseURL. */
+	accountId?: string
+	/**
+	 * Per-provider credential memory. Lets a user enter their OpenAI key, switch
+	 * to Anthropic, then return to OpenAI without re-typing — keys are kept
+	 * around even when not currently selected.
+	 */
+	savedCredentials?: Partial<Record<ProviderKey, ProviderCredentials>>
+}
+
+/** Compose the runtime baseURL, applying provider-specific synthesis (e.g. Cloudflare). */
+export function resolveBaseURL(config: {
+	providerKey: ProviderKey
+	baseURL: string
+	accountId?: string
+}): string {
+	const preset = PROVIDERS_BY_KEY[config.providerKey]
+	if (preset?.buildBaseURL) return preset.buildBaseURL({ accountId: config.accountId })
+	return config.baseURL
+}
+
+/** Whether all required credentials for the selected provider are present. */
+export function isProviderConfigComplete(config: {
+	providerKey: ProviderKey
+	baseURL: string
+	apiKey?: string
+	accountId?: string
+}): boolean {
+	const preset = PROVIDERS_BY_KEY[config.providerKey]
+	if (!preset) return false
+	if (preset.requiresApiKey && !config.apiKey?.trim()) return false
+	if (preset.requiresAccountId && !config.accountId?.trim()) return false
+	if (preset.baseURLEditable !== false && !preset.buildBaseURL) {
+		if (!config.baseURL?.trim()) return false
+	}
+	return true
 }
