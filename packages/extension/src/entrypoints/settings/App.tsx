@@ -269,6 +269,7 @@ export default function App() {
 								apiKey: (
 									draft.profiles.find((p) => p.id === draft.activeProfileId) ?? draft.profiles[0]
 								)?.apiKey,
+								disableNamedToolChoice: draft.disableNamedToolChoice,
 							}}
 						/>
 					</TabsContent>
