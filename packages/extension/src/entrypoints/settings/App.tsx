@@ -1,4 +1,5 @@
 import {
+	House,
 	Info,
 	Loader2,
 	Mic,
@@ -189,7 +190,7 @@ export default function App() {
 			>
 				<TabsList className="w-56 shrink-0 self-start py-8">
 					<TabsTrigger value="general">
-						<SettingsIcon />
+						<House />
 						<span>{t('ext.settings.tabGeneral')}</span>
 					</TabsTrigger>
 					<TabsTrigger value="providers">
