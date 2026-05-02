@@ -78,8 +78,8 @@ export const esES: TranslationSchema = {
 			title: 'Datos guardados y enmascaramiento',
 			description:
 				'Guarda valores que el agente puede rellenar en formularios. Marca un valor como sensible para que nunca llegue al proveedor de IA: el agente solo ve un {{token}} opaco.',
-			unencryptedNote:
-				'Los valores se almacenan sin cifrar en este navegador, igual que tus claves de API.',
+			encryptionNote:
+				'Los valores se almacenan cifrados en este navegador, igual que tus claves de API.',
 			jsDisabledNote:
 				'Mientras haya alguna entrada activa, la herramienta experimental de JavaScript se desactiva para proteger los valores enmascarados.',
 			empty: 'Aún no hay datos guardados. Añade una entrada o un grupo de dirección para empezar.',

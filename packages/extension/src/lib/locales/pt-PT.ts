@@ -78,8 +78,8 @@ export const ptPT: TranslationSchema = {
 			title: 'Dados guardados e máscara',
 			description:
 				'Guarde valores que o agente pode preencher em formulários. Marque um valor como sensível para que nunca chegue ao fornecedor de IA: o agente vê apenas um {{token}} opaco.',
-			unencryptedNote:
-				'Os valores são armazenados sem cifragem neste navegador, tal como as suas chaves de API.',
+			encryptionNote:
+				'Os valores são cifrados em repouso neste navegador, tal como as suas chaves de API.',
 			jsDisabledNote:
 				'Enquanto houver uma entrada ativa, a ferramenta experimental de JavaScript é desativada para proteger os valores mascarados.',
 			empty:

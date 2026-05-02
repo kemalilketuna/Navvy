@@ -79,8 +79,7 @@ export const itIT: TranslationSchema = {
 			title: 'Dati salvati e mascheramento',
 			description:
 				'Salva valori che l’agente può inserire nei moduli. Contrassegna un valore come sensibile affinché non raggiunga mai il provider IA: l’agente vede solo un {{token}} opaco.',
-			unencryptedNote:
-				'I valori sono memorizzati non cifrati in questo browser, come le tue chiavi API.',
+			encryptionNote: 'I valori sono cifrati a riposo in questo browser, come le tue chiavi API.',
 			jsDisabledNote:
 				'Finché una voce è attiva, lo strumento JavaScript sperimentale è disattivato per proteggere i valori mascherati.',
 			empty: 'Nessun dato salvato. Aggiungi una voce o un gruppo di indirizzo per iniziare.',

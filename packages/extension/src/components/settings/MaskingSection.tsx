@@ -68,7 +68,7 @@ export function MaskingSection({ entries, onChange }: MaskingSectionProps) {
 			<div className="flex items-start gap-2 rounded-md border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
 				<Shield className="size-4 shrink-0 mt-0.5" />
 				<div className="flex flex-col gap-1">
-					<span>{t('ext.masking.unencryptedNote')}</span>
+					<span>{t('ext.masking.encryptionNote')}</span>
 					<span>{t('ext.masking.jsDisabledNote')}</span>
 				</div>
 			</div>
