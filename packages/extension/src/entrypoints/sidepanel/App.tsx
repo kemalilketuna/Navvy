@@ -1,11 +1,12 @@
 import type { TaskAttachment } from '@page-agent/core'
-import { History, MoreVertical, Settings, Sparkles, SquarePen } from 'lucide-react'
+import { GraduationCap, History, MoreVertical, Settings, Sparkles, SquarePen } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { Composer } from '@/components/Composer'
 import { HistoryDetail } from '@/components/HistoryDetail'
 import { HistoryList } from '@/components/HistoryList'
+import { TeachScreen } from '@/components/TeachScreen'
 import { HistoryStream } from '@/components/cards'
 import { EmptyState, StatusDot } from '@/components/misc'
 import { Button } from '@/components/ui/button'
@@ -22,7 +23,11 @@ import { type MicPermissionState, queryMicPermission } from '@/voice/micPermissi
 import { modelSupportsImages } from '../../agent/providers'
 import { useAgent } from '../../agent/useAgent'
 
-type View = { name: 'chat' } | { name: 'history' } | { name: 'history-detail'; sessionId: string }
+type View =
+	| { name: 'chat' }
+	| { name: 'history' }
+	| { name: 'history-detail'; sessionId: string }
+	| { name: 'teach' }
 
 async function stashReturnTab() {
 	try {
@@ -326,6 +331,25 @@ export default function App() {
 		)
 	}
 
+	if (view.name === 'teach') {
+		return (
+			<TeachScreen
+				onClose={() => setView({ name: 'chat' })}
+				voiceEnabled={voiceEnabled}
+				voiceState={voiceState}
+				startListening={startListening}
+				stopListening={stopListening}
+				micUnavailable={micUnavailable}
+				onMicBlocked={warnMicBlocked}
+				llm={{
+					baseURL: config?.baseURL ?? '',
+					model: config?.model,
+					apiKey: config?.apiKey,
+				}}
+			/>
+		)
+	}
+
 	// --- Chat view ---
 
 	const isRunning = status === 'running'
@@ -348,6 +372,16 @@ export default function App() {
 						title={t('ext.header.newChat')}
 					>
 						<SquarePen className="size-4" />
+					</Button>
+					<Button
+						variant="ghost"
+						size="icon"
+						onClick={() => setView({ name: 'teach' })}
+						className="h-7 w-7 cursor-pointer text-muted-foreground hover:bg-white/5 hover:text-foreground"
+						aria-label={t('ext.teach.open')}
+						title={t('ext.teach.open')}
+					>
+						<GraduationCap className="size-4" />
 					</Button>
 					<Button
 						variant="ghost"

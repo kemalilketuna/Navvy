@@ -6,6 +6,7 @@ import { type ExtensionLanguage } from './MultiPageAgent'
 import { DEMO_CONFIG, migrateLegacyEndpoint } from './constants'
 import { type MaskingEntry } from './masking'
 import { type LLMProfile, buildProfilesState, resolveBaseURL } from './profiles'
+import { type Skill } from './skills'
 
 export type LanguagePreference = ExtensionLanguage | undefined
 
@@ -29,6 +30,8 @@ export interface ExtConfig extends LLMConfig, AdvancedConfig {
 	maskingEntries: MaskingEntry[]
 	/** Voice conversation settings (UI-only; not passed to core). @see voice/types.ts */
 	voiceConfig: VoiceConfig
+	/** Reusable Teach → Skills definitions. @see skills.ts */
+	skills: Skill[]
 }
 
 function normalizeResponseLanguage(raw: unknown): ResponseLanguage {
@@ -57,6 +60,7 @@ export async function loadConfig(): Promise<ExtConfig> {
 		'activeProfileId',
 		'maskingEntries',
 		'voiceConfig',
+		'skills',
 	])
 
 	let legacyLlm = (result.llmConfig as LLMConfig) ?? DEMO_CONFIG
@@ -85,6 +89,7 @@ export async function loadConfig(): Promise<ExtConfig> {
 	const active = profiles.find((p) => p.id === activeProfileId) ?? profiles[0]
 	const maskingEntries = (result.maskingEntries as MaskingEntry[]) ?? []
 	const voiceConfig = normalizeVoiceConfig(result.voiceConfig)
+	const skills = (result.skills as Skill[]) ?? []
 
 	return {
 		baseURL: resolveBaseURL(active),
@@ -97,6 +102,7 @@ export async function loadConfig(): Promise<ExtConfig> {
 		activeProfileId: active.id,
 		maskingEntries,
 		voiceConfig,
+		skills,
 	}
 }
 
@@ -113,6 +119,7 @@ export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 		activeProfileId,
 		maskingEntries,
 		voiceConfig,
+		skills,
 	} = config
 
 	const active = profiles.find((p) => p.id === activeProfileId) ?? profiles[0]
@@ -148,6 +155,7 @@ export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 	await chrome.storage.local.set({ maskingEntries: maskingEntries ?? [] })
 	const normalizedVoice = normalizeVoiceConfig(voiceConfig)
 	await chrome.storage.local.set({ voiceConfig: normalizedVoice })
+	await chrome.storage.local.set({ skills: skills ?? [] })
 
 	return {
 		...llmConfig,
@@ -158,5 +166,6 @@ export async function saveConfig(config: ExtConfig): Promise<ExtConfig> {
 		activeProfileId: active.id,
 		maskingEntries: maskingEntries ?? [],
 		voiceConfig: normalizedVoice,
+		skills: skills ?? [],
 	}
 }
