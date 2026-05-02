@@ -137,6 +137,8 @@ export const enUS = {
 			language: 'Language',
 			languagePlaceholder: 'Auto (e.g. en, tr)',
 			test: 'Test voice',
+			testStt: 'Test microphone',
+			testHeard: 'Heard: "{{text}}"',
 			testSuccess: 'Played a test phrase.',
 			testPhrase: 'Hello, this is a Navvy voice test.',
 			testNoController: 'Configure a provider first.',

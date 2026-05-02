@@ -138,6 +138,8 @@ export const deDE: TranslationSchema = {
 			language: 'Sprache',
 			languagePlaceholder: 'Auto (z. B. en, tr)',
 			test: 'Stimme testen',
+			testStt: 'Mikrofon testen',
+			testHeard: 'Gehört: „{{text}}“',
 			testSuccess: 'Eine Testphrase abgespielt.',
 			testPhrase: 'Hallo, dies ist ein Navvy-Sprachtest.',
 			testNoController: 'Konfiguriere zuerst einen Anbieter.',

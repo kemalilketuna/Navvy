@@ -1,5 +1,15 @@
-import { CheckCircle2, ExternalLink, Eye, EyeOff, Loader2, Mic, XCircle } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import {
+	CheckCircle2,
+	ExternalLink,
+	Eye,
+	EyeOff,
+	Loader2,
+	Mic,
+	Square,
+	Volume2,
+	XCircle,
+} from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { LANGUAGE_NAMES } from '@/agent/MultiPageAgent'
 import {
@@ -53,12 +63,30 @@ export function VoiceSection({ value, onChange, llm }: VoiceSectionProps) {
 	const t = useT()
 	const [showSttKey, setShowSttKey] = useState(false)
 	const [showTtsKey, setShowTtsKey] = useState(false)
-	const [testState, setTestState] = useState<
+	const [ttsTest, setTtsTest] = useState<
 		| { status: 'idle' }
 		| { status: 'running' }
 		| { status: 'success' }
 		| { status: 'error'; message: string }
 	>({ status: 'idle' })
+	const [sttTest, setSttTest] = useState<
+		| { status: 'idle' }
+		| { status: 'listening' }
+		| { status: 'transcribing' }
+		| { status: 'success'; text: string }
+		| { status: 'error'; message: string }
+	>({ status: 'idle' })
+	// Held across start→stop of an in-progress STT test capture.
+	const sttControllerRef = useRef<ReturnType<typeof createVoiceController>>(null)
+
+	// Dispose any dangling test capture on unmount.
+	useEffect(
+		() => () => {
+			sttControllerRef.current?.dispose()
+			sttControllerRef.current = null
+		},
+		[]
+	)
 
 	// Auto + the languages the extension supports, as base ISO-639-1 codes so the
 	// hint is accepted by network STT (OpenAI/ElevenLabs want ISO-639-1) and works
@@ -97,20 +125,56 @@ export function VoiceSection({ value, onChange, llm }: VoiceSectionProps) {
 		return (ttsProvider?.voices ?? []).map((v) => ({ value: v.id, label: v.label ?? v.id }))
 	}, [ttsProvider, webSpeechTtsVoices])
 
-	const handleTest = async () => {
-		setTestState({ status: 'running' })
+	// Synthesize + play the test phrase, exercising the TTS provider/credentials.
+	const handleTtsTest = async () => {
+		setTtsTest({ status: 'running' })
 		const controller = createVoiceController({ ...value, enabled: true }, llm)
 		if (!controller) {
-			setTestState({ status: 'error', message: t('ext.voice.testNoController') })
+			setTtsTest({ status: 'error', message: t('ext.voice.testNoController') })
 			return
 		}
 		try {
 			await controller.speak(t('ext.voice.testPhrase'))
-			setTestState({ status: 'success' })
+			setTtsTest({ status: 'success' })
 		} catch (err) {
-			setTestState({ status: 'error', message: (err as Error)?.message || 'Error' })
+			setTtsTest({ status: 'error', message: (err as Error)?.message || 'Error' })
 		} finally {
 			controller.dispose()
+		}
+	}
+
+	// Record from the mic, then transcribe — a full STT round-trip that validates
+	// the provider, credentials, and endpoint. Toggles: first click records, second
+	// stops and transcribes.
+	const handleSttTest = async () => {
+		if (sttTest.status === 'listening') {
+			const controller = sttControllerRef.current
+			setSttTest({ status: 'transcribing' })
+			try {
+				const text = (await controller?.stopListening()) ?? ''
+				setSttTest({ status: 'success', text: text.trim() })
+			} catch (err) {
+				setSttTest({ status: 'error', message: (err as Error)?.message || 'Error' })
+			} finally {
+				controller?.dispose()
+				sttControllerRef.current = null
+			}
+			return
+		}
+
+		const controller = createVoiceController({ ...value, enabled: true }, llm)
+		if (!controller) {
+			setSttTest({ status: 'error', message: t('ext.voice.testNoController') })
+			return
+		}
+		sttControllerRef.current = controller
+		try {
+			await controller.startListening()
+			setSttTest({ status: 'listening' })
+		} catch (err) {
+			setSttTest({ status: 'error', message: (err as Error)?.message || 'Error' })
+			controller.dispose()
+			sttControllerRef.current = null
 		}
 	}
 
@@ -181,6 +245,47 @@ export function VoiceSection({ value, onChange, llm }: VoiceSectionProps) {
 						{sttReused && (
 							<p className="text-xs text-muted-foreground">{t('ext.voice.reusingChatKey')}</p>
 						)}
+						<div className="flex flex-col gap-2">
+							<div>
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									className="cursor-pointer"
+									onClick={handleSttTest}
+									disabled={sttTest.status === 'transcribing'}
+								>
+									{sttTest.status === 'transcribing' ? (
+										<Loader2 className="size-4 animate-spin" />
+									) : sttTest.status === 'listening' ? (
+										<Square className="size-4 fill-current text-red-500" />
+									) : (
+										<Mic className="size-4" />
+									)}
+									{sttTest.status === 'listening'
+										? t('ext.input.voice.listening')
+										: sttTest.status === 'transcribing'
+											? t('ext.input.voice.transcribing')
+											: t('ext.voice.testStt')}
+								</Button>
+							</div>
+							{sttTest.status === 'success' && (
+								<div className="flex items-start gap-1.5 text-xs text-emerald-600">
+									<CheckCircle2 className="size-3.5 mt-0.5 shrink-0" />
+									<span className="break-words">
+										{sttTest.text
+											? t('ext.voice.testHeard', { text: sttTest.text })
+											: t('ext.input.voice.noSpeech')}
+									</span>
+								</div>
+							)}
+							{sttTest.status === 'error' && (
+								<div className="flex items-start gap-1.5 text-xs text-red-500">
+									<XCircle className="size-3.5 mt-0.5 shrink-0" />
+									<span className="break-words">{sttTest.message}</span>
+								</div>
+							)}
+						</div>
 					</div>
 
 					{/* Text-to-speech */}
@@ -241,6 +346,37 @@ export function VoiceSection({ value, onChange, llm }: VoiceSectionProps) {
 						{ttsReused && (
 							<p className="text-xs text-muted-foreground">{t('ext.voice.reusingChatKey')}</p>
 						)}
+						<div className="flex flex-col gap-2">
+							<div>
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									className="cursor-pointer"
+									onClick={handleTtsTest}
+									disabled={ttsTest.status === 'running'}
+								>
+									{ttsTest.status === 'running' ? (
+										<Loader2 className="size-4 animate-spin" />
+									) : (
+										<Volume2 className="size-4" />
+									)}
+									{t('ext.voice.test')}
+								</Button>
+							</div>
+							{ttsTest.status === 'success' && (
+								<div className="flex items-center gap-1.5 text-xs text-emerald-600">
+									<CheckCircle2 className="size-3.5" />
+									{t('ext.voice.testSuccess')}
+								</div>
+							)}
+							{ttsTest.status === 'error' && (
+								<div className="flex items-start gap-1.5 text-xs text-red-500">
+									<XCircle className="size-3.5 mt-0.5 shrink-0" />
+									<span className="break-words">{ttsTest.message}</span>
+								</div>
+							)}
+						</div>
 					</div>
 
 					{/* Interaction */}
@@ -290,38 +426,6 @@ export function VoiceSection({ value, onChange, llm }: VoiceSectionProps) {
 								className="max-w-40"
 							/>
 						</div>
-					</div>
-
-					<div className="flex flex-col gap-2">
-						<div>
-							<Button
-								type="button"
-								variant="outline"
-								size="sm"
-								className="cursor-pointer"
-								onClick={handleTest}
-								disabled={testState.status === 'running'}
-							>
-								{testState.status === 'running' ? (
-									<Loader2 className="size-4 animate-spin" />
-								) : (
-									<Mic className="size-4" />
-								)}
-								{t('ext.voice.test')}
-							</Button>
-						</div>
-						{testState.status === 'success' && (
-							<div className="flex items-center gap-1.5 text-xs text-emerald-600">
-								<CheckCircle2 className="size-3.5" />
-								{t('ext.voice.testSuccess')}
-							</div>
-						)}
-						{testState.status === 'error' && (
-							<div className="flex items-start gap-1.5 text-xs text-red-500">
-								<XCircle className="size-3.5 mt-0.5 shrink-0" />
-								<span className="break-words">{testState.message}</span>
-							</div>
-						)}
 					</div>
 				</>
 			)}

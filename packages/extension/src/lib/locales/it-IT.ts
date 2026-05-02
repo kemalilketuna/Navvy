@@ -137,6 +137,8 @@ export const itIT: TranslationSchema = {
 			language: 'Lingua',
 			languagePlaceholder: 'Auto (es. en, tr)',
 			test: 'Prova voce',
+			testStt: 'Prova microfono',
+			testHeard: 'Sentito: «{{text}}»',
 			testSuccess: 'Riprodotta una frase di prova.',
 			testPhrase: 'Ciao, questo è un test vocale di Navvy.',
 			testNoController: 'Configura prima un provider.',
