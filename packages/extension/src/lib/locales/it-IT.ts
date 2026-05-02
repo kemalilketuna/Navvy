@@ -56,6 +56,14 @@ export const itIT: TranslationSchema = {
 				'Parla con l’agente e ascolta le sue risposte. Scegli i provider di sintesi vocale e riconoscimento vocale; la Web Speech API funziona senza chiave API.',
 			enabled: 'Abilita modalità vocale',
 			enabledHelp: 'Mostra il pulsante del microfono e abilita il push-to-talk.',
+			micAccess: 'Accesso al microfono',
+			micAccessHelp:
+				"L'input vocale richiede il microfono. Concedilo qui: il pannello laterale non può richiederlo direttamente.",
+			micGrant: 'Concedi accesso',
+			micGranted: 'Accesso al microfono concesso.',
+			micDenied:
+				"L'accesso al microfono è bloccato. Abilitalo nelle impostazioni del sito del browser per questa estensione, poi ricarica.",
+			micCheck: 'Controlla di nuovo',
 			sttHeading: 'Voce in testo',
 			ttsHeading: 'Testo in voce',
 			interactionHeading: 'Interazione',
@@ -98,6 +106,8 @@ export const itIT: TranslationSchema = {
 				stop: 'Ferma e trascrivi',
 				transcribing: 'Trascrizione…',
 				disabled: 'Abilita la voce nelle impostazioni',
+				noSpeech: 'Nessun parlato rilevato — riprova.',
+				failed: 'Input vocale non riuscito',
 			},
 			attach: {
 				label: 'Allega',

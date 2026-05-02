@@ -29,6 +29,23 @@ function getRecognitionCtor(): (new () => SpeechRecognitionLike) | null {
 	return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null
 }
 
+/** Map a SpeechRecognition error code to an actionable message. */
+function webSpeechErrorMessage(code?: string): string {
+	switch (code) {
+		case 'not-allowed':
+		case 'service-not-allowed':
+			return 'Microphone access is blocked. Allow microphone access for the extension, then try again.'
+		case 'audio-capture':
+			return 'No microphone was found. Connect a microphone and try again.'
+		case 'network':
+			return 'Speech recognition needs an internet connection (Web Speech uses an online service).'
+		case 'language-not-supported':
+			return 'The selected language is not supported for speech recognition. Try "Auto" in voice settings.'
+		default:
+			return `Speech recognition error: ${code ?? 'unknown'}`
+	}
+}
+
 export function webSpeechSttSupported(): boolean {
 	return getRecognitionCtor() !== null
 }
@@ -71,7 +88,7 @@ export class WebSpeechRecognizer {
 				this.resolveDone?.(this.finalText.trim())
 				return
 			}
-			this.rejectDone?.(new AudioError(`Speech recognition error: ${event?.error ?? 'unknown'}`))
+			this.rejectDone?.(new AudioError(webSpeechErrorMessage(event?.error)))
 		}
 		rec.onend = () => this.resolveDone?.(this.finalText.trim())
 		this.rec = rec

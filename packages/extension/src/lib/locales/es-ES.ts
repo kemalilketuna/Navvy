@@ -56,6 +56,14 @@ export const esES: TranslationSchema = {
 				'Habla con el agente y escucha sus respuestas. Elige proveedores de voz a texto y texto a voz; la Web Speech API funciona sin clave API.',
 			enabled: 'Activar modo de voz',
 			enabledHelp: 'Muestra el botón del micrófono y activa pulsar para hablar.',
+			micAccess: 'Acceso al micrófono',
+			micAccessHelp:
+				'La entrada de voz necesita el micrófono. Concédelo aquí: el panel lateral no puede pedirlo directamente.',
+			micGrant: 'Conceder acceso',
+			micGranted: 'Acceso al micrófono concedido.',
+			micDenied:
+				'El acceso al micrófono está bloqueado. Actívalo en los ajustes del sitio del navegador para esta extensión y recarga.',
+			micCheck: 'Comprobar de nuevo',
 			sttHeading: 'Voz a texto',
 			ttsHeading: 'Texto a voz',
 			interactionHeading: 'Interacción',
@@ -98,6 +106,8 @@ export const esES: TranslationSchema = {
 				stop: 'Detener y transcribir',
 				transcribing: 'Transcribiendo…',
 				disabled: 'Activa la voz en los ajustes',
+				noSpeech: 'No se detectó voz; inténtalo de nuevo.',
+				failed: 'Error en la entrada de voz',
 			},
 			attach: {
 				label: 'Adjuntar',

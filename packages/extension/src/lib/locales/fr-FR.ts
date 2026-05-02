@@ -56,6 +56,14 @@ export const frFR: TranslationSchema = {
 				'Parlez à l’agent et écoutez ses réponses. Choisissez des fournisseurs de reconnaissance vocale et de synthèse vocale ; la Web Speech API fonctionne sans clé API.',
 			enabled: 'Activer le mode vocal',
 			enabledHelp: 'Afficher le bouton du micro et activer le push-to-talk.',
+			micAccess: 'Accès au microphone',
+			micAccessHelp:
+				'La saisie vocale nécessite le microphone. Accordez-le ici : le panneau latéral ne peut pas le demander directement.',
+			micGrant: "Accorder l'accès",
+			micGranted: 'Accès au microphone accordé.',
+			micDenied:
+				"L'accès au microphone est bloqué. Activez-le dans les paramètres du site du navigateur pour cette extension, puis rechargez.",
+			micCheck: 'Vérifier à nouveau',
 			sttHeading: 'Parole en texte',
 			ttsHeading: 'Texte en parole',
 			interactionHeading: 'Interaction',
@@ -98,6 +106,8 @@ export const frFR: TranslationSchema = {
 				stop: 'Arrêter et transcrire',
 				transcribing: 'Transcription…',
 				disabled: 'Activez la voix dans les paramètres',
+				noSpeech: 'Aucune parole détectée — réessayez.',
+				failed: 'Échec de la saisie vocale',
 			},
 			attach: {
 				label: 'Joindre',
