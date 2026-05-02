@@ -2,6 +2,7 @@ import {
 	Info,
 	Loader2,
 	Settings as SettingsIcon,
+	Shield,
 	SlidersHorizontal,
 	Sparkles,
 	X,
@@ -14,15 +15,16 @@ import { type LLMProfile, isProfileComplete } from '@/agent/profiles'
 import { AboutSection } from '@/components/settings/AboutSection'
 import { AdvancedSection } from '@/components/settings/AdvancedSection'
 import { GeneralSection } from '@/components/settings/GeneralSection'
+import { MaskingSection } from '@/components/settings/MaskingSection'
 import { ProvidersSection } from '@/components/settings/ProvidersSection'
 import { SkillsSection } from '@/components/settings/SkillsSection'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useT } from '@/lib/i18n'
 
-type TabKey = 'general' | 'providers' | 'skills' | 'advanced' | 'about'
+type TabKey = 'general' | 'providers' | 'masking' | 'skills' | 'advanced' | 'about'
 
-const VALID_TABS: TabKey[] = ['general', 'providers', 'skills', 'advanced', 'about']
+const VALID_TABS: TabKey[] = ['general', 'providers', 'masking', 'skills', 'advanced', 'about']
 
 function readHashTab(): TabKey {
 	const raw = window.location.hash.replace(/^#/, '')
@@ -168,6 +170,10 @@ export default function App() {
 							<Zap />
 							<span>{t('ext.settings.tabProviders')}</span>
 						</TabsTrigger>
+						<TabsTrigger value="masking">
+							<Shield />
+							<span>{t('ext.settings.tabMasking')}</span>
+						</TabsTrigger>
 						<TabsTrigger value="skills">
 							<Sparkles />
 							<span>{t('ext.settings.tabSkills')}</span>
@@ -197,6 +203,12 @@ export default function App() {
 								activeProfileId={draft.activeProfileId}
 								onProfilesChange={(profiles: LLMProfile[]) => patch({ profiles })}
 								onActiveProfileChange={(activeProfileId) => patch({ activeProfileId })}
+							/>
+						</TabsContent>
+						<TabsContent value="masking">
+							<MaskingSection
+								entries={draft.maskingEntries}
+								onChange={(maskingEntries) => patch({ maskingEntries })}
 							/>
 						</TabsContent>
 						<TabsContent value="skills">

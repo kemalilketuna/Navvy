@@ -22,6 +22,34 @@ export const deDE: TranslationSchema = {
 			comingSoon: 'Demnächst verfügbar',
 			description: 'Wiederverwendbare Agenten-Skills werden hier zu finden sein.',
 		},
+		masking: {
+			title: 'Gespeicherte Daten & Maskierung',
+			description:
+				'Speichere Werte, die der Agent in Formulare einfügen kann. Markiere einen Wert als sensibel, damit er nie den KI-Anbieter erreicht – der Agent sieht nur ein anonymes {{token}}.',
+			unencryptedNote:
+				'Werte werden unverschlüsselt in diesem Browser gespeichert, wie deine API-Schlüssel.',
+			jsDisabledNote:
+				'Solange ein Eintrag aktiv ist, wird das experimentelle JavaScript-Tool deaktiviert, um maskierte Werte zu schützen.',
+			empty: 'Noch keine gespeicherten Daten. Füge einen Eintrag oder eine Adressgruppe hinzu.',
+			label: 'Bezeichnung',
+			labelPlaceholder: 'z. B. Primäre Kreditkarte',
+			token: 'Token',
+			tokenPlaceholder: 'z. B. credit_card',
+			value: 'Wert',
+			valuePlaceholder: 'Der echte Wert',
+			group: 'Gruppe',
+			groupPlaceholder: 'z. B. Heimatadresse',
+			sensitive: 'Sensibel',
+			sensitiveHelp:
+				'Sensible Werte werden aus dem Seiteninhalt entfernt und nie an die KI gesendet. Nicht sensible Werte (Name, Adresse) werden automatisch ausgefüllt und können von der KI gesehen werden.',
+			enabled: 'Aktiviert',
+			delete: 'Eintrag löschen',
+			showValue: 'Wert anzeigen',
+			hideValue: 'Wert verbergen',
+			addEntry: 'Eintrag hinzufügen',
+			addAddressGroup: 'Adressgruppe hinzufügen',
+			addressGroupName: 'Heimatadresse',
+		},
 		empty: {
 			tip1: 'Überlasse die langweiligen Klicks der KI',
 			tip2: 'Surfe mit Absicht, nicht mit der Maus',
@@ -128,6 +156,7 @@ export const deDE: TranslationSchema = {
 		settings: {
 			tabGeneral: 'Allgemein',
 			tabProviders: 'Anbieter',
+			tabMasking: 'Gespeicherte Daten',
 			tabSkills: 'Fähigkeiten',
 			tabAdvanced: 'Erweitert',
 			tabAbout: 'Über',

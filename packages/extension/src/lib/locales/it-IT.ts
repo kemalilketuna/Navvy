@@ -22,6 +22,34 @@ export const itIT: TranslationSchema = {
 			comingSoon: 'Prossimamente',
 			description: 'Le competenze riutilizzabili dell’agente vivranno qui.',
 		},
+		masking: {
+			title: 'Dati salvati e mascheramento',
+			description:
+				'Salva valori che l’agente può inserire nei moduli. Contrassegna un valore come sensibile affinché non raggiunga mai il provider IA: l’agente vede solo un {{token}} opaco.',
+			unencryptedNote:
+				'I valori sono memorizzati non cifrati in questo browser, come le tue chiavi API.',
+			jsDisabledNote:
+				'Finché una voce è attiva, lo strumento JavaScript sperimentale è disattivato per proteggere i valori mascherati.',
+			empty: 'Nessun dato salvato. Aggiungi una voce o un gruppo di indirizzo per iniziare.',
+			label: 'Etichetta',
+			labelPlaceholder: 'es. Carta di credito principale',
+			token: 'Token',
+			tokenPlaceholder: 'es. credit_card',
+			value: 'Valore',
+			valuePlaceholder: 'Il valore reale',
+			group: 'Gruppo',
+			groupPlaceholder: 'es. Indirizzo di casa',
+			sensitive: 'Sensibile',
+			sensitiveHelp:
+				'I valori sensibili vengono rimossi dal contenuto della pagina e non vengono mai inviati all’IA. I valori non sensibili (nome, indirizzo) vengono compilati automaticamente e possono essere visti dall’IA.',
+			enabled: 'Attivo',
+			delete: 'Elimina voce',
+			showValue: 'Mostra valore',
+			hideValue: 'Nascondi valore',
+			addEntry: 'Aggiungi voce',
+			addAddressGroup: 'Aggiungi gruppo indirizzo',
+			addressGroupName: 'Indirizzo di casa',
+		},
 		empty: {
 			tip1: 'Lascia che l’IA faccia i clic noiosi',
 			tip2: 'Naviga con l’intenzione, non con il mouse',
@@ -129,6 +157,7 @@ export const itIT: TranslationSchema = {
 		settings: {
 			tabGeneral: 'Generale',
 			tabProviders: 'Provider',
+			tabMasking: 'Dati salvati',
 			tabSkills: 'Competenze',
 			tabAdvanced: 'Avanzate',
 			tabAbout: 'Informazioni',
