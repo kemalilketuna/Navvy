@@ -68,6 +68,7 @@ export const enUS = {
 			micDenied:
 				'Microphone access is blocked. Enable it in the browser site settings for this extension, then reload.',
 			micCheck: 'Check again',
+			missingKey: 'Add an API key for the selected voice providers to save.',
 			sttHeading: 'Speech to text',
 			ttsHeading: 'Text to speech',
 			interactionHeading: 'Interaction',
