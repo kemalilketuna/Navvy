@@ -1,29 +1,14 @@
-import {
-	CheckCircle2,
-	ExternalLink,
-	Eye,
-	EyeOff,
-	Loader2,
-	Plus,
-	Scale,
-	Trash2,
-	XCircle,
-} from 'lucide-react'
+import { CheckCircle2, ExternalLink, Eye, EyeOff, Loader2, Scale, XCircle } from 'lucide-react'
 import { useState } from 'react'
 
 import { DEMO_BASE_URL, DEMO_MODEL, isTestingEndpoint } from '@/agent/constants'
-import { type LLMProfile, type ProviderCredentials, newProfileId } from '@/agent/profiles'
-import { PROVIDERS, PROVIDERS_BY_KEY, type ProviderKey } from '@/agent/providers'
 import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+	PROVIDERS,
+	PROVIDERS_BY_KEY,
+	type ProviderConfig,
+	type ProviderCredentials,
+	type ProviderKey,
+} from '@/agent/providers'
 import { Button } from '@/components/ui/button'
 import { Combobox, type ComboboxOption } from '@/components/ui/combobox'
 import { Input } from '@/components/ui/input'
@@ -44,21 +29,13 @@ function tokenLimitBody(model: string): Record<string, number> {
 }
 
 interface ProvidersSectionProps {
-	profiles: LLMProfile[]
-	activeProfileId: string
-	onProfilesChange: (profiles: LLMProfile[]) => void
-	onActiveProfileChange: (id: string) => void
+	config: ProviderConfig
+	onChange: (config: ProviderConfig) => void
 }
 
-export function ProvidersSection({
-	profiles,
-	activeProfileId,
-	onProfilesChange,
-	onActiveProfileChange,
-}: ProvidersSectionProps) {
+export function ProvidersSection({ config, onChange }: ProvidersSectionProps) {
 	const t = useT()
 	const [showApiKey, setShowApiKey] = useState(false)
-	const [deleteOpen, setDeleteOpen] = useState(false)
 	const [testState, setTestState] = useState<
 		| { status: 'idle' }
 		| { status: 'running' }
@@ -66,33 +43,31 @@ export function ProvidersSection({
 		| { status: 'error'; message: string }
 	>({ status: 'idle' })
 
-	const activeProfile = profiles.find((p) => p.id === activeProfileId) ?? profiles[0]
-	const preset = activeProfile ? PROVIDERS_BY_KEY[activeProfile.providerKey] : undefined
+	const preset = PROVIDERS_BY_KEY[config.providerKey]
+	if (!preset) return null
 
-	if (!activeProfile || !preset) return null
-
-	const updateActive = (patch: Partial<LLMProfile>) => {
-		onProfilesChange(profiles.map((p) => (p.id === activeProfile.id ? { ...p, ...patch } : p)))
+	const update = (patch: Partial<ProviderConfig>) => {
+		onChange({ ...config, ...patch })
 	}
 
 	const handleProviderChange = (key: ProviderKey) => {
-		if (key === activeProfile.providerKey) return
+		if (key === config.providerKey) return
 		const nextPreset = PROVIDERS_BY_KEY[key]
-		const prevKey = activeProfile.providerKey
+		const prevKey = config.providerKey
 
 		const stashedCurrent: ProviderCredentials = {
-			apiKey: activeProfile.apiKey,
-			accountId: activeProfile.accountId,
-			baseURL: activeProfile.baseURL,
-			model: activeProfile.model,
+			apiKey: config.apiKey,
+			accountId: config.accountId,
+			baseURL: config.baseURL,
+			model: config.model,
 		}
 		const savedCredentials = {
-			...(activeProfile.savedCredentials ?? {}),
+			...(config.savedCredentials ?? {}),
 			[prevKey]: stashedCurrent,
 		}
 		const restored = savedCredentials[key]
 
-		updateActive({
+		update({
 			providerKey: key,
 			baseURL: restored?.baseURL ?? nextPreset.baseURL,
 			model: restored?.model ?? nextPreset.defaultModel,
@@ -102,46 +77,22 @@ export function ProvidersSection({
 		})
 	}
 
-	const handleAdd = () => {
-		const id = newProfileId()
-		const next: LLMProfile = {
-			id,
-			name: t('ext.config.profileNewName'),
-			providerKey: 'openai',
-			baseURL: PROVIDERS_BY_KEY.openai.baseURL,
-			model: PROVIDERS_BY_KEY.openai.defaultModel,
-			apiKey: '',
-		}
-		onProfilesChange([...profiles, next])
-		onActiveProfileChange(id)
-	}
-
-	const handleDelete = () => {
-		if (profiles.length <= 1) return
-		const idx = profiles.findIndex((p) => p.id === activeProfile.id)
-		const next = profiles.filter((p) => p.id !== activeProfile.id)
-		onProfilesChange(next)
-		const fallback = next[Math.max(0, idx - 1)]
-		onActiveProfileChange(fallback.id)
-		setDeleteOpen(false)
-	}
-
 	const handleTestConnection = async () => {
-		if (preset.requiresApiKey && !activeProfile.apiKey) {
+		if (preset.requiresApiKey && !config.apiKey) {
 			setTestState({ status: 'error', message: t('ext.config.testConnectionMissingApiKey') })
 			return
 		}
-		if (preset.requiresAccountId && !activeProfile.accountId) {
+		if (preset.requiresAccountId && !config.accountId) {
 			setTestState({ status: 'error', message: t('ext.config.testConnectionMissingAccountId') })
 			return
 		}
-		if (!activeProfile.model) {
+		if (!config.model) {
 			setTestState({ status: 'error', message: t('ext.config.testConnectionMissingModel') })
 			return
 		}
 		const baseURL = preset.buildBaseURL
-			? preset.buildBaseURL({ accountId: activeProfile.accountId })
-			: (activeProfile.baseURL ?? preset.baseURL)
+			? preset.buildBaseURL({ accountId: config.accountId })
+			: (config.baseURL ?? preset.baseURL)
 		if (!baseURL) {
 			setTestState({ status: 'error', message: t('ext.config.testConnectionMissingBaseUrl') })
 			return
@@ -155,12 +106,12 @@ export function ProvidersSection({
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					...(activeProfile.apiKey ? { Authorization: `Bearer ${activeProfile.apiKey}` } : {}),
+					...(config.apiKey ? { Authorization: `Bearer ${config.apiKey}` } : {}),
 				},
 				body: JSON.stringify({
-					model: activeProfile.model,
+					model: config.model,
 					messages: [{ role: 'user', content: 'ping' }],
-					...tokenLimitBody(activeProfile.model),
+					...tokenLimitBody(config.model),
 				}),
 				signal: controller.signal,
 			}).finally(() => clearTimeout(timeout))
@@ -180,7 +131,6 @@ export function ProvidersSection({
 		}
 	}
 
-	const showProfileSelector = profiles.length > 1
 	const showBaseURL = preset.baseURLEditable !== false && !preset.buildBaseURL
 	const modelOptions: ComboboxOption[] = preset.models.map((m) => ({
 		value: m.id,
@@ -192,83 +142,10 @@ export function ProvidersSection({
 
 	return (
 		<div className="flex flex-col gap-6 max-w-xl">
-			{showProfileSelector && (
-				<>
-					<div className="flex flex-col gap-1.5">
-						<label className="text-sm font-medium">{t('ext.config.profile')}</label>
-						<div className="flex gap-2 items-center">
-							<Select
-								className="flex-1 min-w-0"
-								value={activeProfile.id}
-								onChange={onActiveProfileChange}
-								options={profiles.map((p) => ({
-									value: p.id,
-									label: p.name || t('ext.config.profileUnnamed'),
-								}))}
-							/>
-							<Button
-								variant="outline"
-								size="icon"
-								className="h-9 w-9 shrink-0 cursor-pointer"
-								onClick={handleAdd}
-								aria-label={t('ext.config.profileAdd')}
-								title={t('ext.config.profileAdd')}
-							>
-								<Plus className="size-4" />
-							</Button>
-							<Button
-								variant="outline"
-								size="icon"
-								className="h-9 w-9 shrink-0 cursor-pointer text-red-500 hover:text-red-400 hover:bg-red-500/10"
-								onClick={() => setDeleteOpen(true)}
-								disabled={profiles.length <= 1}
-								aria-label={t('ext.config.profileDelete')}
-								title={t('ext.config.profileDelete')}
-							>
-								<Trash2 className="size-4" />
-							</Button>
-						</div>
-					</div>
-
-					<div className="flex flex-col gap-1.5">
-						<label htmlFor="profile-name" className="text-sm font-medium">
-							{t('ext.config.profileName')}
-						</label>
-						<p className="text-xs text-muted-foreground">{t('ext.config.profileNameHelp')}</p>
-						<Input
-							id="profile-name"
-							placeholder={t('ext.config.profileNamePlaceholder')}
-							value={activeProfile.name}
-							onChange={(e) => updateActive({ name: e.target.value })}
-							className="text-sm h-9 mt-1"
-						/>
-					</div>
-
-					<AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-						<AlertDialogContent>
-							<AlertDialogHeader>
-								<AlertDialogTitle>{t('ext.config.profileDeleteConfirmTitle')}</AlertDialogTitle>
-								<AlertDialogDescription>
-									{t('ext.config.profileDeleteConfirmBody', {
-										name: activeProfile.name || t('ext.config.profileUnnamed'),
-									})}
-								</AlertDialogDescription>
-							</AlertDialogHeader>
-							<AlertDialogFooter>
-								<AlertDialogCancel>{t('ext.config.cancel')}</AlertDialogCancel>
-								<AlertDialogAction onClick={handleDelete}>
-									{t('ext.config.profileDelete')}
-								</AlertDialogAction>
-							</AlertDialogFooter>
-						</AlertDialogContent>
-					</AlertDialog>
-				</>
-			)}
-
 			<div className="flex flex-col gap-1.5">
 				<label className="text-sm font-medium">{t('ext.config.provider')}</label>
 				<Select
-					value={activeProfile.providerKey}
+					value={config.providerKey}
 					onChange={(v) => handleProviderChange(v as ProviderKey)}
 					options={PROVIDERS.map((p) => ({ value: p.key, label: p.label }))}
 				/>
@@ -293,14 +170,14 @@ export function ProvidersSection({
 					<Input
 						id="base-url"
 						placeholder="https://api.openai.com/v1"
-						value={activeProfile.baseURL ?? DEMO_BASE_URL}
-						onChange={(e) => updateActive({ baseURL: e.target.value, providerKey: 'custom' })}
+						value={config.baseURL ?? DEMO_BASE_URL}
+						onChange={(e) => update({ baseURL: e.target.value, providerKey: 'custom' })}
 						className="text-sm h-9"
 					/>
 				</div>
 			)}
 
-			{isTestingEndpoint(activeProfile.baseURL) && (
+			{isTestingEndpoint(config.baseURL) && (
 				<div className="p-3 rounded-md border border-amber-500/30 bg-amber-500/5 text-xs text-muted-foreground leading-relaxed">
 					<Scale className="size-3.5 inline-block mr-1 -mt-0.5 text-amber-600" />
 					{t('ext.config.testingApiNotice')}{' '}
@@ -323,8 +200,8 @@ export function ProvidersSection({
 					<Input
 						id="account-id"
 						placeholder={t('ext.config.accountIdPlaceholder')}
-						value={activeProfile.accountId ?? ''}
-						onChange={(e) => updateActive({ accountId: e.target.value })}
+						value={config.accountId ?? ''}
+						onChange={(e) => update({ accountId: e.target.value })}
 						className="text-sm h-9 font-mono"
 					/>
 					{preset.accountIdHelpURL && (
@@ -350,8 +227,8 @@ export function ProvidersSection({
 						<Input
 							id="api-key"
 							type={showApiKey ? 'text' : 'password'}
-							value={activeProfile.apiKey ?? ''}
-							onChange={(e) => updateActive({ apiKey: e.target.value })}
+							value={config.apiKey ?? ''}
+							onChange={(e) => update({ apiKey: e.target.value })}
 							className="text-sm h-9"
 						/>
 						<Button
@@ -373,8 +250,8 @@ export function ProvidersSection({
 				</label>
 				<Combobox
 					id="model"
-					value={activeProfile.model ?? ''}
-					onChange={(model) => updateActive({ model })}
+					value={config.model ?? ''}
+					onChange={(model) => update({ model })}
 					options={modelOptions}
 					placeholder={preset.defaultModel || DEMO_MODEL}
 					allowCustom={allowCustomModel}
@@ -417,19 +294,6 @@ export function ProvidersSection({
 					</div>
 				)}
 			</div>
-
-			{!showProfileSelector && (
-				<div className="pt-2">
-					<button
-						type="button"
-						onClick={handleAdd}
-						className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer"
-					>
-						<Plus className="size-3" />
-						{t('ext.config.addAnotherProfile')}
-					</button>
-				</div>
-			)}
 		</div>
 	)
 }

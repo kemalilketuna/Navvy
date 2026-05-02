@@ -72,8 +72,7 @@ export default function App() {
 
 	const supportsImages = useMemo(() => {
 		if (!config) return false
-		const active = config.profiles.find((p) => p.id === config.activeProfileId)
-		return active ? modelSupportsImages(active) : false
+		return modelSupportsImages(config)
 	}, [config])
 
 	useEffect(() => {
