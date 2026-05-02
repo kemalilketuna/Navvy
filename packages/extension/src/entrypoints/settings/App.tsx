@@ -153,9 +153,9 @@ export default function App() {
 	}
 
 	return (
-		<div className="min-h-screen bg-background text-foreground">
-			<div className="mx-auto flex max-w-5xl flex-col gap-6 px-6 py-8">
-				<header className="flex items-center gap-3">
+		<div className="flex h-screen flex-col bg-background text-foreground">
+			<header className="shrink-0 border-b border-border">
+				<div className="mx-auto flex max-w-5xl items-center gap-3 px-6 py-4">
 					<SettingsIcon className="size-5 text-muted-foreground" />
 					<h1 className="text-xl font-semibold">{t('ext.config.title')}</h1>
 					<Button
@@ -168,101 +168,106 @@ export default function App() {
 					>
 						<X className="size-4" />
 					</Button>
-				</header>
+				</div>
+			</header>
 
-				<Tabs orientation="vertical" value={tab} onValueChange={handleTabChange} className="gap-8">
-					<TabsList className="w-56 shrink-0 self-start sticky top-8">
-						<TabsTrigger value="general">
-							<SettingsIcon />
-							<span>{t('ext.settings.tabGeneral')}</span>
-						</TabsTrigger>
-						<TabsTrigger value="providers">
-							<Zap />
-							<span>{t('ext.settings.tabProviders')}</span>
-						</TabsTrigger>
-						<TabsTrigger value="masking">
-							<Shield />
-							<span>{t('ext.settings.tabMasking')}</span>
-						</TabsTrigger>
-						<TabsTrigger value="voice">
-							<Mic />
-							<span>{t('ext.settings.tabVoice')}</span>
-						</TabsTrigger>
-						<TabsTrigger value="skills">
-							<Sparkles />
-							<span>{t('ext.settings.tabSkills')}</span>
-						</TabsTrigger>
-						<TabsTrigger value="advanced">
-							<SlidersHorizontal />
-							<span>{t('ext.settings.tabAdvanced')}</span>
-						</TabsTrigger>
-						<TabsTrigger value="about">
-							<Info />
-							<span>{t('ext.settings.tabAbout')}</span>
-						</TabsTrigger>
-					</TabsList>
+			<Tabs
+				orientation="vertical"
+				value={tab}
+				onValueChange={handleTabChange}
+				className="mx-auto min-h-0 w-full max-w-5xl flex-1 gap-8 px-6"
+			>
+				<TabsList className="w-56 shrink-0 self-start py-8">
+					<TabsTrigger value="general">
+						<SettingsIcon />
+						<span>{t('ext.settings.tabGeneral')}</span>
+					</TabsTrigger>
+					<TabsTrigger value="providers">
+						<Zap />
+						<span>{t('ext.settings.tabProviders')}</span>
+					</TabsTrigger>
+					<TabsTrigger value="masking">
+						<Shield />
+						<span>{t('ext.settings.tabMasking')}</span>
+					</TabsTrigger>
+					<TabsTrigger value="voice">
+						<Mic />
+						<span>{t('ext.settings.tabVoice')}</span>
+					</TabsTrigger>
+					<TabsTrigger value="skills">
+						<Sparkles />
+						<span>{t('ext.settings.tabSkills')}</span>
+					</TabsTrigger>
+					<TabsTrigger value="advanced">
+						<SlidersHorizontal />
+						<span>{t('ext.settings.tabAdvanced')}</span>
+					</TabsTrigger>
+					<TabsTrigger value="about">
+						<Info />
+						<span>{t('ext.settings.tabAbout')}</span>
+					</TabsTrigger>
+				</TabsList>
 
-					<div className="min-w-0 flex-1 pb-24">
-						<TabsContent value="general">
-							<GeneralSection
-								language={draft.language}
-								responseLanguage={draft.responseLanguage}
-								onLanguageChange={(language) => patch({ language })}
-								onResponseLanguageChange={(responseLanguage) => patch({ responseLanguage })}
-							/>
-						</TabsContent>
-						<TabsContent value="providers">
-							<ProvidersSection
-								profiles={draft.profiles}
-								activeProfileId={draft.activeProfileId}
-								onProfilesChange={(profiles: LLMProfile[]) => patch({ profiles })}
-								onActiveProfileChange={(activeProfileId) => patch({ activeProfileId })}
-							/>
-						</TabsContent>
-						<TabsContent value="masking">
-							<MaskingSection
-								entries={draft.maskingEntries}
-								onChange={(maskingEntries) => patch({ maskingEntries })}
-							/>
-						</TabsContent>
-						<TabsContent value="voice">
-							<VoiceSection
-								value={draft.voiceConfig}
-								onChange={(voiceConfig) => patch({ voiceConfig })}
-								llm={{
-									baseURL: resolveBaseURL(
-										draft.profiles.find((p) => p.id === draft.activeProfileId) ?? draft.profiles[0]
-									),
-									apiKey: (
-										draft.profiles.find((p) => p.id === draft.activeProfileId) ?? draft.profiles[0]
-									)?.apiKey,
-								}}
-							/>
-						</TabsContent>
-						<TabsContent value="skills">
-							<SkillsSection />
-						</TabsContent>
-						<TabsContent value="advanced">
-							<AdvancedSection
-								value={{
-									maxSteps: draft.maxSteps,
-									systemInstruction: draft.systemInstruction,
-									experimentalLlmsTxt: draft.experimentalLlmsTxt,
-									experimentalIncludeAllTabs: draft.experimentalIncludeAllTabs,
-									disableNamedToolChoice: draft.disableNamedToolChoice,
-								}}
-								onChange={(p) => patch(p)}
-							/>
-						</TabsContent>
-						<TabsContent value="about">
-							<AboutSection />
-						</TabsContent>
-					</div>
-				</Tabs>
-			</div>
+				<div className="min-w-0 flex-1 overflow-y-auto py-8">
+					<TabsContent value="general">
+						<GeneralSection
+							language={draft.language}
+							responseLanguage={draft.responseLanguage}
+							onLanguageChange={(language) => patch({ language })}
+							onResponseLanguageChange={(responseLanguage) => patch({ responseLanguage })}
+						/>
+					</TabsContent>
+					<TabsContent value="providers">
+						<ProvidersSection
+							profiles={draft.profiles}
+							activeProfileId={draft.activeProfileId}
+							onProfilesChange={(profiles: LLMProfile[]) => patch({ profiles })}
+							onActiveProfileChange={(activeProfileId) => patch({ activeProfileId })}
+						/>
+					</TabsContent>
+					<TabsContent value="masking">
+						<MaskingSection
+							entries={draft.maskingEntries}
+							onChange={(maskingEntries) => patch({ maskingEntries })}
+						/>
+					</TabsContent>
+					<TabsContent value="voice">
+						<VoiceSection
+							value={draft.voiceConfig}
+							onChange={(voiceConfig) => patch({ voiceConfig })}
+							llm={{
+								baseURL: resolveBaseURL(
+									draft.profiles.find((p) => p.id === draft.activeProfileId) ?? draft.profiles[0]
+								),
+								apiKey: (
+									draft.profiles.find((p) => p.id === draft.activeProfileId) ?? draft.profiles[0]
+								)?.apiKey,
+							}}
+						/>
+					</TabsContent>
+					<TabsContent value="skills">
+						<SkillsSection />
+					</TabsContent>
+					<TabsContent value="advanced">
+						<AdvancedSection
+							value={{
+								maxSteps: draft.maxSteps,
+								systemInstruction: draft.systemInstruction,
+								experimentalLlmsTxt: draft.experimentalLlmsTxt,
+								experimentalIncludeAllTabs: draft.experimentalIncludeAllTabs,
+								disableNamedToolChoice: draft.disableNamedToolChoice,
+							}}
+							onChange={(p) => patch(p)}
+						/>
+					</TabsContent>
+					<TabsContent value="about">
+						<AboutSection />
+					</TabsContent>
+				</div>
+			</Tabs>
 
 			{dirty && (
-				<div className="fixed bottom-0 left-0 right-0 border-t border-border bg-background/95 backdrop-blur">
+				<div className="shrink-0 border-t border-border bg-background/95 backdrop-blur">
 					<div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-6 py-3">
 						<span className="text-sm text-muted-foreground">
 							{savedAt ? t('ext.settings.savedNotice') : t('ext.settings.unsavedNotice')}
