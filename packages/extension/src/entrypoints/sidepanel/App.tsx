@@ -111,6 +111,22 @@ export default function App() {
 		stop()
 	}, [stop])
 
+	// Cancel-action shortcut: the background relays the keyboard command as a
+	// runtime message so it works regardless of which document holds focus.
+	useEffect(() => {
+		const onMessage = (message: unknown) => {
+			if (
+				typeof message === 'object' &&
+				message !== null &&
+				(message as { type?: unknown }).type === 'CANCEL_ACTION'
+			) {
+				handleStop()
+			}
+		}
+		chrome.runtime.onMessage.addListener(onMessage)
+		return () => chrome.runtime.onMessage.removeListener(onMessage)
+	}, [handleStop])
+
 	const handleNewChat = useCallback(() => {
 		newChat()
 		setInputValue('')

@@ -42,6 +42,16 @@ export default defineBackground(() => {
 		}
 	})
 
+	// keyboard commands
+	// The running agent lives in the side panel document; a command listener here
+	// cannot reach it directly, so we relay an abort signal via a runtime message.
+
+	chrome.commands.onCommand.addListener((command) => {
+		if (command === 'cancel_action') {
+			chrome.runtime.sendMessage({ type: 'CANCEL_ACTION' }).catch(() => {})
+		}
+	})
+
 	// setup
 	// The Ctrl/Cmd+E shortcut is bound to the built-in `_execute_action` command,
 	// which fires the toolbar action; openPanelOnActionClick routes it to the side panel.
