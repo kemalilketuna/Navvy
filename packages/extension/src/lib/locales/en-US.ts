@@ -81,7 +81,7 @@ export const enUS = {
 			title: 'Saved Data & Masking',
 			description:
 				'Store values the agent can fill into forms. Mark a value sensitive to keep it from ever reaching the AI provider — the agent sees only an opaque {{token}}.',
-			unencryptedNote: 'Values are stored unencrypted in this browser, like your API keys.',
+			encryptionNote: 'Values are encrypted at rest in this browser, like your API keys.',
 			jsDisabledNote:
 				'While any entry is enabled, the experimental JavaScript tool is disabled to protect masked values.',
 			empty: 'No saved data yet. Add an entry or an address group to get started.',

@@ -77,7 +77,7 @@ export const trTR: TranslationSchema = {
 			title: 'Kaydedilen Veriler ve Maskeleme',
 			description:
 				'Ajanın formlara doldurabileceği değerleri kaydedin. Bir değeri hassas olarak işaretleyin; böylece asla yapay zeka sağlayıcısına ulaşmaz — ajan yalnızca opak bir {{token}} görür.',
-			unencryptedNote: 'Değerler, API anahtarlarınız gibi bu tarayıcıda şifrelenmeden saklanır.',
+			encryptionNote: 'Değerler, API anahtarlarınız gibi bu tarayıcıda şifrelenerek saklanır.',
 			jsDisabledNote:
 				'Herhangi bir kayıt etkinken, maskelenmiş değerleri korumak için deneysel JavaScript aracı devre dışı bırakılır.',
 			empty: 'Henüz kaydedilmiş veri yok. Başlamak için bir kayıt veya adres grubu ekleyin.',

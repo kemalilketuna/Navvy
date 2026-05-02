@@ -79,8 +79,8 @@ export const frFR: TranslationSchema = {
 			title: 'Données enregistrées et masquage',
 			description:
 				'Enregistrez des valeurs que l’agent peut saisir dans les formulaires. Marquez une valeur comme sensible pour qu’elle n’atteigne jamais le fournisseur d’IA : l’agent ne voit qu’un {{token}} opaque.',
-			unencryptedNote:
-				'Les valeurs sont stockées sans chiffrement dans ce navigateur, comme vos clés d’API.',
+			encryptionNote:
+				'Les valeurs sont chiffrées au repos dans ce navigateur, comme vos clés d’API.',
 			jsDisabledNote:
 				'Tant qu’une entrée est activée, l’outil JavaScript expérimental est désactivé pour protéger les valeurs masquées.',
 			empty: 'Aucune donnée enregistrée. Ajoutez une entrée ou un groupe d’adresse pour commencer.',

@@ -79,8 +79,8 @@ export const deDE: TranslationSchema = {
 			title: 'Gespeicherte Daten & Maskierung',
 			description:
 				'Speichere Werte, die der Agent in Formulare einfügen kann. Markiere einen Wert als sensibel, damit er nie den KI-Anbieter erreicht – der Agent sieht nur ein anonymes {{token}}.',
-			unencryptedNote:
-				'Werte werden unverschlüsselt in diesem Browser gespeichert, wie deine API-Schlüssel.',
+			encryptionNote:
+				'Werte werden in diesem Browser verschlüsselt gespeichert, wie deine API-Schlüssel.',
 			jsDisabledNote:
 				'Solange ein Eintrag aktiv ist, wird das experimentelle JavaScript-Tool deaktiviert, um maskierte Werte zu schützen.',
 			empty: 'Noch keine gespeicherten Daten. Füge einen Eintrag oder eine Adressgruppe hinzu.',
