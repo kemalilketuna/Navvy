@@ -106,6 +106,7 @@ export const esES: TranslationSchema = {
 				start: 'Iniciar entrada de voz',
 				stop: 'Detener y transcribir',
 				transcribing: 'Transcribiendo…',
+				listening: 'Escuchando…',
 				disabled: 'Activa la voz en los ajustes',
 				noSpeech: 'No se detectó voz; inténtalo de nuevo.',
 				failed: 'Error en la entrada de voz',

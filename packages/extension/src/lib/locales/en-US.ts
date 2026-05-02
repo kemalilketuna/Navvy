@@ -111,6 +111,7 @@ export const enUS = {
 				start: 'Start voice input',
 				stop: 'Stop and transcribe',
 				transcribing: 'Transcribing…',
+				listening: 'Listening…',
 				disabled: 'Enable voice in settings',
 				noSpeech: 'No speech detected — try again.',
 				failed: 'Voice input failed',

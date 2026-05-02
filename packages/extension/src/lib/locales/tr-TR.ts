@@ -104,6 +104,7 @@ export const trTR: TranslationSchema = {
 				start: 'Sesli girişi başlat',
 				stop: 'Durdur ve deşifre et',
 				transcribing: 'Deşifre ediliyor…',
+				listening: 'Dinleniyor…',
 				disabled: 'Sesi ayarlardan etkinleştir',
 				noSpeech: 'Konuşma algılanmadı — tekrar deneyin.',
 				failed: 'Sesli giriş başarısız',

@@ -173,29 +173,39 @@ export const Composer = forwardRef<HTMLTextAreaElement, ComposerProps>(function 
 				className="hidden"
 				onChange={handleFileChange}
 			/>
-			<div className="mt-1 flex items-center justify-end">
+			<div className="mt-1 flex items-center justify-between gap-2">
+				{isRecording ? (
+					<RecordingIndicator label={t('ext.input.voice.listening')} />
+				) : (
+					<span aria-hidden="true" />
+				)}
 				<div className="flex items-center gap-1">
 					{voiceEnabled ? (
-						<Button
-							type="button"
-							variant="ghost"
-							size="icon"
-							disabled={isTranscribing}
-							onClick={onMicToggle}
-							className={cn(
-								'size-7 hover:bg-white/5',
-								isRecording ? 'text-red-500 hover:text-red-400' : 'text-muted-foreground',
-								!isTranscribing && 'cursor-pointer'
+						<span className="relative flex">
+							{isRecording && (
+								<span className="pointer-events-none absolute inset-0 animate-ping rounded-full bg-red-500/40" />
 							)}
-							aria-label={micLabel}
-							title={micLabel}
-						>
-							{isTranscribing ? (
-								<Loader2 className="size-4 animate-spin" aria-hidden="true" />
-							) : (
-								<Mic className={cn('size-4', isRecording && 'animate-pulse')} aria-hidden="true" />
-							)}
-						</Button>
+							<Button
+								type="button"
+								variant="ghost"
+								size="icon"
+								disabled={isTranscribing}
+								onClick={onMicToggle}
+								className={cn(
+									'relative size-7 hover:bg-white/5',
+									isRecording ? 'text-red-500 hover:text-red-400' : 'text-muted-foreground',
+									!isTranscribing && 'cursor-pointer'
+								)}
+								aria-label={micLabel}
+								title={micLabel}
+							>
+								{isTranscribing ? (
+									<Loader2 className="size-4 animate-spin" aria-hidden="true" />
+								) : (
+									<Mic className="size-4" aria-hidden="true" />
+								)}
+							</Button>
+						</span>
 					) : (
 						<Button
 							type="button"
@@ -294,3 +304,29 @@ export const Composer = forwardRef<HTMLTextAreaElement, ComposerProps>(function 
 		</div>
 	)
 })
+
+/** Animated "listening" cue shown while capturing voice — a pulsing dot, an
+ * equalizer waveform, and a label, so an active recording is unmistakable. */
+function RecordingIndicator({ label }: { label: string }) {
+	return (
+		<div className="flex items-center gap-2 pl-0.5 text-red-500">
+			<span className="relative flex size-2">
+				<span className="absolute inline-flex size-full animate-ping rounded-full bg-red-500/70" />
+				<span className="relative inline-flex size-2 rounded-full bg-red-500" />
+			</span>
+			<span className="flex h-3.5 items-center gap-[3px]" aria-hidden="true">
+				{[0, 1, 2, 3, 4].map((i) => (
+					<span
+						key={i}
+						className="h-full w-[3px] origin-center rounded-full bg-red-500"
+						style={{
+							animation: 'voice-wave 0.9s ease-in-out infinite',
+							animationDelay: `${i * 0.12}s`,
+						}}
+					/>
+				))}
+			</span>
+			<span className="text-xs font-medium">{label}</span>
+		</div>
+	)
+}
