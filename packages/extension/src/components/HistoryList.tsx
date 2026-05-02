@@ -93,7 +93,7 @@ export function HistoryList({
 							await clearSessions()
 							setSessions([])
 						}}
-						className="text-[10px] text-muted-foreground hover:text-destructive cursor-pointer h-6 px-2"
+						className="text-[10px] text-muted-foreground hover:text-white cursor-pointer h-6 px-2"
 					>
 						<Trash2 className="size-3 mr-1" />
 						{t('ext.history.clearAll')}
