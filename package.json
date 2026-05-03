@@ -3,6 +3,7 @@
     "private": true,
     "version": "1.8.2",
     "type": "module",
+    "packageManager": "pnpm@10.28.0",
     "workspaces": [
         "packages/page-controller",
         "packages/ui",
