@@ -5,6 +5,12 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "navvy",
 	"compatibility_date": "2026-06-03",
+	// Serve the site on both the apex and www. `custom_domain: true` provisions
+	// the DNS record and TLS cert on deploy; no manual dashboard changes needed.
+	"routes": [
+		{ "pattern": "navvy-extension.site", "custom_domain": true },
+		{ "pattern": "www.navvy-extension.site", "custom_domain": true }
+	],
 	"assets": {
 		"directory": "./packages/website/dist/",
 		"not_found_handling": "404-page",
