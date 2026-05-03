@@ -25,6 +25,19 @@ your parameters filled in — as authoritative steps for the agent to carry out.
 This is a **guided natural-language sub-task**, not a brittle replay of recorded clicks, so a skill
 keeps working even when the page layout shifts.
 
+## A concrete example
+
+A skill for filing an expense might look like this:
+
+- **Name** — `file_expense`
+- **URL pattern** — `https://expenses.example.com/*`
+- **Parameters** — `amount`, `category`
+- **Plan** — _"Click New Expense. Enter `{amount}` in the Amount field. Choose `{category}` in the
+  Category dropdown. Click Submit and confirm the success message."_
+
+On a matching page the agent gains a `file_expense` action; invoking it with your `amount` and
+`category` fills the placeholders and runs the plan as ordinary steps.
+
 :::tip[Where to manage skills]
 The Teach screen only **captures and saves** new skills. Listing, editing, enabling, and deleting
 all happen in **Settings → Skills**.

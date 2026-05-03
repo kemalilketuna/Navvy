@@ -61,3 +61,7 @@ connections require your approval before they can run a task.
 Chrome won't let any extension run scripts on `chrome://` pages, the Web Store, or the PDF viewer.
 On those pages Navvy can't act, and its [single-key shortcuts](/docs/features/shortcuts) won't fire —
 a browser security boundary, not a Navvy setting.
+
+## See also
+
+For the formal policy, read the [Terms & Privacy](/docs/legal/terms-and-privacy) page.
