@@ -20,19 +20,32 @@ the composer and activates the push-to-talk shortcut. By default Navvy uses the 
 Speech-to-text (STT) and text-to-speech (TTS) are chosen **independently**, so you can mix a fast
 recognizer with a high-quality voice:
 
-- **Web Speech API** — zero-key, in-browser. The default.
+- **Web Speech API** — zero-key, in-browser. The default for both directions.
 - **OpenAI-compatible** — reuses your existing chat credentials for `audio/transcriptions` and
   `audio/speech`.
-- **ElevenLabs** — high-quality TTS (and Scribe STT).
-- **Deepgram** — low-latency streaming STT.
+- **Groq** — fast cloud transcription (STT only).
+- **ElevenLabs** — high-quality TTS, plus Scribe STT.
+- **Deepgram** — low-latency STT and Aura TTS.
 
 Each section has its own **test** button: TTS synthesizes and plays a phrase; STT records from your
 mic and shows what it heard, validating the credentials end to end.
 
-## Push-to-talk
+For the cloud providers, Navvy records your whole utterance and sends it in one request when you
+finish speaking — simple and reliable, at the cost of no live partial transcript as you talk.
 
-Hold the push-to-talk key (default `` ` ``) to record and release to send. The key works both on
-the page and in the side panel — see [Shortcuts](/docs/features/shortcuts) to rebind it.
+## Talking and listening
+
+There are two ways to speak to Navvy:
+
+- **Push-to-talk** — hold the push-to-talk key (default `` ` ``) to record and release to send. The
+  key works both on the page and in the side panel — see [Shortcuts](/docs/features/shortcuts) to
+  rebind it.
+- **Tap the mic** — click the microphone button in the composer to start and stop recording, no key
+  held.
+
+Turn on **auto-speak** in settings to have the agent read its final answer aloud when a task
+finishes. Playback is barge-in friendly: start a new recording and any in-progress speech stops
+immediately.
 
 :::caution[Microphone permission]
 The side panel cannot show Chrome's microphone prompt directly. The first time you record, Navvy

@@ -18,10 +18,14 @@ Ollama, and a **Custom** option for anything else.
 
 Enter your API key, choose a **Model**, and press **Test connection** to validate the credentials
 before you run a task — the test fires a minimal request and reports HTTP or network errors inline.
+Switching providers is painless: Navvy remembers each provider's key separately, so moving between
+them doesn't make you re-type credentials.
 
 :::tip[No key? Try it first.]
 The bundled **Navvy Demo (testing)** provider lets you try Navvy without any setup. It routes
-through a shared, rate-limited testing endpoint — switch to your own provider for real work.
+through a shared, rate-limited testing endpoint — switch to your own provider for real work. Because
+the demo endpoint only accepts a canonical tool set, some features ([skills](/docs/features/skills),
+tab naming, and free-form tools) are unavailable on it.
 :::
 
 ## Vision models

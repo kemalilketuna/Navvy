@@ -38,7 +38,18 @@ export default defineConfig({
 						{ label: 'Voice Mode', slug: 'docs/features/voice' },
 						{ label: 'Data Masking', slug: 'docs/features/data-masking' },
 						{ label: 'Teach → Skills', slug: 'docs/features/skills' },
+						{ label: 'Multi-Tab Automation', slug: 'docs/features/multi-tab' },
+						{ label: 'Vision & Images', slug: 'docs/features/vision' },
+						{ label: 'Conversation History', slug: 'docs/features/history' },
 						{ label: 'Shortcuts', slug: 'docs/features/shortcuts' },
+					],
+				},
+				{
+					label: 'Reference',
+					items: [
+						{ label: 'Actions & Tools', slug: 'docs/reference/actions' },
+						{ label: 'Settings', slug: 'docs/reference/settings' },
+						{ label: 'Automation API (Hub & MCP)', slug: 'docs/reference/automation-api' },
 					],
 				},
 				{
@@ -46,6 +57,7 @@ export default defineConfig({
 					items: [
 						{ label: 'Architecture', slug: 'docs/internals/architecture' },
 						{ label: 'The DOM Pipeline', slug: 'docs/internals/dom-pipeline' },
+						{ label: 'Action Execution', slug: 'docs/internals/action-execution' },
 					],
 				},
 			],
