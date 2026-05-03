@@ -9,11 +9,15 @@ const REPO = 'https://github.com/kemalilketuna/Navvy'
 
 export default defineConfig({
 	site: SITE,
+	// Prefetch every link as it enters the viewport so docs clicks open instantly.
+	prefetch: { prefetchAll: true, defaultStrategy: 'viewport' },
 	vite: { plugins: [tailwindcss()] },
 	integrations: [
 		react(),
 		starlight({
 			title: 'Navvy',
+			// SPA-like view transitions via a Head override that adds ClientRouter.
+			components: { Head: './src/components/Head.astro' },
 			description:
 				'An AI agent that drives your browser. Tell it what to do — it does the clicking.',
 			logo: { src: './public/logo.svg', alt: 'Navvy' },
