@@ -1,5 +1,5 @@
 # Privacy Policy for Navvy Extension
 
-This document has moved. Please see our full **[Terms of Use & Privacy](../../docs/terms-and-privacy.md)**.
+This document has moved. Please see our full **[Terms of Use & Privacy](https://navvy-extension.site/docs/legal/terms-and-privacy)**.
 
-Online: https://github.com/alibaba/page-agent/blob/main/docs/terms-and-privacy.md
+Online: https://navvy-extension.site/docs/legal/terms-and-privacy
