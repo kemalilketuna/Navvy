@@ -42,7 +42,8 @@ preserving everything the model needs to choose an action.
 
 The model receives the dehydrated page plus your task and returns a single next action — _click 7_,
 _type "Rome" into 3_, _scroll down_, _navigate_. Navvy reflects before acting: the model reasons
-about the page state, then commits to one tool call.
+about the page state, then commits to one tool call. See [The Agent Loop](/docs/internals/agent-loop)
+for how that reflection drives the whole task.
 
 ## 4. Indexed action
 

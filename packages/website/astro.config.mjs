@@ -27,6 +27,7 @@ export default defineConfig({
 					items: [
 						{ label: 'Overview', slug: 'docs/introduction/overview' },
 						{ label: 'Quick Start', slug: 'docs/introduction/quick-start' },
+						{ label: 'Privacy & Security', slug: 'docs/introduction/privacy-and-security' },
 						{ label: 'Limitations', slug: 'docs/introduction/limitations' },
 						{ label: 'Troubleshooting', slug: 'docs/introduction/troubleshooting' },
 					],
@@ -41,6 +42,8 @@ export default defineConfig({
 						{ label: 'Multi-Tab Automation', slug: 'docs/features/multi-tab' },
 						{ label: 'Vision & Images', slug: 'docs/features/vision' },
 						{ label: 'Conversation History', slug: 'docs/features/history' },
+						{ label: 'Custom Instructions', slug: 'docs/features/custom-instructions' },
+						{ label: 'Languages', slug: 'docs/features/languages' },
 						{ label: 'Shortcuts', slug: 'docs/features/shortcuts' },
 					],
 				},
@@ -56,6 +59,7 @@ export default defineConfig({
 					label: 'Under the Hood',
 					items: [
 						{ label: 'Architecture', slug: 'docs/internals/architecture' },
+						{ label: 'The Agent Loop', slug: 'docs/internals/agent-loop' },
 						{ label: 'The DOM Pipeline', slug: 'docs/internals/dom-pipeline' },
 						{ label: 'Action Execution', slug: 'docs/internals/action-execution' },
 					],

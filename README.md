@@ -79,23 +79,6 @@ be accepted**.
 
 [MIT License](LICENSE)
 
-## 👏 Acknowledgments
-
-Navvy is a fork of [`page-agent`](https://github.com/alibaba/page-agent), which builds upon the
-excellent work of [`browser-use`](https://github.com/browser-use/browser-use).
-
-```
-DOM processing components and prompt are derived from browser-use:
-
-Browser Use <https://github.com/browser-use/browser-use>
-Copyright (c) 2024 Gregor Zunic
-Licensed under the MIT License
-
-We gratefully acknowledge the browser-use project and its contributors for their
-excellent work on web automation and DOM interaction patterns that helped make
-this project possible.
-```
-
 ---
 
 **⭐ Star this repo if you find Navvy helpful!**

@@ -26,6 +26,9 @@ hand-written selectors.
 
 - **It runs where you browse.** Navvy lives in a side panel next to your tabs, not in a separate
   app or a remote sandbox.
+- **You can watch it work.** An on-screen cursor glides to each target and clicks, and a soft glow
+  marks the page as automated — so you always see what the agent is doing. While it works, the page is
+  shielded so you and the agent don't fight over the same controls.
 - **Privacy by design.** Sensitive values you save are stored locally and encrypted at rest; with
   [data masking](/docs/features/data-masking) they are filled into forms without ever being sent
   to the model.
@@ -46,6 +49,9 @@ hand-written selectors.
 - **[Multi-Tab Automation](/docs/features/multi-tab)** — let one task span and coordinate several tabs.
 - **[Vision & Images](/docs/features/vision)** — attach screenshots so a vision model can see the page.
 - **[Conversation History](/docs/features/history)** — review, re-run, and export past tasks.
+- **[Custom Instructions](/docs/features/custom-instructions)** — set standing guidance the agent
+  always follows.
+- **[Languages](/docs/features/languages)** — a localized interface and a separate reply language.
 - **[Shortcuts](/docs/features/shortcuts)** — single-key cancel and push-to-talk, fully rebindable.
 - **[Automation API](/docs/reference/automation-api)** — drive Navvy from a page, an external app, or
   an MCP client.
@@ -53,5 +59,6 @@ hand-written selectors.
 ## Next steps
 
 - [Quick Start](/docs/introduction/quick-start) — install and run your first task.
-- [Actions & Tools](/docs/reference/actions) — everything the agent can do on a page.
+- [Privacy & Security](/docs/introduction/privacy-and-security) — what stays local and what's sent.
+- [The Agent Loop](/docs/internals/agent-loop) — how the agent reasons step by step.
 - [Architecture](/docs/internals/architecture) — a tour under the hood.
