@@ -1,7 +1,7 @@
 {
     "name": "page-agent",
     "private": false,
-    "version": "1.8.2",
+    "version": "2.0.0",
     "type": "module",
     "main": "./src/PageAgent.ts",
     "types": "./src/PageAgent.ts",
