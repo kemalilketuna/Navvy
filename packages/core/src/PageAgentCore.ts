@@ -381,7 +381,6 @@ export class PageAgentCore extends EventTarget {
 
 	/**
 	 * Merge all tools into a single MacroTool with the following input:
-	 * - thinking: string
 	 * - evaluation_previous_goal: string
 	 * - memory: string
 	 * - next_goal: string
@@ -398,7 +397,6 @@ export class PageAgentCore extends EventTarget {
 		const actionSchema = z.union(actionSchemas as unknown as [z.ZodType, z.ZodType, ...z.ZodType[]])
 
 		const macroToolSchema = z.object({
-			// thinking: z.string().optional(),
 			evaluation_previous_goal: z.string().optional(),
 			memory: z.string().optional(),
 			next_goal: z.string().optional(),
