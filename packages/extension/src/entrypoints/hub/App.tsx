@@ -7,6 +7,7 @@ import { Logo, MotionOverlay, StatusDot } from '@/components/misc'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { useT } from '@/lib/i18n'
+import { NAVVY_LINKS } from '@/lib/links'
 
 import { useHubWs } from './hub-ws'
 
@@ -38,7 +39,7 @@ export default function App() {
 			{/* Left — Protocol docs */}
 			<aside className="w-80 shrink-0 border-r flex flex-col bg-muted/20">
 				<a
-					href="https://alibaba.github.io/page-agent/"
+					href={NAVVY_LINKS.site}
 					target="_blank"
 					rel="noopener noreferrer"
 					className="flex items-center gap-2 px-5 h-12 border-b hover:bg-muted/30 transition-colors"
@@ -56,7 +57,7 @@ export default function App() {
 						<p>
 							{t('ext.hub.checkOutOfficial')}{' '}
 							<a
-								href="https://github.com/alibaba/page-agent/tree/main/packages/mcp"
+								href={NAVVY_LINKS.mcp}
 								target="_blank"
 								rel="noopener noreferrer"
 								className="underline hover:text-foreground"

@@ -14,6 +14,7 @@ import { Combobox, type ComboboxOption } from '@/components/ui/combobox'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { useT } from '@/lib/i18n'
+import { NAVVY_LINKS } from '@/lib/links'
 
 /**
  * Newer OpenAI models (GPT-5 family, o-series reasoning models) reject the legacy
@@ -182,7 +183,7 @@ export function ProvidersSection({ config, onChange }: ProvidersSectionProps) {
 					<Scale className="size-3.5 inline-block mr-1 -mt-0.5 text-amber-600" />
 					{t('ext.config.testingApiNotice')}{' '}
 					<a
-						href="https://github.com/alibaba/page-agent/blob/main/docs/terms-and-privacy.md"
+						href={NAVVY_LINKS.terms}
 						target="_blank"
 						rel="noopener noreferrer"
 						className="underline hover:text-foreground"
