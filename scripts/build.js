@@ -35,7 +35,7 @@ const tasks = rootPkg.workspaces
 
 tasks.push(
 	{
-		label: '@page-agent/website',
+		label: '@navvy/website',
 		command: 'pnpm run build:website',
 		cwd: join(rootDir, 'packages/website'),
 	},

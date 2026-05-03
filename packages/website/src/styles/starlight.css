@@ -1,0 +1,47 @@
+/* Starlight docs theme — Navvy amber/cream identity, Tailwind v4 compatible. */
+@layer base, starlight, theme, components, utilities;
+
+@import '@astrojs/starlight-tailwind';
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
+
+@theme {
+	--font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+	--font-mono: 'Geist Mono Variable', ui-monospace, 'SFMono-Regular', monospace;
+
+	/* Amber accent (matched to the extension logo). */
+	--color-accent-50: #fdf6ec;
+	--color-accent-100: #fae8cc;
+	--color-accent-200: #f4cf94;
+	--color-accent-300: #eeb35c;
+	--color-accent-400: #e89a30;
+	--color-accent-500: #d9821a;
+	--color-accent-600: #bd6912;
+	--color-accent-700: #985012;
+	--color-accent-800: #7c4015;
+	--color-accent-900: #683514;
+	--color-accent-950: #3b1b08;
+
+	/* Warm gray (stone) for a cream-leaning neutral. */
+	--color-gray-50: #faf7f2;
+	--color-gray-100: #f3eee5;
+	--color-gray-200: #e7ded2;
+	--color-gray-300: #cabfae;
+	--color-gray-400: #a1968a;
+	--color-gray-500: #79716a;
+	--color-gray-600: #5c554f;
+	--color-gray-700: #463f3a;
+	--color-gray-800: #2c2723;
+	--color-gray-900: #1c1814;
+	--color-gray-950: #121009;
+}
+
+/* Light theme: warm cream surfaces instead of cold white. */
+:root[data-theme='light'] {
+	--sl-color-bg: #faf6ee;
+	--sl-color-bg-nav: #f6f0e4;
+	--sl-color-bg-sidebar: #f9f4ea;
+}
