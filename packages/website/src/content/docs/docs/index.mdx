@@ -5,7 +5,21 @@ template: splash
 hero:
   tagline: Tell your browser what to do. It does the clicking.
   image:
-    file: ../../../../public/shots/sidepanel.png
+    html: |
+      <svg viewBox="0 0 360 360" role="img" aria-label="Navvy" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;max-width:340px;margin-inline:auto;display:block;filter:drop-shadow(0 22px 50px rgba(217,130,26,0.28))">
+        <defs>
+          <linearGradient id="navvyDocsArrow" x1="120" y1="120" x2="260" y2="260" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#e89a30" />
+            <stop offset="55%" stop-color="#d9821a" />
+            <stop offset="100%" stop-color="#985012" />
+          </linearGradient>
+        </defs>
+        <circle cx="180" cy="180" r="150" fill="none" stroke="#d9821a" stroke-opacity="0.2" stroke-width="1.5" />
+        <circle cx="180" cy="180" r="116" fill="none" stroke="#d9821a" stroke-opacity="0.32" stroke-width="1.5" stroke-dasharray="6 7" />
+        <g transform="rotate(-12 180 180)">
+          <path d="M44 42 L88 58 L66 66 L58 90 Z" transform="translate(54 54) scale(1.9)" fill="url(#navvyDocsArrow)" stroke="#7a3f0e" stroke-width="2.25" stroke-linejoin="round" />
+        </g>
+      </svg>
   actions:
     - text: Get started
       link: /docs/introduction/overview
