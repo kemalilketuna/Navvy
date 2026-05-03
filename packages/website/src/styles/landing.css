@@ -81,11 +81,29 @@ body {
 	animation: caret 1.1s step-end infinite;
 }
 
+/* Underscore caret for the panel's typing slogan. */
+@keyframes blink-cursor {
+	0%,
+	50% {
+		opacity: 1;
+	}
+	50.01%,
+	100% {
+		opacity: 0;
+	}
+}
+.blink-cursor {
+	animation: blink-cursor 1.2s step-end infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
 	html {
 		scroll-behavior: auto;
 	}
 	.caret::after {
+		animation: none;
+	}
+	.blink-cursor {
 		animation: none;
 	}
 }
