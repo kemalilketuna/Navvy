@@ -9,6 +9,11 @@ const REPO = 'https://github.com/kemalilketuna/Navvy'
 const INSTALL = `${REPO}/releases`
 const DOCS = '/docs'
 
+// Demo playlist — privacy-friendly nocookie embed, lazy-loaded below the hero.
+const DEMO_PLAYLIST = 'PL3w1iL2KiYZjMI2QqM8z9AwJs68g1XMVO'
+const DEMO_EMBED = `https://www.youtube-nocookie.com/embed/videoseries?list=${DEMO_PLAYLIST}`
+const DEMO_PLAYLIST_URL = `https://www.youtube.com/playlist?list=${DEMO_PLAYLIST}`
+
 // The agent's full action vocabulary — one is chosen, by element index, each step.
 const actions = [
 	'Click',
@@ -114,7 +119,8 @@ const steps = [
 				<span class="text-lg font-semibold tracking-tight">Navvy</span>
 			</a>
 			<nav class="flex items-center gap-1 text-sm">
-				<a href="#actions" class="hidden rounded-md px-3 py-2 text-ink-muted transition-colors hover:text-ink sm:block">Actions</a>
+				<a href="#demo" class="hidden rounded-md px-3 py-2 text-ink-muted transition-colors hover:text-ink sm:block">Demo</a>
+					<a href="#actions" class="hidden rounded-md px-3 py-2 text-ink-muted transition-colors hover:text-ink sm:block">Actions</a>
 					<a href="#features" class="hidden rounded-md px-3 py-2 text-ink-muted transition-colors hover:text-ink sm:block">Features</a>
 				<a href="#how" class="hidden rounded-md px-3 py-2 text-ink-muted transition-colors hover:text-ink sm:block">How it works</a>
 				<a href={DOCS} class="rounded-md px-3 py-2 text-ink-muted transition-colors hover:text-ink">Docs</a>
@@ -156,6 +162,36 @@ const steps = [
 
 			<!-- The Navvy mark + idle slogan, lifted straight from the extension -->
 			<HeroPanel client:load />
+		</section>
+
+		<!-- Demo: the product in motion, straight from the YouTube playlist -->
+		<section id="demo" class="mx-auto max-w-6xl px-6 pb-20">
+			<div class="flex flex-wrap items-end justify-between gap-3">
+				<div>
+					<h2 class="max-w-xl text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+						See Navvy in action.
+					</h2>
+					<p class="mt-3 max-w-lg text-ink-muted">
+						A short playlist of real tasks — watch Navvy read each page and do the clicking,
+						typing, and navigating itself.
+					</p>
+				</div>
+				<a href={DEMO_PLAYLIST_URL} class="font-medium text-[var(--color-amber-deep)] underline-offset-4 hover:underline">
+					Watch on YouTube →
+				</a>
+			</div>
+			<div class="mt-10 overflow-hidden rounded-2xl border border-cream-200 bg-ink shadow-sm">
+				<div class="aspect-video">
+					<iframe
+						class="size-full"
+						src={DEMO_EMBED}
+						title="Navvy demo playlist"
+						loading="lazy"
+						referrerpolicy="strict-origin-when-cross-origin"
+						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+						allowfullscreen></iframe>
+				</div>
+			</div>
 		</section>
 
 		<!-- Actions: the full toolset as a compact chip grid -->
