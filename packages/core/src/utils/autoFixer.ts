@@ -72,8 +72,7 @@ export function normalizeResponse(response: any, tools?: Map<string, PageAgentTo
 					!resolvedArguments?.action &&
 					!resolvedArguments?.evaluation_previous_goal &&
 					!resolvedArguments?.memory &&
-					!resolvedArguments?.next_goal &&
-					!resolvedArguments?.thinking
+					!resolvedArguments?.next_goal
 				) {
 					log(`#4: fixing tool_call`)
 					resolvedArguments = { action: safeJsonParse(resolvedArguments) }
