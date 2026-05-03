@@ -6,7 +6,7 @@ description: Single-key cancel and push-to-talk, working across the page and sid
 Navvy gives you two single-key shortcuts and lets you rebind both. They are designed to be reachable
 without reaching for a modifier combo.
 
-![Navvy keyboard shortcut settings](/shots/shortcuts.png)
+![Navvy keyboard shortcut settings](/screenshots/ext-shortcuts.png)
 
 ## The shortcuts
 

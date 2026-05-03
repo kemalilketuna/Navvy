@@ -7,7 +7,7 @@ Navvy's settings open in their own tab (so it can request things like microphone
 organized into sections you can deep-link to. Changes are staged until you **Save**, with a
 cancel option and validation that blocks invalid configurations.
 
-![Navvy general settings](/shots/settings-general.png)
+![Navvy general settings](/screenshots/ext-settings.png)
 
 ## General
 

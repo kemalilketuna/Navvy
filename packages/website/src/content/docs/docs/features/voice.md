@@ -7,7 +7,7 @@ Voice mode wraps the text agent in speech: hold a key to talk, release to send, 
 agent's replies read back. It is an input/output layer around the same agent — everything you can
 type, you can say.
 
-![Navvy voice settings](/shots/voice.png)
+![Navvy voice settings](/screenshots/ext-voice.png)
 
 ## Enabling voice
 

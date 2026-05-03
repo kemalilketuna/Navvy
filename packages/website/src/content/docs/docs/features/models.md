@@ -7,7 +7,7 @@ Navvy is model-agnostic. It talks to any provider that speaks the **OpenAI-compa
 chat-completions API, so you can bring your own key and pick the model that fits your budget and
 latency needs.
 
-![Navvy provider settings](/shots/providers.png)
+![Navvy provider settings](/screenshots/ext-providers.png)
 
 ## Choosing a provider
 

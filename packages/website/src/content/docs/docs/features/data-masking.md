@@ -7,7 +7,7 @@ Data masking lets Navvy fill in a card number, password, or any private value **
 ever reaching the language model**. You store it once, locally; the agent works with an opaque
 token, and the real value is only ever written into the page.
 
-![Navvy saved data settings](/shots/saved-data.png)
+![Navvy saved data settings](/screenshots/ext-saveddata.png)
 
 ## How it works
 
