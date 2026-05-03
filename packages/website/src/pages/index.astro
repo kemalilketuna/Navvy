@@ -6,6 +6,25 @@ const REPO = 'https://github.com/kemalilketuna/Navvy'
 const INSTALL = `${REPO}/releases`
 const DOCS = '/docs'
 
+// The agent's full action vocabulary — one is chosen, by element index, each step.
+const actions = [
+	'Click',
+	'Type',
+	'Select an option',
+	'Scroll',
+	'Scroll sideways',
+	'Press keys',
+	'Find text on the page',
+	'Go back',
+	'Drag & drop',
+	'Open a tab',
+	'Switch tabs',
+	'Close a tab',
+	'Ask you a question',
+	'Wait',
+	'Run JavaScript',
+]
+
 const features = [
 	{
 		idx: '01',
@@ -15,18 +34,42 @@ const features = [
 	},
 	{
 		idx: '02',
+		title: 'Works on any website',
+		body: 'No brittle, hand-written selectors. Navvy re-reads the live page each step and simulates real pointer and keyboard events — so even React- and antd-controlled inputs accept its clicks and typing.',
+		link: `${DOCS}/internals/action-execution`,
+	},
+	{
+		idx: '03',
+		title: 'One task, many tabs',
+		body: 'Navvy opens new tabs, switches between them, and closes them on its own — gathering every tab a job touches into one named group so a multi-step task stays organised.',
+		link: `${DOCS}/features/multi-tab`,
+	},
+	{
+		idx: '04',
+		title: 'Skills you can teach',
+		body: 'Show Navvy a workflow once, by voice or text, and it saves a reusable, parameterised command. Each replay is re-planned from scratch, so it keeps working even as the page drifts.',
+		link: `${DOCS}/features/skills`,
+	},
+	{
+		idx: '05',
+		title: 'Bring your own model',
+		body: 'Point Navvy at any of 17 providers or a custom endpoint. Keys are encrypted at rest and never leave your machine — or start with the built-in demo and no key at all.',
+		link: `${DOCS}/features/models`,
+	},
+	{
+		idx: '06',
 		title: 'Talk to it, hands-free',
 		body: 'Hold a key to speak, release to send, and hear answers read back. Choose your speech-to-text and text-to-speech providers, or use the built-in Web Speech engine with no API key at all.',
 		link: `${DOCS}/features/voice`,
 	},
 	{
-		idx: '03',
+		idx: '07',
 		title: 'Your secrets never leave the page',
 		body: 'Save a card number or password once — stored locally and encrypted at rest. Navvy types it straight into the form while the model only ever sees an opaque {{token}}.',
 		link: `${DOCS}/features/data-masking`,
 	},
 	{
-		idx: '04',
+		idx: '08',
 		title: 'One key to stop, one key to talk',
 		body: 'Press Esc to cancel a running task; hold ` to talk. Both are single keys you can rebind, working across the page and the side panel alike.',
 		link: `${DOCS}/features/shortcuts`,
@@ -66,7 +109,8 @@ const steps = [
 				<span class="text-lg font-semibold tracking-tight">Navvy</span>
 			</a>
 			<nav class="flex items-center gap-1 text-sm">
-				<a href="#features" class="hidden rounded-md px-3 py-2 text-ink-muted transition-colors hover:text-ink sm:block">Features</a>
+				<a href="#actions" class="hidden rounded-md px-3 py-2 text-ink-muted transition-colors hover:text-ink sm:block">Actions</a>
+					<a href="#features" class="hidden rounded-md px-3 py-2 text-ink-muted transition-colors hover:text-ink sm:block">Features</a>
 				<a href="#how" class="hidden rounded-md px-3 py-2 text-ink-muted transition-colors hover:text-ink sm:block">How it works</a>
 				<a href={DOCS} class="rounded-md px-3 py-2 text-ink-muted transition-colors hover:text-ink">Docs</a>
 				<a href={REPO} class="rounded-md px-3 py-2 text-ink-muted transition-colors hover:text-ink">GitHub</a>
@@ -109,8 +153,30 @@ const steps = [
 			<HeroPanel client:load />
 		</section>
 
-		<!-- Features: editorial alternating rows with real screenshots -->
-		<section id="features" class="mx-auto max-w-6xl px-6 py-12">
+		<!-- Actions: the full toolset as a compact chip grid -->
+		<section id="actions" class="border-y border-cream-200 bg-cream-100/60">
+			<div class="mx-auto max-w-6xl px-6 py-16">
+				<h2 class="max-w-xl text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+					One vocabulary for the whole web.
+				</h2>
+				<p class="mt-3 max-w-lg text-ink-muted">
+					Every step, Navvy picks exactly one action by element index and runs it on the real page. This is the entire toolset — the same handful of moves operate any site.
+				</p>
+				<ul class="mt-10 flex flex-wrap gap-2.5">
+					{
+						actions.map((a) => (
+							<li class="inline-flex items-center gap-2 rounded-full border border-cream-200 bg-white/50 px-3.5 py-1.5 font-mono text-sm text-ink">
+								<span class="inline-block size-1.5 rounded-full bg-[var(--color-amber)]" />
+								{a}
+							</li>
+						))
+					}
+				</ul>
+			</div>
+		</section>
+
+		<!-- Features: the standout capabilities, as editorial cards -->
+		<section id="features" class="mx-auto max-w-6xl px-6 py-20">
 			<h2 class="max-w-xl text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
 				The whole agent, in a side panel.
 			</h2>
