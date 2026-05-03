@@ -32,6 +32,19 @@ already adapts to several of these (for example, it mirrors nested action names 
 Groq). If a custom gateway still fails, try a different model or the **Custom** provider with a
 standard configuration.
 
+## The agent stops before finishing
+
+Navvy caps how many steps a task may take (40 by default) so a confused run can't loop forever. For
+genuinely long tasks, raise **Max steps** in [Settings → Advanced](/docs/reference/settings#advanced).
+If a task stalls or repeats itself instead, a more capable model usually helps — see
+[Limitations](/docs/introduction/limitations#model-dependent-quality).
+
+## "Context length exceeded"
+
+Very large pages plus a long history can overflow a model's context window. Switch to a model with a
+larger context, or break the task into smaller ones. Navvy reports this as a distinct error so you
+know it's a size issue, not a credentials problem.
+
 ## Still stuck?
 
 Open an issue on [GitHub](https://github.com/kemalilketuna/Navvy/issues) with the provider, model,
