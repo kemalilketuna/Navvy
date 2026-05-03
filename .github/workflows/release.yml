@@ -1,0 +1,98 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to build a release for (e.g. v1.8.2)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build and publish release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve ref
+        id: ref
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+          REF_NAME: ${{ github.ref_name }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            ref="$INPUT_TAG"
+          else
+            ref="$REF_NAME"
+          fi
+          if ! printf '%s' "$ref" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$'; then
+            echo "::error::Invalid release ref '$ref'. Expected a tag like v1.8.2."
+            exit 1
+          fi
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.ref.outputs.ref }}
+
+      - name: Verify tag matches package version
+        env:
+          TAG: ${{ steps.ref.outputs.ref }}
+        run: |
+          version="${TAG#v}"
+          pkg_version="$(node -p "require('./package.json').version")"
+          echo "Tag version: $version"
+          echo "Root package version: $pkg_version"
+          if [ "$version" != "$pkg_version" ]; then
+            echo "::error::Tag ($version) does not match root package.json version ($pkg_version). Run 'pnpm run version $version' before tagging."
+            exit 1
+          fi
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build libraries
+        run: pnpm run build:libs
+
+      - name: Build and zip extension
+        run: pnpm run build:ext
+
+      - name: Collect artifacts
+        id: artifacts
+        run: |
+          mkdir -p release-artifacts
+          cp packages/extension/.output/*.zip release-artifacts/
+          echo "Artifacts:"
+          ls -lh release-artifacts/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ref.outputs.ref }}
+          name: ${{ steps.ref.outputs.ref }}
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(steps.ref.outputs.ref, '-') }}
+          files: release-artifacts/*.zip
