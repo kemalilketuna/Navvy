@@ -4,9 +4,31 @@
 @import '@fontsource-variable/geist';
 @import '@fontsource-variable/geist-mono';
 
+/*
+ * Metric-adjusted fallbacks: while Geist loads (font-display: swap), the
+ * fallback occupies the same space as Geist, so the swap triggers no reflow.
+ * Overrides derived from Geist's own metrics against Arial / a monospace.
+ */
+@font-face {
+	font-family: 'Geist Fallback';
+	src: local('Arial'), local('Helvetica Neue'), local('Helvetica');
+	size-adjust: 91.17%;
+	ascent-override: 110.23%;
+	descent-override: 32.36%;
+	line-gap-override: 0%;
+}
+@font-face {
+	font-family: 'Geist Mono Fallback';
+	src: local('Menlo'), local('Consolas'), local('Courier New');
+	ascent-override: 100.5%;
+	descent-override: 29.5%;
+	line-gap-override: 0%;
+}
+
 @theme {
-	--font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
-	--font-mono: 'Geist Mono Variable', ui-monospace, 'SFMono-Regular', monospace;
+	--font-sans: 'Geist Variable', 'Geist Fallback', ui-sans-serif, system-ui, sans-serif;
+	--font-mono:
+		'Geist Mono Variable', 'Geist Mono Fallback', ui-monospace, 'SFMono-Regular', monospace;
 
 	--color-cream: #faf6ee;
 	--color-cream-100: #f3eee2;

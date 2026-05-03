@@ -1,6 +1,9 @@
 ---
 import HeroPanel from '../components/HeroPanel.tsx'
 import '../styles/landing.css'
+// Preload the latin subsets so Geist arrives before first paint — no swap, no reflow.
+import geistSans from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url'
+import geistMono from '@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url'
 
 const REPO = 'https://github.com/kemalilketuna/Navvy'
 const INSTALL = `${REPO}/releases`
@@ -89,6 +92,8 @@ const steps = [
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="preload" href={geistSans} as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href={geistMono} as="font" type="font/woff2" crossorigin />
 		<link rel="icon" href="/logo.svg" type="image/svg+xml" />
 		<link rel="apple-touch-icon" href="/128.png" />
 		<title>Navvy — the browser agent that does the clicking</title>
