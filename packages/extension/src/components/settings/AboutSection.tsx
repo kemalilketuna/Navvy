@@ -5,6 +5,7 @@ import { siGithub } from 'simple-icons'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useT } from '@/lib/i18n'
+import { NAVVY_LINKS } from '@/lib/links'
 
 export function AboutSection() {
 	const t = useT()
@@ -106,7 +107,7 @@ export function AboutSection() {
 					<span className="font-mono">v{__VERSION__}</span>
 				</div>
 				<a
-					href="https://github.com/alibaba/page-agent"
+					href={NAVVY_LINKS.repo}
 					target="_blank"
 					rel="noopener noreferrer"
 					className="flex items-center gap-2 hover:text-foreground"
@@ -117,7 +118,7 @@ export function AboutSection() {
 					<span>{t('ext.config.sourceCode')}</span>
 				</a>
 				<a
-					href="https://alibaba.github.io/page-agent/"
+					href={NAVVY_LINKS.site}
 					target="_blank"
 					rel="noopener noreferrer"
 					className="flex items-center gap-2 hover:text-foreground"
@@ -126,7 +127,7 @@ export function AboutSection() {
 					<span>{t('ext.config.homePage')}</span>
 				</a>
 				<a
-					href="https://github.com/alibaba/page-agent/blob/main/docs/terms-and-privacy.md"
+					href={NAVVY_LINKS.terms}
 					target="_blank"
 					rel="noopener noreferrer"
 					className="flex items-center gap-2 hover:text-foreground"

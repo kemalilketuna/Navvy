@@ -1,6 +1,7 @@
-// Unified typecheck config for all lib/website packages.
+// Unified typecheck config for all library packages.
 // Run: tsc --noEmit -p tsconfig.typecheck.json
 // Extension is checked separately (WXT has its own tsconfig base).
+// Website is an Astro project and typechecks itself via `astro check`.
 //
 // With source-first package.json exports, TS resolves @page-agent/*
 // to sibling src/ via workspace symlinks — no paths mapping needed.
@@ -9,17 +10,13 @@
     "compilerOptions": {
         "composite": false,
         "noEmit": true,
-        "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.typecheck.tsbuildinfo",
-        "paths": {
-            "@/*": ["./packages/website/src/*"]
-        }
+        "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.typecheck.tsbuildinfo"
     },
     "include": [
         "packages/llms/src/**/*",
         "packages/page-controller/src/**/*",
         "packages/ui/src/**/*",
         "packages/core/src/**/*",
-        "packages/page-agent/src/**/*",
-        "packages/website/src/**/*"
+        "packages/page-agent/src/**/*"
     ]
 }
