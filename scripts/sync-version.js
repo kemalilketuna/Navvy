@@ -65,6 +65,9 @@ function updateInternalDeps(deps, newVersion) {
 	if (!deps) return false
 	let changed = false
 	for (const [name, version] of Object.entries(deps)) {
+		// Leave workspace:* (and any workspace: protocol) specifiers untouched —
+		// pnpm resolves them to the local package, so they must not be pinned.
+		if (version.startsWith('workspace:')) continue
 		if (isInternalPackage(name) && version !== newVersion) {
 			deps[name] = newVersion
 			changed = true
