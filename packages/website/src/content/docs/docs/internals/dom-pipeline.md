@@ -8,9 +8,29 @@ model can reason about, let the model decide, then act on the real page.
 
 ## 1. Extraction
 
-The live DOM is walked into a flat tree of nodes. Each interactive element — links, buttons,
-inputs, selects — is assigned a **stable index**. Indices, not CSS selectors, are how the model
-refers to elements, which is why Navvy works on pages it has never seen.
+The live DOM is walked into a flat map of nodes, with same-origin iframes, open shadow DOM, and rich
+`contenteditable` editors all traversed so nothing operable is missed. Each interactive element gets
+a numeric **index**. Indices, not CSS selectors, are how the model refers to elements, which is why
+Navvy works on pages it has never seen. Each indexed node keeps a **live reference** to the real DOM
+element, so acting on an index is exact and immediate.
+
+### What counts as interactive
+
+Reliably detecting "can a human click this?" is harder than checking the tag name — sites wire up
+plain `<div>`s all the time, and the APIs that would reveal event listeners only exist in DevTools.
+Navvy layers several signals, in priority order:
+
+1. **Cursor style** — the primary heuristic. If the page styles an element with `cursor: pointer`
+   (or `text`, `move`, `grab`, and similar), its author almost certainly made it interactive.
+2. **Native tags** — `a`, `button`, `input`, `select`, `textarea`, and friends, unless disabled.
+3. **`contenteditable`** regions.
+4. **Dropdown hints** like `aria-haspopup` or `data-toggle="dropdown"`.
+5. **ARIA roles** — `button`, `menuitem`, `tab`, `switch`, `slider`, `combobox`, and so on.
+6. **Scrollable containers**, so the agent can scroll an inner region, not just the page.
+
+To keep the outline clean, Navvy assigns **one index per logical control** — it won't separately
+number a button and the `<span>` inside it — and only considers elements that are actually visible and
+not hidden behind something else.
 
 ## 2. Dehydration
 
@@ -38,3 +58,8 @@ Recorded selectors break the moment a layout changes. By re-deriving indices fro
 every step, Navvy adapts to dynamic pages, A/B tests, and redesigns without any per-site
 maintenance — the same reason [skills](/docs/features/skills) re-execute as guided plans rather
 than replayed clicks.
+
+Because indices are re-derived each step, they are **per-step labels**, not durable IDs — element 7
+this step may be a different element next step. That's by design: the agent always acts on the page as
+it is *right now*. See [Action Execution](/docs/internals/action-execution) for what happens once the
+model picks an index.

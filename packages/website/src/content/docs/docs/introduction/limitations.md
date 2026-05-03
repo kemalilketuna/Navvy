@@ -28,3 +28,18 @@ step history — you can stop with `Esc` at any time.
 Navvy acts in your session, so it can use pages you're already logged into — but it will not solve
 captchas for you, and you should review anything irreversible (payments, deletions) before letting
 it proceed.
+
+## Current capability gaps
+
+A few things Navvy doesn't do yet — useful to know before you plan a task around them:
+
+- **No file uploads.** Navvy can't pick a file for an `<input type="file">`.
+- **No standalone hover.** Hover only happens as part of a click; there's no separate "hover over
+  this" action.
+- **Some rich-text editors.** Code editors like Monaco, CodeMirror, and Draft.js aren't supported for
+  typing. Ordinary inputs, textareas, and common `contenteditable` editors work fine.
+- **Exact-match masking.** [Data masking](/docs/features/data-masking) redacts values by exact text,
+  so a value the page reformats (for example, spacing a card number differently) may not be caught.
+- **One step at a time.** Navvy runs a single action per step and re-reads the page between them, so
+  throughput is bounded by model latency — reliable, but not instantaneous.
+

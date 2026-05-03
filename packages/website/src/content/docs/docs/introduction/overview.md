@@ -35,7 +35,23 @@ hand-written selectors.
 - **Bring your own model.** Navvy works with any OpenAI-compatible provider — see
   [Models & Providers](/docs/features/models).
 
+## What Navvy can do
+
+- **[Models & Providers](/docs/features/models)** — bring your own key for any OpenAI-compatible model.
+- **[Voice Mode](/docs/features/voice)** — speak your tasks and hear the answers, with a free
+  in-browser option.
+- **[Data Masking](/docs/features/data-masking)** — fill secrets into forms without sending them to
+  the model.
+- **[Teach → Skills](/docs/features/skills)** — turn a one-time narration into a reusable automation.
+- **[Multi-Tab Automation](/docs/features/multi-tab)** — let one task span and coordinate several tabs.
+- **[Vision & Images](/docs/features/vision)** — attach screenshots so a vision model can see the page.
+- **[Conversation History](/docs/features/history)** — review, re-run, and export past tasks.
+- **[Shortcuts](/docs/features/shortcuts)** — single-key cancel and push-to-talk, fully rebindable.
+- **[Automation API](/docs/reference/automation-api)** — drive Navvy from a page, an external app, or
+  an MCP client.
+
 ## Next steps
 
 - [Quick Start](/docs/introduction/quick-start) — install and run your first task.
+- [Actions & Tools](/docs/reference/actions) — everything the agent can do on a page.
 - [Architecture](/docs/internals/architecture) — a tour under the hood.
