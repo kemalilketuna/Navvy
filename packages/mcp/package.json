@@ -9,8 +9,9 @@
     "files": [
         "src/"
     ],
-    "description": "MCP server for controlling the browser via Page Agent extension",
+    "description": "MCP server for controlling the browser via the Navvy extension",
     "keywords": [
+        "navvy",
         "page-agent",
         "mcp",
         "browser-automation",
@@ -20,10 +21,10 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/alibaba/page-agent.git",
+        "url": "https://github.com/kemalilketuna/Navvy.git",
         "directory": "packages/mcp"
     },
-    "homepage": "https://alibaba.github.io/page-agent/",
+    "homepage": "https://navvy-extension.site",
     "engines": {
         "node": ">=20"
     },

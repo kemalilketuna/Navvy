@@ -1,11 +1,11 @@
 # @page-agent/mcp
 
-MCP server that lets AI agent clients (Claude Desktop, Copilot, etc.) control your browser through the [Page Agent](https://github.com/alibaba/page-agent) extension.
+MCP server that lets AI agent clients (Claude Desktop, Copilot, etc.) control your browser through the [Navvy](https://github.com/kemalilketuna/Navvy) extension.
 
 ## Prerequisites
 
 - Node.js >= 20
-- [Page Agent Extension](https://chromewebstore.google.com/detail/page-agent-ext/akldabonmimlicnjlflnapfeklbfemhj) installed in Chrome
+- [Navvy extension](https://github.com/kemalilketuna/Navvy/releases) installed in Chrome
 - An LLM API key (OpenAI-compatible)
 
 ## Installation
@@ -17,7 +17,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 ```json
 {
     "mcpServers": {
-        "page-agent": {
+        "navvy": {
             "command": "npx",
             "args": ["-y", "@page-agent/mcp"],
             "env": {
@@ -88,6 +88,6 @@ src/
 ## Dev
 
 ```bash
-npm run dev:ext
+pnpm dev:ext
 npx @modelcontextprotocol/inspector node packages/mcp/src/index.js
 ```

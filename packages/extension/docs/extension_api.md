@@ -8,11 +8,9 @@ Integrate the Navvy extension into your web app and trigger multi-page browser t
 
 Primary channel:
 
-- Chrome Web Store: https://chromewebstore.google.com/detail/page-agent-ext/akldabonmimlicnjlflnapfeklbfemhj
+- GitHub Releases: https://github.com/kemalilketuna/Navvy/releases
 
-Latest updates are often published earlier on:
-
-- GitHub Releases: https://github.com/alibaba/page-agent/releases
+The Chrome Web Store listing will be linked here once published.
 
 ### 2. Install type definitions (recommended)
 
