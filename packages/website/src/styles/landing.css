@@ -1,0 +1,91 @@
+/* Landing page — standalone Tailwind v4 context (not Starlight). */
+@import 'tailwindcss';
+
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
+
+@theme {
+	--font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+	--font-mono: 'Geist Mono Variable', ui-monospace, 'SFMono-Regular', monospace;
+
+	--color-cream: #faf6ee;
+	--color-cream-100: #f3eee2;
+	--color-cream-200: #e9e1d0;
+	--color-ink: #1c1814;
+	--color-ink-muted: #5c554f;
+	--color-amber: #d9821a;
+	--color-amber-bright: #e89a30;
+	--color-amber-deep: #985012;
+}
+
+:root {
+	color-scheme: light;
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+body {
+	background-color: var(--color-cream);
+	color: var(--color-ink);
+	font-family: var(--font-sans);
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+}
+
+/* The signature motif: an element the agent has "indexed" on a page. */
+.annot {
+	position: relative;
+	border: 1px dashed color-mix(in oklab, var(--color-amber) 60%, transparent);
+	border-radius: 0.5rem;
+}
+.annot::before {
+	content: attr(data-idx);
+	position: absolute;
+	top: -0.65rem;
+	left: -0.65rem;
+	display: grid;
+	place-items: center;
+	min-width: 1.3rem;
+	height: 1.3rem;
+	padding: 0 0.3rem;
+	font-family: var(--font-mono);
+	font-size: 0.7rem;
+	font-weight: 600;
+	color: var(--color-cream);
+	background: var(--color-amber);
+	border-radius: 0.4rem;
+	box-shadow: 0 1px 2px rgb(0 0 0 / 0.18);
+}
+
+/* Caret blink for the command/typing accents. */
+@keyframes caret {
+	0%,
+	49% {
+		opacity: 1;
+	}
+	50%,
+	100% {
+		opacity: 0;
+	}
+}
+.caret::after {
+	content: '';
+	display: inline-block;
+	width: 0.5ch;
+	height: 1.05em;
+	margin-left: 0.15ch;
+	transform: translateY(0.15em);
+	background: var(--color-amber);
+	animation: caret 1.1s step-end infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+	.caret::after {
+		animation: none;
+	}
+}
