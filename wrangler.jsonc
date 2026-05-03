@@ -1,0 +1,13 @@
+{
+	// Deploys the Navvy website (Astro static build) via Workers Static Assets.
+	// `wrangler deploy` runs from the repo root, so the assets path is the
+	// monorepo-relative build output. No Worker script — assets only.
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "navvy",
+	"compatibility_date": "2026-06-03",
+	"assets": {
+		"directory": "./packages/website/dist/",
+		"not_found_handling": "404-page",
+		"html_handling": "auto-trailing-slash"
+	}
+}
