@@ -5,6 +5,12 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "navvy",
 	"compatibility_date": "2026-06-03",
+	// Pin both URL features on so they never get silently disabled by a
+	// wrangler version default change. `workers_dev` keeps the stable
+	// navvy.<subdomain>.workers.dev URL alive (always serves the latest
+	// deploy); `preview_urls` keeps per-version preview URLs enabled.
+	"workers_dev": true,
+	"preview_urls": true,
 	// Serve the site on both the apex and www. `custom_domain: true` provisions
 	// the DNS record and TLS cert on deploy; no manual dashboard changes needed.
 	"routes": [
